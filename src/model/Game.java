@@ -8,6 +8,8 @@ public class Game {
     private int turnIndex;
     private int cardsPerHand;
 
+    private Card currentCard;
+
     //--------------------------GETTERS--------------------------
 
     public ArrayList<Player> getPlayers() {
@@ -26,8 +28,10 @@ public class Game {
         return cardsPerHand;
     }
 
-
-    //--------------------------SETTERS--------------------------
+    public Card getCurrentCard() {
+        return currentCard;
+    }
+//--------------------------SETTERS--------------------------
 
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
@@ -43,5 +47,9 @@ public class Game {
 
     public void setCardsPerHand(int cardsPerHand) {
         this.cardsPerHand = cardsPerHand;
+    }
+
+    public void setCurrentCard(Card currentCard) {
+        this.currentCard = currentCard;
     }
 }
