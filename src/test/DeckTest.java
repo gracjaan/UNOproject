@@ -3,10 +3,13 @@ package test;
 import controller.GameLogic;
 import model.Card;
 import model.Deck;
+import model.Game;
+import model.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -20,10 +23,18 @@ public class DeckTest {
     // test values
     private Deck deck;
     private Card card;
+    private GameLogic game;
+    ArrayList<Player> players;
 
     @BeforeEach
     public void setUp() {
         deck = new Deck();
+        game = new GameLogic();
+        players = new ArrayList<>();
+        players.add(new Player("kd7"));
+        players.add(new Player("jjredick"));
+        players.add(new Player("The Brow"));
+        game.setPlayers(players);
     }
     @Test
     public void checkSomeCards() {
@@ -43,16 +54,39 @@ public class DeckTest {
         this.card = deck.getCards().get(44);
         assertTrue(card.getColor()==Card.Color.WILD&&card.getValue()== Card.Value.DRAW_FOUR);
     }
+//    @Test
+//    public void testShuffleDeck () {
+//        for (Card card1: deck.getCards()) {
+//            System.out.println(card1.getColor());
+//            System.out.println(card1.getValue());
+//        }
+//        Collections.shuffle(deck.getCards());
+//        for (Card card1: deck.getCards()) {
+//            System.out.println(card1.getColor());
+//            System.out.println(card1.getValue());
+//        }
+//    }
     @Test
-    public void testShuffleDeck () {
-        for (Card card1: deck.getCards()) {
-            System.out.println(card1.getColor());
-            System.out.println(card1.getValue());
-        }
-        Collections.shuffle(deck.getCards());
-        for (Card card1: deck.getCards()) {
-            System.out.println(card1.getColor());
-            System.out.println(card1.getValue());
+    public void testDeckAfterDistributing() {
+        game.shuffleDeck();
+        game.distributeHands();
+        assertEquals(27, game.getDeck().getCards().size());
+    }
+    @Test
+    public void testPlayerHands() {
+        game.shuffleDeck();
+        game.distributeHands();
+        assertEquals(7, this.players.get(0).getHand().size());
+        assertEquals(7, this.players.get(1).getHand().size());
+        assertEquals(7, this.players.get(2).getHand().size());
+    }
+    @Test
+    public void printPlayerHands() {
+        game.shuffleDeck();
+        game.distributeHands();
+        for (int i=0;i<this.players.get(0).getHand().size();i++) {
+            System.out.println(this.players.get(0).getHand().get(i).getColor());
+            System.out.println(this.players.get(0).getHand().get(i).getValue());
         }
     }
 }

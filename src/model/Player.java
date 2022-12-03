@@ -1,8 +1,18 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Player {
     private String nickname;
-    private Hand hand;
+    private ArrayList<Card> hand;
+    public Player (String nickname) {
+        this.nickname = nickname;
+    }
+    public Player(String nickname, ArrayList<Card> hand) {
+        this.nickname = nickname;
+        this.hand = hand;
+    }
+
 
     //--------------------------GETTERS--------------------------
 
@@ -10,7 +20,7 @@ public class Player {
         return nickname;
     }
 
-    public Hand getHand() {
+    public ArrayList<Card> getHand() {
         return hand;
     }
 
@@ -20,7 +30,7 @@ public class Player {
         this.nickname = nickname;
     }
 
-    public void setHand(Hand hand) {
+    public void setHand(ArrayList<Card> hand) {
         this.hand = hand;
     }
 }
