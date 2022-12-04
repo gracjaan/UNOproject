@@ -1,12 +1,15 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
 public class Deck {
 
-    //should be an array with fixed amount of cards - how many of each? Nested for loop through values and colors to initialize? - Constructor
-    private ArrayList<Card> cards;
+    // Do we need an arraylist storing all existing cards?
+    private ArrayList<Card> playingCards;
+    private ArrayList<Card> usedCards;
     public Deck() {
-        this.cards = new ArrayList<>();
+        this.playingCards = new ArrayList<>();
         // add everything except wild cards
         for (Card.Color color: Card.Color.values()) {
             if (color == Card.Color.WILD) {
@@ -18,7 +21,7 @@ public class Deck {
                 }
                 else {
                     Card card = new Card(color, value);
-                    this.cards.add(card);
+                    this.playingCards.add(card);
                 }
             }
             }
@@ -26,19 +29,43 @@ public class Deck {
         for (int i=0;i<2;i++) {
             // how many wild cards? - default: 2
                 Card card1 = new Card(Card.Color.WILD, Card.Value.DRAW_FOUR);
-                this.cards.add(card1);
+                this.playingCards.add(card1);
                 Card card2 = new Card(Card.Color.WILD, Card.Value.PICK_COLOR);
-                this.cards.add(card2);
+                this.playingCards.add(card2);
         }
+        Collections.shuffle(playingCards);
+    }
+    //--------------------------METHODS--------------------------
+    public Card draw() {
+        Card top = this.playingCards.get(this.playingCards.size()-1);
+        this.playingCards.remove(top);
+       // this.usedCards.add(top); ------ shouldnt we add them only to usedCards once they have been played by the player?
+        return top;
     }
 
-
+    //called when we run out of cards to play with
+    public ArrayList<Card> reShuffle() {
+        ArrayList<Card> tempArr = this.usedCards;
+        this.playingCards = tempArr;
+        this.usedCards = playingCards;
+        Collections.shuffle(playingCards);
+        return playingCards;
+    }
     //--------------------------GETTERS--------------------------
-    public ArrayList<Card> getCards() {
-        return cards;
+    public ArrayList<Card> getPlayingCards() {
+        return playingCards;
     }
+
+    public ArrayList<Card> getUsedCards() {
+        return usedCards;
+    }
+
     //--------------------------SETTERS--------------------------
-    public void setCards(ArrayList<Card> cards) {
-        this.cards = cards;
+    public void setPlayingCards(ArrayList<Card> cards) {
+        this.playingCards = cards;
+    }
+
+    public void setUsedCards(ArrayList<Card> usedCards) {
+        this.usedCards = usedCards;
     }
 }

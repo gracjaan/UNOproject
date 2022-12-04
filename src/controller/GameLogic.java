@@ -1,12 +1,10 @@
 package controller;
 
 import model.Card;
-import model.Deck;
 import model.Game;
-import model.Player;
+import model.factory.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class GameLogic extends Game{
     public GameLogic () {
@@ -21,11 +19,8 @@ public class GameLogic extends Game{
     public Game endGame(Game game) {
         return game;
     }
-    public void shuffleDeck (){
-        Collections.shuffle(super.getDeck().getCards());
-    }
     public void distributeHands() {
-        ArrayList<Card> tempDeck = super.getDeck().getCards();
+        ArrayList<Card> tempDeck = super.getDeck().getPlayingCards();
         for (Player player: super.getPlayers()) {
             ArrayList<Card> tempHand = new ArrayList<>();
             for (int i=0;i<7;i++) {
@@ -45,6 +40,7 @@ public class GameLogic extends Game{
     }
     // the color argument will be needed when implementing the pickColor functionality.
     public boolean validMove(Card cardToPlay, Card.Color color) {
+        // same values on top of each other
         if (cardToPlay.getColor()== Card.Color.WILD&&super.getCurrentCard().getColor()!= Card.Color.WILD) {
             return true;
         }
@@ -53,8 +49,13 @@ public class GameLogic extends Game{
         }
         return false;
     }
-    public void evaluateNewCard() {
-       // switch case for all wild cards
+
+    // methods should be called in following order: playCard - if validMove - evaluateNewCard - change currentCard
+    public void performWildCardAction(Card card) {
+       switch (card.getValue()) {
+           case DRAW_TWO:
+
+       }
     }
 
 

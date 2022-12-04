@@ -1,5 +1,7 @@
 package model;
 
+import model.factory.Player;
+
 import java.util.ArrayList;
 
 public class Game {

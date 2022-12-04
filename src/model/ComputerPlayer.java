@@ -1,7 +1,24 @@
 package model;
 
-public class ComputerPlayer extends Player{
+import model.factory.Player;
+
+public class ComputerPlayer extends Player {
     public ComputerPlayer(String nickname) {
         super(nickname);
+    }
+
+    @Override
+    public void playCard(Card card) {
+
+    }
+
+    @Override
+    public void draw() {
+
+    }
+
+    @Override
+    public void pickColor() {
+
     }
 }
