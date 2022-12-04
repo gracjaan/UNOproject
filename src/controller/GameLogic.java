@@ -39,12 +39,14 @@ public class GameLogic extends Game{
         }
     }
     // the color argument will be needed when implementing the pickColor functionality.
-    public boolean validMove(Card cardToPlay, Card.Color color) {
-        // same values on top of each other
-        if (cardToPlay.getColor()== Card.Color.WILD&&super.getCurrentCard().getColor()!= Card.Color.WILD) {
+    public boolean validMove(Card cardToPlay) {
+        if (cardToPlay.getColor()== Card.Color.WILD&&super.getCurrentCard().getColor()== Card.Color.WILD) {
+            return false;
+        }
+        if (super.getCurrentCard().getColor()==cardToPlay.getColor()) {
             return true;
         }
-        if (color==cardToPlay.getColor()) {
+        if (super.getCurrentCard().getValue()==cardToPlay.getValue()) {
             return true;
         }
         return false;
@@ -54,7 +56,15 @@ public class GameLogic extends Game{
     public void performWildCardAction(Card card) {
        switch (card.getValue()) {
            case DRAW_TWO:
-
+               // call draw functions of next player two times
+           case DRAW_FOUR:
+               // call draw function four times
+           case SKIP:
+               // call nextTurn twice
+           case PICK_COLOR:
+               // call player.pickColor()
+           case CHANGE_DIRECTION:
+               // change directions (Table)
        }
     }
 

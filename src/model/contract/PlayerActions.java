@@ -8,7 +8,7 @@ public interface PlayerActions {
 
     void draw();
 
-    void pickColor();
+    Card.Color pickColor();
 
 
 

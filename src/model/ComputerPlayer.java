@@ -18,7 +18,7 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public void pickColor() {
-
+    public Card.Color pickColor() {
+        return Card.Color.YELLOW;
     }
 }

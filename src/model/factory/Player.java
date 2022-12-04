@@ -1,6 +1,7 @@
 package model.factory;
 
 import model.Card;
+import model.Game;
 import model.contract.PlayerActions;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 public abstract class Player implements PlayerActions {
     private String nickname;
     private ArrayList<Card> hand;
+    private Game game;
     public Player (String nickname) {
         this.nickname = nickname;
     }
@@ -16,7 +18,6 @@ public abstract class Player implements PlayerActions {
         this.nickname = nickname;
         this.hand = hand;
     }
-
 
     //--------------------------GETTERS--------------------------
 
@@ -28,6 +29,9 @@ public abstract class Player implements PlayerActions {
         return hand;
     }
 
+    public Game getGame() {
+        return game;
+    }
     //--------------------------SETTERS--------------------------
 
     public void setNickname(String nickname) {
@@ -36,5 +40,9 @@ public abstract class Player implements PlayerActions {
 
     public void setHand(ArrayList<Card> hand) {
         this.hand = hand;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }

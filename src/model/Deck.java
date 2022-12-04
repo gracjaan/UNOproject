@@ -11,6 +11,8 @@ public class Deck {
     public Deck() {
         this.playingCards = new ArrayList<>();
         // add everything except wild cards
+
+        // add and modify Change directions
         for (Card.Color color: Card.Color.values()) {
             if (color == Card.Color.WILD) {
                 break;
@@ -26,7 +28,7 @@ public class Deck {
             }
             }
         // add wild cards
-        for (int i=0;i<2;i++) {
+        for (int i=0;i<4;i++) {
             // how many wild cards? - default: 2
                 Card card1 = new Card(Card.Color.WILD, Card.Value.DRAW_FOUR);
                 this.playingCards.add(card1);
@@ -51,6 +53,7 @@ public class Deck {
         Collections.shuffle(playingCards);
         return playingCards;
     }
+
     //--------------------------GETTERS--------------------------
     public ArrayList<Card> getPlayingCards() {
         return playingCards;

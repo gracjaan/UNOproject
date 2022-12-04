@@ -10,16 +10,18 @@ public class HumanPlayer extends Player {
 
     @Override
     public void playCard(Card card) {
-
+        // check for valid in gameLogic?
+        this.getHand().remove(card);
     }
 
     @Override
     public void draw() {
-
+        // Deck.draw
     }
 
     @Override
-    public void pickColor() {
-
+    public Card.Color pickColor() {
+        // reference to TUI listen()
+        return Card.Color.GREEN;
     }
 }
