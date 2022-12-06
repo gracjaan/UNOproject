@@ -12,6 +12,7 @@ public class HumanPlayer extends Player {
     public void playCard(Card card) {
         // check for valid in gameLogic?
         this.getHand().remove(card);
+        this.getGame().getDeck().getUsedCards().add(card);
     }
 
     @Override

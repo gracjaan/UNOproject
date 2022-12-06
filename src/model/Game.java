@@ -12,8 +12,13 @@ public class Game {
     private Card currentCard;
     private Deck deck;
 
-    public Game() {
+    public Game(ArrayList<Player> players) {
         deck = new Deck();
+        this.players = players;
+        for (Player p: players) {
+            p.setGame(this);
+        }
+        //set game reference to this in every player of players
     }
 
     //--------------------------GETTERS--------------------------

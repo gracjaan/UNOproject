@@ -39,7 +39,7 @@ public class Deck {
     }
     //--------------------------METHODS--------------------------
     public Card draw() {
-        Card top = this.playingCards.get(this.playingCards.size()-1);
+        Card top = this.playingCards.get(0);
         this.playingCards.remove(top);
        // this.usedCards.add(top); ------ shouldnt we add them only to usedCards once they have been played by the player?
         return top;

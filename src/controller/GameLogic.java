@@ -8,8 +8,9 @@ import java.util.ArrayList;
 
 public class GameLogic extends Game{
     public GameLogic () {
-        super();
+      super(new ArrayList<>());
     }
+
 
     public Game startGame(Game game) {
         return game;
@@ -27,6 +28,7 @@ public class GameLogic extends Game{
                 tempHand.add(tempDeck.get(0));
                 tempDeck.remove(0);
             }
+            // remove em from playing cards
         player.setHand(tempHand);
         }
     }
@@ -38,7 +40,9 @@ public class GameLogic extends Game{
             super.setTurnIndex(0);
         }
     }
-    // the color argument will be needed when implementing the pickColor functionality.
+
+
+    // add color as argument to deal with wild card pick color
     public boolean validMove(Card cardToPlay) {
         if (cardToPlay.getColor()== Card.Color.WILD&&super.getCurrentCard().getColor()== Card.Color.WILD) {
             return false;
@@ -58,7 +62,7 @@ public class GameLogic extends Game{
            case DRAW_TWO:
                // call draw functions of next player two times
            case DRAW_FOUR:
-               // call draw function four times
+               // call draw function four times + pick Color next Player
            case SKIP:
                // call nextTurn twice
            case PICK_COLOR:

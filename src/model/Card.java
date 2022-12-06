@@ -7,7 +7,7 @@ public class Card {
         BLUE, GREEN, YELLOW, RED, WILD
     }
     public enum Value {
-        TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, DRAW_TWO, SKIP, DRAW_FOUR, PICK_COLOR, CHANGE_DIRECTION
+        TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, DRAW_TWO, SKIP, CHANGE_DIRECTION, DRAW_FOUR, PICK_COLOR
     }
     public Card (Card.Color color, Card.Value value) {
         this.color = color;
@@ -15,8 +15,6 @@ public class Card {
     }
 
     //--------------------------GETTERS--------------------------
-
-
     public Color getColor() {
         return color;
     }
