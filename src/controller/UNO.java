@@ -42,6 +42,7 @@ public class UNO {
             }else {
                 table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(ind)));
             }
+            System.out.println("next move");
             table.nextTurn();
         }
     }

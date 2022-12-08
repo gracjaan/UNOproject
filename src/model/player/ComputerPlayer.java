@@ -2,7 +2,6 @@ package model.player;
 
 import model.card.Card;
 import model.player.factory.Player;
-import model.table.Table;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +23,8 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public Card.Color pickColor() {
-        return null;
+    public void pickColor() {
+
     }
 
     public ArrayList<Card> getValidMoves() {

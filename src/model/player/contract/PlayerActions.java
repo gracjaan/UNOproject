@@ -7,5 +7,5 @@ public interface PlayerActions {
 
     void draw(int amount);
 
-    Card.Color pickColor(); //needs to call determineColor in UNO!
+    void pickColor(); //needs to call determineColor in UNO!
 }

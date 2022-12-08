@@ -16,32 +16,42 @@ public class Normal extends PlayingMode {
         switch (card.getValue()) {
             case DRAW_TWO:
                 player.draw(2);
+                break;
             case DRAW_FOUR:
                 player.draw(4);
+                break;
             case SKIP:
                 player.getTable().skip();
+                break;
             case PICK_COLOR:
-                // call player.pickColor()
+                player.pickColor();
+                break;
             case CHANGE_DIRECTION:
                 player.getTable().reversePlayers();
+                break;
         }
     }
 
 
     // if you pick a color, give it null as a value.
     @Override
-    public boolean validMove(Card cardToPlay, Card.Color color, Card.Value value) {
-        if (cardToPlay.getColor()== Card.Color.WILD&&color==Card.Color.WILD) {
-            return false;
-        }
-        else if (cardToPlay.getColor()==Card.Color.WILD){
-            return true;
-        }
-        if (color==cardToPlay.getColor()) {
-            return true;
-        }
-        if (value==cardToPlay.getValue()) {
-            return true;
+    public boolean validMove(Card cardToPlay, Card.Color color, Card.Value value, Card.Color indicatedColor) {
+        if(indicatedColor==null) {
+            if (cardToPlay.getColor() == Card.Color.WILD && color == Card.Color.WILD) {
+                return false;
+            } else if (cardToPlay.getColor() == Card.Color.WILD) {
+                return true;
+            }
+            if (color == cardToPlay.getColor()) {
+                return true;
+            }
+            if (value == cardToPlay.getValue()) {
+                return true;
+            }
+        }else {
+            if (indicatedColor == cardToPlay.getColor()) {
+                return true;
+            }
         }
         return false;
     }

@@ -14,6 +14,7 @@ public class Table {
     private int currentTurnIndex;
     private PlayingMode playingMode;
     private Card currentCard;
+    private Card.Color indicatedColor;
 
     public Table(ArrayList<Player> players, PlayingMode playingMode) {
         this.players = players;
@@ -48,6 +49,9 @@ public class Table {
         if (this.deck.getPlayingCards().size()==4) {
             this.deck.reShuffle();
         }
+        if (currentCard.getValue()!=Card.Value.PICK_COLOR&&indicatedColor!=null) {
+            indicatedColor = null;
+        }
     }
 
     public void skip() {
@@ -80,6 +84,9 @@ public class Table {
         return currentCard;
     }
 
+    public Card.Color getIndicatedColor() {
+        return indicatedColor;
+    }
     //--------------------------SETTERS--------------------------
 
 
@@ -97,5 +104,9 @@ public class Table {
 
     public void setCurrentCard(Card currentCard) {
         this.currentCard = currentCard;
+    }
+
+    public void setIndicatedColor(Card.Color indicatedColor) {
+        this.indicatedColor = indicatedColor;
     }
 }
