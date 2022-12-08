@@ -20,11 +20,11 @@ public class TUI implements UI {
         System.out.println(s);
     }
 
-
     @Override
     public void printCurrentCard(Card card) {
         System.out.println(card.toString());
     }
+
 
     @Override
     public void printWinners() {

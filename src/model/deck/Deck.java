@@ -10,6 +10,7 @@ public class Deck {
     private ArrayList<Card> usedCards;
     public Deck() {
         this.playingCards = new ArrayList<>();
+        this.usedCards = new ArrayList<>();
         // add everything except wild cards
         for (Card.Color color: Card.Color.values()) {
             if (color == Card.Color.WILD) {
@@ -33,7 +34,9 @@ public class Deck {
             Card card2 = new Card(Card.Color.WILD, Card.Value.PICK_COLOR);
             this.playingCards.add(card2);
         }
-        Collections.shuffle(playingCards);
+        for (int i=0;i<3;i++) {
+            Collections.shuffle(playingCards);
+        }
     }
     //--------------------------METHODS--------------------------
 //    public Card draw() {

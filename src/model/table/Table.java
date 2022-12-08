@@ -44,6 +44,10 @@ public class Table {
         else {
             currentTurnIndex = 0;
         }
+        // when do we actually need to reshuffle()
+        if (this.deck.getPlayingCards().size()==4) {
+            this.deck.reShuffle();
+        }
     }
 
     public void skip() {
@@ -58,6 +62,10 @@ public class Table {
 
     public Deck getDeck() {
         return deck;
+    }
+
+    public int getCurrentTurnIndex() {
+        return currentTurnIndex;
     }
 
     public Player getCurrentPlayer() {

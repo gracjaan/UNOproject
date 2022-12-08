@@ -31,8 +31,11 @@ public class Normal extends PlayingMode {
     // if you pick a color, give it null as a value.
     @Override
     public boolean validMove(Card cardToPlay, Card.Color color, Card.Value value) {
-        if (cardToPlay.getColor()== Card.Color.WILD&&color== Card.Color.WILD) {
+        if (cardToPlay.getColor()== Card.Color.WILD&&color==Card.Color.WILD) {
             return false;
+        }
+        else if (cardToPlay.getColor()==Card.Color.WILD){
+            return true;
         }
         if (color==cardToPlay.getColor()) {
             return true;

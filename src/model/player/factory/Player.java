@@ -12,9 +12,8 @@ public abstract class Player implements PlayerActions {
     private ArrayList<Card> hand;
     private UNO UNO;
     private Table table;
-    public Player (String nickname, Table table) {
+    public Player (String nickname) {
         this.nickname = nickname;
-        this.table = table;
     }
 
     //--------------------------GETTERS--------------------------

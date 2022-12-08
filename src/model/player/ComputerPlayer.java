@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ComputerPlayer extends Player {
-    public ComputerPlayer(String nickname, Table table) {
-        super(nickname, table);
+    public ComputerPlayer(String nickname) {
+        super(nickname);
     }
 
     @Override
