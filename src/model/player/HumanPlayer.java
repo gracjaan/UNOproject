@@ -17,18 +17,18 @@ public class HumanPlayer extends Player {
             super.getHand().remove(card);
             super.getTable().setCurrentCard(card);
             super.getTable().getDeck().getUsedCards().add(card);
-            if (card.getValue()==Card.Value.PICK_COLOR) {
-                super.getTable().getPlayingMode().performWildCardAction(card, this);
-            }else {
-                Player nextPlayer;
-                if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
-                    nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
-                }
-                else {
-                    nextPlayer = super.getTable().getPlayers().get(0);
-                }
-                super.getTable().getPlayingMode().performWildCardAction(card, nextPlayer);
+            Player nextPlayer;
+            if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
+                nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
             }
+            else {
+                nextPlayer = super.getTable().getPlayers().get(0);
+            }
+            super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+
+
+
+
         }
         else {
             System.out.println("Invalid Move! Please try again.");

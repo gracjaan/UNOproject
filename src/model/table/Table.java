@@ -29,7 +29,7 @@ public class Table {
     //--------------------------METHODS--------------------------
     public void reversePlayers() {
         ArrayList<Player> tempArr = new ArrayList<>();
-        for (int i=currentTurnIndex; i>=0;i--) {
+        for (int i=currentTurnIndex-1; i>=0;i--) {
             tempArr.add(players.get(i));
         }
         for (int i=players.size()-1;i>=currentTurnIndex;i--) {

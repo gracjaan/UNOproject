@@ -12,13 +12,14 @@ public class Normal extends PlayingMode {
 
     // give it the player you want the action to be performed by if Pick color that is the current player, otherwise the next.
     @Override
-    public void performWildCardAction(Card card, Player player) {
+    public void performWildCardAction(Card card, Player player, Player nextPlayer) {
         switch (card.getValue()) {
             case DRAW_TWO:
-                player.draw(2);
+                nextPlayer.draw(2);
                 break;
             case DRAW_FOUR:
-                player.draw(4);
+                nextPlayer.draw(4);
+                player.pickColor();
                 break;
             case SKIP:
                 player.getTable().skip();
