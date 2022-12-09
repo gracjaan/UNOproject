@@ -7,10 +7,11 @@ import model.player.factory.Player;
 import java.util.ArrayList;
 
 public interface Mode {
+
+    //-----------------------------INITIALIZERS---------------------------------------
+
     void performWildCardAction(Card card, Player player, Player nextPlayer);
-
     boolean validMove(Card cardToPlay, Card.Color color, Card.Value value, Card.Color indicatedColor);
-
     void distributeHands(ArrayList<Player> players, Deck deck);
 
 

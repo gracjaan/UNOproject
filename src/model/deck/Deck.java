@@ -4,53 +4,83 @@ import model.card.Card;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 
 public class Deck {
     private ArrayList<Card> playingCards;
     private ArrayList<Card> usedCards;
+    private ArrayList<Card> allCards;
+
+    //--------------------------CONSTRUCTOR--------------------------
+
     public Deck() {
         this.playingCards = new ArrayList<>();
         this.usedCards = new ArrayList<>();
-        // add everything except wild cards
-        for (Card.Color color: Card.Color.values()) {
-            if (color == Card.Color.WILD) {
-                break;
-            }
-            for (Card.Value value: Card.Value.values()) {
-                if (value==Card.Value.DRAW_FOUR) {
-                    break;
-                }
-                else {
-                    Card card = new Card(color, value);
-                    this.playingCards.add(card);
-                }
-            }
-        }
-        // add wild cards
-        for (int i=0;i<4;i++) {
-            // how many wild cards? - default: 2
-            Card card1 = new Card(Card.Color.WILD, Card.Value.DRAW_FOUR);
-            this.playingCards.add(card1);
-            Card card2 = new Card(Card.Color.WILD, Card.Value.PICK_COLOR);
-            this.playingCards.add(card2);
-        }
-        for (int i=0;i<3;i++) {
-            Collections.shuffle(playingCards);
-        }
-        // can be improved by mr gracjan who is a genius (set extraction)
-        while ((playingCards.get(0).getColor()==Card.Color.WILD||playingCards.get(0).getValue()==Card.Value.CHANGE_DIRECTION||playingCards.get(0).getValue()==Card.Value.SKIP||playingCards.get(0).getValue()==Card.Value.DRAW_TWO)) {
+        generateCards();
+    }
+
+    //--------------------------METHODS--------------------------
+
+    /**
+     * Wrapper method which performs relevant tasks
+     * */
+    public void generateCards(){
+        generateNumericalCards();
+        generateZeroCards();
+        generateWildCards();
+        shuffleFirstDeck();
+    }
+
+    /**
+     * Method shuffles the first deck until it's valid
+     * */
+    public void shuffleFirstDeck(){
+        EnumSet<Card.Color> colorsSet = EnumSet.of(Card.Color.WILD);
+        EnumSet<Card.Value> valueSet = EnumSet.of(Card.Value.SKIP, Card.Value.DRAW_TWO, Card.Value.CHANGE_DIRECTION);
+        Collections.shuffle(playingCards);
+        while (colorsSet.contains(playingCards.get(0).getColor()) || valueSet.contains(playingCards.get(0).getValue())){
             Collections.shuffle(playingCards);
         }
     }
-    //--------------------------METHODS--------------------------
-//    public Card draw() {
-//        Card top = this.playingCards.get(0);
-//        this.playingCards.remove(top);
-//        // this.usedCards.add(top); ------ shouldnt we add them only to usedCards once they have been played by the player?
-//        return top;
-//    }
 
-    //called when we run out of cards to play with
+    /**
+     * Generates numerical cards
+     * */
+    public void generateNumericalCards(){
+        EnumSet<Card.Color> colorsSet = EnumSet.of(Card.Color.WILD);
+        EnumSet<Card.Value> valueSet = EnumSet.of(Card.Value.DRAW_FOUR, Card.Value.PICK_COLOR, Card.Value.ZERO);
+        for (int i = 0; i<2; i++){
+            for (Card.Color color: EnumSet.complementOf(colorsSet)){
+                for (Card.Value value: EnumSet.complementOf(valueSet)){
+                    playingCards.add(new Card(color, value));
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates zero cards, since there are only 4 of them
+     * */
+    public void generateZeroCards(){
+        playingCards.add(new Card(Card.Color.BLUE, Card.Value.ZERO));
+        playingCards.add(new Card(Card.Color.RED, Card.Value.ZERO));
+        playingCards.add(new Card(Card.Color.YELLOW, Card.Value.ZERO));
+        playingCards.add(new Card(Card.Color.GREEN, Card.Value.ZERO));
+    }
+
+    /**
+     * Generates wild cards
+     * */
+    public void generateWildCards(){
+        for (int i = 0; i<4; i++){
+            playingCards.add(new Card(Card.Color.WILD, Card.Value.DRAW_FOUR));
+            playingCards.add(new Card(Card.Color.WILD, Card.Value.PICK_COLOR));
+        }
+    }
+
+    /**
+     * Shuffles all used cards and puts it into playing cards
+     * */
     public ArrayList<Card> reShuffle() {
         ArrayList<Card> tempArr = this.usedCards;
         this.playingCards = tempArr;
@@ -60,6 +90,7 @@ public class Deck {
     }
 
     //--------------------------GETTERS--------------------------
+
     public ArrayList<Card> getPlayingCards() {
         return playingCards;
     }
@@ -69,6 +100,7 @@ public class Deck {
     }
 
     //--------------------------SETTERS--------------------------
+
     public void setPlayingCards(ArrayList<Card> cards) {
         this.playingCards = cards;
     }

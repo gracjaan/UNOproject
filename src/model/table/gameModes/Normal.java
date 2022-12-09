@@ -10,7 +10,9 @@ import java.util.ArrayList;
 
 public class Normal extends PlayingMode {
 
-    // give it the player you want the action to be performed by if Pick color that is the current player, otherwise the next.
+    /**
+     * Give it the player you want the action to be performed by if Pick color that is the current player, otherwise the next.
+     * */
     @Override
     public void performWildCardAction(Card card, Player player, Player nextPlayer) {
         switch (card.getValue()) {
@@ -19,7 +21,7 @@ public class Normal extends PlayingMode {
                 break;
             case DRAW_FOUR:
                 player.pickColor();
-                //nextPlayer.draw(4);
+                nextPlayer.draw(4);
                 break;
             case SKIP:
                 player.getTable().skip();
@@ -34,7 +36,14 @@ public class Normal extends PlayingMode {
     }
 
 
-    // if you pick a color, give it null as a value.
+    /**
+     * @param cardToPlay card to be played
+     * @param color color of a card on the table
+     * @param value value of the card o the table
+     * @param indicatedColor color indicated by last player
+     * @ensures that move is valid
+     * @return true if move is valid, otherwise false
+     * */
     @Override
     public boolean validMove(Card cardToPlay, Card.Color color, Card.Value value, Card.Color indicatedColor) {
         if(indicatedColor==null) {
@@ -57,6 +66,11 @@ public class Normal extends PlayingMode {
         return false;
     }
 
+    /**
+     * @param players receives all players
+     * @param deck receives deck
+     * Distributes hands
+     * */
     @Override
     public void distributeHands(ArrayList<Player> players, Deck deck) {
         ArrayList<Card> tempDeck = deck.getPlayingCards();

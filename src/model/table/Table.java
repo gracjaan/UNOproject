@@ -26,10 +26,15 @@ public class Table {
         this.indicatedColor = null;
         this.playingMode.distributeHands(this.players, this.deck);
     }
+
+
     //--------------------------METHODS--------------------------
+
+    /**
+     * Reverses order of a players if there is more than 2 players, otherwise acts like a skip
+     * */
     public void reversePlayers() {
         if (this.players.size()==2) {
-            System.out.println("here");
             nextTurn();
         }
         else {
@@ -45,6 +50,9 @@ public class Table {
         }
     }
 
+    /**
+     * Determines next turn
+     * */
     public void nextTurn() {
         if (currentTurnIndex<players.size()-1) {
             currentTurnIndex++;
@@ -52,12 +60,16 @@ public class Table {
         else {
             currentTurnIndex = 0;
         }
-        // when do we actually need to reshuffle()
-        if (this.deck.getPlayingCards().size()==4) {
-            this.deck.reShuffle();
-        }
-        if ((currentCard.getValue()!=Card.Value.PICK_COLOR&&currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
-            indicatedColor = null;
+        manageIndicatedColor();
+    }
+
+    /**
+     * @require indicvatedcolor!= null and currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR
+     * Sets indicatedcolor to null
+     * */
+    public void manageIndicatedColor(){
+        if ((currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
+            this.indicatedColor = null;
         }
     }
 
@@ -98,8 +110,9 @@ public class Table {
     public ArrayList<Player> getScoreBoard() {
         return this.scoreBoard;
     }
-    //--------------------------SETTERS--------------------------
 
+
+    //--------------------------SETTERS--------------------------
 
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
@@ -124,4 +137,5 @@ public class Table {
     public void setScoreBoard(ArrayList<Player> scoreBoard) {
         this.scoreBoard = scoreBoard;
     }
+
 }

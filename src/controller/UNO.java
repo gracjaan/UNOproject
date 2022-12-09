@@ -5,18 +5,16 @@ import model.player.factory.Player;
 import model.table.Table;
 import model.table.gameModes.Normal;
 import view.TUI;
-import view.UI;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UNO {
     private TUI tui = new TUI();
-    Scanner scanner = new Scanner(System.in);
+    private ArrayList<Player> players;
     private Table table;
 
-    private ArrayList<Player> players;
-
+    Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         UNO uno = new UNO();
@@ -24,17 +22,20 @@ public class UNO {
         uno.play();
     }
 
+    /**
+     * Starts the game asking user for basic input to set up a game
+     * */
     public void start() {
-        System.out.println("Please enter how many players you would like to play with");
+        System.out.print(">> Please enter number of players: ");
         int playersAmount = scanner.nextInt();
         players = new ArrayList<Player>();
         for (int i=0; i<playersAmount;i++) {
-            System.out.println("Enter name of Player " + (i+1));
+            System.out.print(">> Enter name of Player " + (i+1) + ": ");
             String name = scanner.next();
             players.add(new HumanPlayer(name) {
             });
         }
-        System.out.println("What mode would you like to play in?");
+        System.out.print(">> Please enter mode: ");
         String playingMode = scanner.next();
         //switch case statement for different playing modes
         table = new Table(players, new Normal());
@@ -42,31 +43,62 @@ public class UNO {
             player.setTable(table);
         }
     }
+
+    /**
+     * Plays a game until not finished
+     * */
     public void play() {
-        while(!this.gameOver()) {
-            evaluateMove();
-            String ind = scanner.next();
-            if (ind.equals("draw")) {
-                table.getCurrentPlayer().draw(1);
-            }else {
-                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(ind)), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-                  table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(ind)));
-                }else {
-                    System.out.println("Invalid Move. Please try again!");
+        boolean exit = false;
+        while(!exit){
+            while(!this.gameOver()) {
+                tablePrinter();
+                System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+                String input1 = scanner.next();
+                if (!evaluateMove(input1)){
                     continue;
                 }
+                table.nextTurn();
             }
-            table.nextTurn();
+            System.out.println(">> GAME OVER!!!");
+            System.out.println(">> Would you like to play another one (y/n): ");
+            String input2 = scanner.next();
+            if (!input2.equals("y")){
+                exit = true;
+            }
         }
     }
-    public void evaluateMove() {
+
+    /**
+     * Prints current card and player's hand
+     * */
+    public void tablePrinter() {
+        System.out.println();
+        System.out.println("========================================NEW TURN==================================================");
         tui.printCurrentCard(table.getCurrentCard());
         tui.printHand(table.getCurrentPlayer());
-        System.out.println(table.getCurrentPlayer().getNickname() + " make your move!");
     }
-    public void reset() {
 
+    /**
+     * @param input receives input given by player
+     * Handles input
+     * */
+    public boolean evaluateMove (String input){
+        if (input.equals("draw")) {
+            table.getCurrentPlayer().draw(1);
+        }else {
+            if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
+            }else {
+                System.out.println("Invalid Move. Please try again!");
+                return false;
+            }
+        }
+        return true;
     }
+
+    /**
+     * Changes state of game to gamover when there is last player with cards
+     * */
     public boolean gameOver() {
         if (table.getPlayers().size()<=1) {
             int position = 0;

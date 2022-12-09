@@ -15,8 +15,9 @@ public class TUI implements UI {
         String s = "";
         int index = 0;
         for (Card card: player.getHand()){
+            s+=index+" ";
             s+=card.toString();
-            s+=index+"      |      ";
+            s+="      |      ";
             index++;
         }
         System.out.println(s);

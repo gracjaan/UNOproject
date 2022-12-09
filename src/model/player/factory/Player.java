@@ -12,6 +12,9 @@ public abstract class Player implements PlayerActions {
     private ArrayList<Card> hand;
     private UNO UNO;
     private Table table;
+
+    //--------------------------CONSTRUCTOR--------------------------
+
     public Player (String nickname) {
         this.nickname = nickname;
     }
@@ -33,6 +36,7 @@ public abstract class Player implements PlayerActions {
     public Table getTable() {
         return table;
     }
+
     //--------------------------SETTERS--------------------------
 
     public void setNickname(String nickname) {

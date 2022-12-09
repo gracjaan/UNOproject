@@ -22,13 +22,17 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
+    public boolean checkDrawPossibility(int amount) {
+        return false;
+    }
+
+    @Override
     public void pickColor() {
 
     }
 
     @Override
     public boolean isWinner() {
-
         return false;
     }
 
@@ -39,6 +43,7 @@ public class ComputerPlayer extends Player {
     public HashMap<Integer, Card> assignScores() {
         return null;
     }
+
     public Card determineBestMove() {
         return null;
     }
