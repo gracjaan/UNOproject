@@ -38,9 +38,9 @@ public class Deck {
             Collections.shuffle(playingCards);
         }
         // can be improved by mr gracjan who is a genius (set extraction)
-//        while (!(playingCards.get(0).getColor()==Card.Color.WILD||playingCards.get(0).getValue()==Card.Value.CHANGE_DIRECTION||playingCards.get(0).getValue()==Card.Value.SKIP||playingCards.get(0).getValue()==Card.Value.DRAW_TWO)) {
-//            Collections.shuffle(playingCards);
-//        }
+        while ((playingCards.get(0).getColor()==Card.Color.WILD||playingCards.get(0).getValue()==Card.Value.CHANGE_DIRECTION||playingCards.get(0).getValue()==Card.Value.SKIP||playingCards.get(0).getValue()==Card.Value.DRAW_TWO)) {
+            Collections.shuffle(playingCards);
+        }
     }
     //--------------------------METHODS--------------------------
 //    public Card draw() {

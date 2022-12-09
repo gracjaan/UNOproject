@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Table {
     private ArrayList<Player> players;
-    private ArrayList<Player> winners;
+    private ArrayList<Player> scoreBoard;
     private Deck deck;
     private int currentTurnIndex;
     private PlayingMode playingMode;
@@ -28,6 +28,10 @@ public class Table {
     }
     //--------------------------METHODS--------------------------
     public void reversePlayers() {
+        if (this.players.size()==2) {
+            System.out.println("here");
+            nextTurn();
+        }
         ArrayList<Player> tempArr = new ArrayList<>();
         for (int i=currentTurnIndex-1; i>=0;i--) {
             tempArr.add(players.get(i));
@@ -87,6 +91,10 @@ public class Table {
     public Card.Color getIndicatedColor() {
         return indicatedColor;
     }
+
+    public ArrayList<Player> getScoreBoard() {
+        return this.scoreBoard;
+    }
     //--------------------------SETTERS--------------------------
 
 
@@ -108,5 +116,9 @@ public class Table {
 
     public void setIndicatedColor(Card.Color indicatedColor) {
         this.indicatedColor = indicatedColor;
+    }
+
+    public void setScoreBoard(ArrayList<Player> scoreBoard) {
+        this.scoreBoard = scoreBoard;
     }
 }

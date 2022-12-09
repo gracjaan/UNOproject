@@ -43,8 +43,7 @@ public class UNO {
         }
     }
     public void play() {
-        boolean exit = false;
-        while(!exit) {
+        while(!this.gameOver()) {
             evaluateMove();
             String ind = scanner.next();
             if (ind.equals("draw")) {
@@ -68,8 +67,16 @@ public class UNO {
     public void reset() {
 
     }
-    public void gameOver() {
-
+    public boolean gameOver() {
+        if (table.getPlayers().size()<=1) {
+            int position = 0;
+            for (Player player: table.getPlayers()) {
+                System.out.println(position+ ". " + player.toString());
+                position++;
+            }
+            return true;
+        }
+        return false;
     }
 
 }

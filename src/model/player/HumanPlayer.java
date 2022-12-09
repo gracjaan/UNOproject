@@ -23,6 +23,7 @@ public class HumanPlayer extends Player {
                 nextPlayer = super.getTable().getPlayers().get(0);
             }
             super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+            isWinner();
         }
 
 
@@ -60,8 +61,14 @@ public class HumanPlayer extends Player {
     @Override
     public boolean isWinner() {
         if (super.getHand().size()==0) {
-
+            super.getTable().getScoreBoard().add(this);
+            super.getTable().getPlayers().remove(this);
+            return true;
         }
         return false;
+    }
+    @Override
+    public String toString() {
+        return super.getNickname();
     }
 }

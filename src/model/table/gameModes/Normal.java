@@ -18,8 +18,8 @@ public class Normal extends PlayingMode {
                 nextPlayer.draw(2);
                 break;
             case DRAW_FOUR:
-                nextPlayer.draw(4);
                 player.pickColor();
+                //nextPlayer.draw(4);
                 break;
             case SKIP:
                 player.getTable().skip();
