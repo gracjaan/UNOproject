@@ -12,9 +12,8 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public boolean playCard(Card card) {
+    public void playCard(Card card) {
 
-        return false;
     }
 
     @Override
@@ -25,6 +24,12 @@ public class ComputerPlayer extends Player {
     @Override
     public void pickColor() {
 
+    }
+
+    @Override
+    public boolean isWinner() {
+
+        return false;
     }
 
     public ArrayList<Card> getValidMoves() {

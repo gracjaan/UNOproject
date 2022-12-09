@@ -11,9 +11,7 @@ public class HumanPlayer extends Player {
     }
 
     @Override
-    public boolean playCard(Card card) {
-        boolean valid = super.getTable().getPlayingMode().validMove(card, getTable().getCurrentCard().getColor(), getTable().getCurrentCard().getValue(), super.getTable().getIndicatedColor());
-        if (valid) {
+    public void playCard(Card card) {
             super.getHand().remove(card);
             super.getTable().setCurrentCard(card);
             super.getTable().getDeck().getUsedCards().add(card);
@@ -25,17 +23,8 @@ public class HumanPlayer extends Player {
                 nextPlayer = super.getTable().getPlayers().get(0);
             }
             super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
-
-
-
-
         }
-        else {
-            System.out.println("Invalid Move! Please try again.");
-            // ask for move with boolean in UNO
-        }
-        return valid;
-    }
+
 
     @Override
     public void draw(int amount) {
@@ -66,6 +55,13 @@ public class HumanPlayer extends Player {
             default:
                 pickColor();
         }
-//        super.getTable().nextTurn();
+    }
+
+    @Override
+    public boolean isWinner() {
+        if (super.getHand().size()==0) {
+
+        }
+        return false;
     }
 }

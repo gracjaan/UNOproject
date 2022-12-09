@@ -20,11 +20,11 @@ public class Table {
         this.players = players;
         this.playingMode = playingMode;
         this.deck = new Deck();
-        this.playingMode.distributeHands(this.players, this.deck);
         this.currentCard = this.deck.getPlayingCards().get(0);
         this.deck.getPlayingCards().remove(0);
         this.deck.getUsedCards().add(this.currentCard);
-
+        this.indicatedColor = null;
+        this.playingMode.distributeHands(this.players, this.deck);
     }
     //--------------------------METHODS--------------------------
     public void reversePlayers() {
@@ -49,7 +49,7 @@ public class Table {
         if (this.deck.getPlayingCards().size()==4) {
             this.deck.reShuffle();
         }
-        if (currentCard.getValue()!=Card.Value.PICK_COLOR&&indicatedColor!=null) {
+        if ((currentCard.getValue()!=Card.Value.PICK_COLOR&&currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
             indicatedColor = null;
         }
     }
