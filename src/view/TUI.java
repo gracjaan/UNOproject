@@ -13,9 +13,11 @@ public class TUI implements UI {
     @Override
     public void printHand(Player player) {
         String s = "";
+        int index = 0;
         for (Card card: player.getHand()){
             s+=card.toString();
-            s+="  |      ";
+            s+=index+"      |      ";
+            index++;
         }
         System.out.println(s);
     }

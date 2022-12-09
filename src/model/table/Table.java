@@ -32,14 +32,17 @@ public class Table {
             System.out.println("here");
             nextTurn();
         }
-        ArrayList<Player> tempArr = new ArrayList<>();
-        for (int i=currentTurnIndex-1; i>=0;i--) {
-            tempArr.add(players.get(i));
+        else {
+            ArrayList<Player> tempArr = new ArrayList<>();
+            for (int i = currentTurnIndex - 1; i >= 0; i--) {
+                tempArr.add(players.get(i));
+            }
+            tempArr.add(players.get(currentTurnIndex));
+            for (int i = players.size() - 1; i > currentTurnIndex; i--) {
+                tempArr.add(players.get(i));
+            }
+            players = tempArr;
         }
-        for (int i=players.size()-1;i>=currentTurnIndex;i--) {
-            tempArr.add(players.get(i));
-        }
-        players = tempArr;
     }
 
     public void nextTurn() {
