@@ -1,0 +1,141 @@
+package model.table;
+
+import model.card.Card;
+import model.deck.Deck;
+import model.player.factory.Player;
+import model.table.gameModes.factory.PlayingMode;
+
+import java.util.ArrayList;
+
+public class Table {
+    private ArrayList<Player> players;
+    private ArrayList<Player> scoreBoard;
+    private Deck deck;
+    private int currentTurnIndex;
+    private PlayingMode playingMode;
+    private Card currentCard;
+    private Card.Color indicatedColor;
+
+    public Table(ArrayList<Player> players, PlayingMode playingMode) {
+        this.players = players;
+        this.playingMode = playingMode;
+        this.deck = new Deck();
+        this.currentCard = this.deck.getPlayingCards().get(0);
+        this.deck.getPlayingCards().remove(0);
+        this.deck.getUsedCards().add(this.currentCard);
+        this.indicatedColor = null;
+        this.playingMode.distributeHands(this.players, this.deck);
+    }
+
+
+    //--------------------------METHODS--------------------------
+
+    /**
+     * Reverses order of a players if there is more than 2 players, otherwise acts like a skip
+     * */
+    public void reversePlayers() {
+        if (this.players.size()==2) {
+            nextTurn();
+        }
+        else {
+            ArrayList<Player> tempArr = new ArrayList<>();
+            for (int i = currentTurnIndex - 1; i >= 0; i--) {
+                tempArr.add(players.get(i));
+            }
+            tempArr.add(players.get(currentTurnIndex));
+            for (int i = players.size() - 1; i > currentTurnIndex; i--) {
+                tempArr.add(players.get(i));
+            }
+            players = tempArr;
+        }
+    }
+
+    /**
+     * Determines next turn
+     * */
+    public void nextTurn() {
+        if (currentTurnIndex<players.size()-1) {
+            currentTurnIndex++;
+        }
+        else {
+            currentTurnIndex = 0;
+        }
+        manageIndicatedColor();
+    }
+
+    /**
+     * @require indicvatedcolor!= null and currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR
+     * Sets indicatedcolor to null
+     * */
+    public void manageIndicatedColor(){
+        if ((currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
+            this.indicatedColor = null;
+        }
+    }
+
+    public void skip() {
+        nextTurn();
+    }
+
+    //--------------------------GETTERS--------------------------
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public int getCurrentTurnIndex() {
+        return currentTurnIndex;
+    }
+
+    public Player getCurrentPlayer() {
+        return this.players.get(currentTurnIndex);
+    }
+
+    public PlayingMode getPlayingMode() {
+        return playingMode;
+    }
+
+    public Card getCurrentCard() {
+        return currentCard;
+    }
+
+    public Card.Color getIndicatedColor() {
+        return indicatedColor;
+    }
+
+    public ArrayList<Player> getScoreBoard() {
+        return this.scoreBoard;
+    }
+
+
+    //--------------------------SETTERS--------------------------
+
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
+
+    public void setDeck(Deck deck) {
+        this.deck = deck;
+    }
+
+    public void setPlayingMode(PlayingMode playingMode) {
+        this.playingMode = playingMode;
+    }
+
+    public void setCurrentCard(Card currentCard) {
+        this.currentCard = currentCard;
+    }
+
+    public void setIndicatedColor(Card.Color indicatedColor) {
+        this.indicatedColor = indicatedColor;
+    }
+
+    public void setScoreBoard(ArrayList<Player> scoreBoard) {
+        this.scoreBoard = scoreBoard;
+    }
+
+}
