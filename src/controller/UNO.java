@@ -42,6 +42,7 @@ public class UNO {
         for (Player player: players) {
             player.setTable(table);
         }
+        System.out.println();
     }
 
     /**
