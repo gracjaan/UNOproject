@@ -7,6 +7,7 @@ import model.table.gameModes.Normal;
 import view.TUI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class UNO {
@@ -53,7 +54,7 @@ public class UNO {
         while(!exit){
             while(!this.gameOver()) {
                 tablePrinter();
-                System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+                System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
                 String input1 = scanner.next();
                 if (!evaluateMove(input1)){
                     continue;
@@ -86,10 +87,12 @@ public class UNO {
     public boolean evaluateMove (String input){
         if (input.equals("draw")) {
             table.getCurrentPlayer().draw(1);
-        }else {
+        }
+        else {
             if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
                 table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
-            }else {
+            }
+            else {
                 System.out.println("Invalid Move. Please try again!");
                 return false;
             }
