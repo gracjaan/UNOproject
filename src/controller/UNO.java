@@ -7,6 +7,7 @@ import model.table.gameModes.Normal;
 import view.TUI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class UNO {
@@ -53,8 +54,9 @@ public class UNO {
         while(!exit){
             while(!this.gameOver()) {
                 tablePrinter();
-                System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
-                String input1 = scanner.next();
+                Scanner scan = new Scanner(System.in);
+                System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+                String input1 = scan.nextLine();
                 if (!evaluateMove(input1)){
                     continue;
                 }
@@ -84,11 +86,24 @@ public class UNO {
      * Handles input
      * */
     public boolean evaluateMove (String input){
-        if (input.equals("draw")) {
+        String [] splitted = input.split(" ");
+        if (splitted[0].equals("draw")) {
             table.getCurrentPlayer().draw(1);
-        }else {
-            if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
+        }
+        else if (table.getCurrentPlayer().getHand().size() == 2) {
+            System.out.println(Arrays.toString(splitted));
+            if (splitted.length == 2 && splitted[1].equals("uno")) {
+                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
+            } else if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
+            } else {
+                System.out.println("Invalid Move. Please try again!");
+                return false;
+            }
+        }
+        else {
+            if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
             }else {
                 System.out.println("Invalid Move. Please try again!");
                 return false;
