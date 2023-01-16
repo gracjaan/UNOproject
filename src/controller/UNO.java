@@ -87,13 +87,12 @@ public class UNO {
     public boolean evaluateMove (String input){
         // a draw count to prevent somebody from drawing twice in a row?
         if (input.equals("draw")) {
-            // okay lets return false and sout("Would u now like to play?")
             table.getCurrentPlayer().draw(1);
-            // call it recursively amd create a scanner with asking for another move if he now has a valid card?
-            // could be with size-1
             if(table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size()-1),table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
                 System.out.println("Would you like to play now?");
                 return false;
+            }else {
+                System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
             }
         }
         else {
