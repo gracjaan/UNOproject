@@ -15,6 +15,7 @@ public class Table {
     private PlayingMode playingMode;
     private Card currentCard;
     private Card.Color indicatedColor;
+    private boolean drawFourPlayable;
 
     public Table(ArrayList<Player> players, PlayingMode playingMode) {
         this.players = players;
@@ -25,6 +26,8 @@ public class Table {
         this.deck.getUsedCards().add(this.currentCard);
         this.indicatedColor = null;
         this.playingMode.distributeHands(this.players, this.deck);
+        this.drawFourPlayable = true;
+        adjustToFirstCard();
     }
 
 
@@ -39,14 +42,15 @@ public class Table {
         }
         else {
             ArrayList<Player> tempArr = new ArrayList<>();
+            tempArr.add(players.get(currentTurnIndex));
             for (int i = currentTurnIndex - 1; i >= 0; i--) {
                 tempArr.add(players.get(i));
             }
-            tempArr.add(players.get(currentTurnIndex));
             for (int i = players.size() - 1; i > currentTurnIndex; i--) {
                 tempArr.add(players.get(i));
             }
             players = tempArr;
+            currentTurnIndex = 0;
         }
     }
 
@@ -60,22 +64,83 @@ public class Table {
         else {
             currentTurnIndex = 0;
         }
-        manageIndicatedColor();
+        resetIndicatedColor();
     }
 
     /**
      * @require indicvatedcolor!= null and currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR
      * Sets indicatedcolor to null
      * */
-    public void manageIndicatedColor(){
+    public void resetIndicatedColor(){
         if ((currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
             this.indicatedColor = null;
         }
     }
 
+    public void drawFourEligibility() {
+        System.out.println(this.getDeck().getUsedCards().get(this.getDeck().getUsedCards().size()-2).getColor());
+        for (Card card: this.getCurrentPlayer().getHand()) {
+            if (card.getColor().equals(this.getDeck().getUsedCards().get(this.getDeck().getUsedCards().size()-2).getColor())){
+                this.drawFourPlayable = false;
+            }
+        }
+        System.out.println(this.isDrawFourPlayable());
+    }
+
     public void skip() {
         nextTurn();
     }
+
+    /**
+     * performs wild card actions for the starting card according to uno rules .
+     */
+    private void adjustToFirstCard() {
+        if  (this.getCurrentCard().getColor()==Card.Color.WILD) {
+            // Dealer is last person in players, first player is at index 0.
+            switch (this.getCurrentCard().getValue()) {
+                // Draw two: same as performWildCardAction
+                case DRAW_TWO:
+                    players.get(0).draw(2);
+                    break;
+                // wild draw four: return to the deck and play another card.
+                case DRAW_FOUR:
+                    Card card = this.getCurrentCard();
+                    this.setCurrentCard(this.deck.getPlayingCards().get(0));
+                    this.deck.getPlayingCards().remove(0);
+                    this.deck.getPlayingCards().add(card);
+                    this.deck.getUsedCards().add(this.getCurrentCard());
+                    // call again if new card is a wild card too
+                    if (this.getCurrentCard().getColor() == Card.Color.WILD) {
+                        adjustToFirstCard();
+                    }
+                    break;
+                // skip: the player to the left of the dealer is skipped (so same)
+                case SKIP:
+                    this.skip();
+                    break;
+                // wild card: the person to the left of the dealer chooses the color he would like to start with
+                case PICK_COLOR:
+                    this.getCurrentPlayer().pickColor();
+                    break;
+                // reverse: dealer goes first players[0] and counterclockwise now.
+                case CHANGE_DIRECTION:
+                    this.reversePlayers();
+                    //ASSUMING: Dealer is the last in the player queue
+                    this.setCurrentTurnIndex(1);
+                    break;
+            }
+        }
+    }
+
+    public Player hasWinner(){
+        for (Player player: players){
+            if (player.isWinner()){
+                return player;
+            }
+        }
+        return null;
+    }
+
 
     //--------------------------GETTERS--------------------------
 
@@ -89,6 +154,13 @@ public class Table {
 
     public int getCurrentTurnIndex() {
         return currentTurnIndex;
+    }
+
+    public Player getPreviousPlayer(){
+        if (currentTurnIndex == 0){
+            return this.players.get(players.size()-1);
+        }
+        return this.players.get(currentTurnIndex-1);
     }
 
     public Player getCurrentPlayer() {
@@ -111,6 +183,9 @@ public class Table {
         return this.scoreBoard;
     }
 
+    public boolean isDrawFourPlayable() {
+        return drawFourPlayable;
+    }
 
     //--------------------------SETTERS--------------------------
 
@@ -138,4 +213,11 @@ public class Table {
         this.scoreBoard = scoreBoard;
     }
 
+    public void setDrawFourPlayable(boolean drawFourPlayable) {
+        this.drawFourPlayable = drawFourPlayable;
+    }
+
+    public void setCurrentTurnIndex(int currentTurnIndex) {
+        this.currentTurnIndex = currentTurnIndex;
+    }
 }

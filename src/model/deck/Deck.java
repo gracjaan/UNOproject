@@ -35,10 +35,13 @@ public class Deck {
      * Method shuffles the first deck until it's valid
      * */
     public void shuffleFirstDeck(){
-        EnumSet<Card.Color> colorsSet = EnumSet.of(Card.Color.WILD);
-        EnumSet<Card.Value> valueSet = EnumSet.of(Card.Value.SKIP, Card.Value.DRAW_TWO, Card.Value.CHANGE_DIRECTION);
-        Collections.shuffle(playingCards);
-        while (colorsSet.contains(playingCards.get(0).getColor()) || valueSet.contains(playingCards.get(0).getValue())){
+//        EnumSet<Card.Color> colorsSet = EnumSet.of(Card.Color.WILD);
+//        EnumSet<Card.Value> valueSet = EnumSet.of(Card.Value.SKIP, Card.Value.DRAW_TWO, Card.Value.CHANGE_DIRECTION);
+//        Collections.shuffle(playingCards);
+//        while (colorsSet.contains(playingCards.get(0).getColor()) || valueSet.contains(playingCards.get(0).getValue())){
+//            Collections.shuffle(playingCards);
+//        }
+        for (int i = 0; i < 4; i++){
             Collections.shuffle(playingCards);
         }
     }
@@ -82,9 +85,19 @@ public class Deck {
      * Shuffles all used cards and puts it into playing cards
      * */
     public ArrayList<Card> reShuffle() {
+        Card card1 = this.usedCards.get(this.usedCards.size()-1);
+        Card card2 = this.usedCards.get(this.usedCards.size()-2);
+
         ArrayList<Card> tempArr = this.usedCards;
+        tempArr.remove(card1);
+        tempArr.remove(card2);
+
         this.playingCards = tempArr;
-        this.usedCards = playingCards;
+        this.usedCards = new ArrayList<>();
+
+        this.usedCards.add(card2);
+        this.usedCards.add(card1);
+
         Collections.shuffle(playingCards);
         return playingCards;
     }

@@ -9,7 +9,7 @@ public class Card {
         BLUE, GREEN, YELLOW, RED, WILD
     }
     public enum Value {
-        ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, DRAW_TWO, SKIP, CHANGE_DIRECTION, DRAW_FOUR, PICK_COLOR
+        DRAW_TWO, SKIP, CHANGE_DIRECTION, DRAW_FOUR, PICK_COLOR, ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE
     }
 
     //--------------------------CONSTRUCTOR--------------------------

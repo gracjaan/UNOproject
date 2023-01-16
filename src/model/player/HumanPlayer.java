@@ -22,6 +22,7 @@ public class HumanPlayer extends Player {
      * */
     @Override
     public void playCard(Card card) {
+            super.getTable().setDrawFourPlayable(true);
             super.getHand().remove(card);
             super.getTable().setCurrentCard(card);
             super.getTable().getDeck().getUsedCards().add(card);

@@ -1,4 +1,5 @@
-package model.table.gameModes;
+package test;
+
 
 import model.card.Card;
 import model.deck.Deck;
@@ -8,28 +9,28 @@ import model.player.factory.Player;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Normal extends PlayingMode {
+public class NormalTestVersion extends PlayingMode {
 
     /**
      * Give it the player you want the action to be performed by if Pick color that is the current player, otherwise the next.
      * */
+
+    // for test purposes always sets the indicated color to blue
     @Override
     public void performWildCardAction(Card card, Player player, Player nextPlayer) {
         switch (card.getValue()) {
             case DRAW_TWO:
                 nextPlayer.draw(2);
-                player.getTable().skip();
                 break;
             case DRAW_FOUR:
-                player.pickColor();
+                player.getTable().setIndicatedColor(Card.Color.BLUE);
                 nextPlayer.draw(4);
-                player.getTable().drawFourEligibility();
                 break;
             case SKIP:
                 player.getTable().skip();
                 break;
             case PICK_COLOR:
-                player.pickColor();
+                player.getTable().setIndicatedColor(Card.Color.BLUE);
                 break;
             case CHANGE_DIRECTION:
                 player.getTable().reversePlayers();
@@ -60,7 +61,7 @@ public class Normal extends PlayingMode {
             if (value == cardToPlay.getValue()) {
                 return true;
             }
-            }else {
+        }else {
             if (indicatedColor == cardToPlay.getColor()) {
                 return true;
             }
@@ -78,7 +79,7 @@ public class Normal extends PlayingMode {
         ArrayList<Card> tempDeck = deck.getPlayingCards();
         for (Player player: players) {
             ArrayList<Card> tempHand = new ArrayList<>();
-            for (int i=0;i<20;i++) {
+            for (int i=0;i<7;i++) {
                 tempHand.add(tempDeck.get(0));
                 tempDeck.remove(0);
             }
