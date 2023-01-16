@@ -7,6 +7,7 @@ public interface PlayerActions {
     //-------------------------------------------INITIALIZERS----------------------------------------------
 
     void playCard(Card card);
+    void placeCard(Card card);
     void draw(int amount);
     boolean checkDrawPossibility(int amount);
     void pickColor();

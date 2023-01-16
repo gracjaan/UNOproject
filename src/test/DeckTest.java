@@ -26,9 +26,9 @@ public class DeckTest {
     }
     @Test
     public void testRandomNumber() {
-        for (int i=0;i<10;i++) {
+        for (int i=0;i<100;i++) {
             Random r = new Random();
-            int random = r.nextInt(4) + 1;
+            int random = r.nextInt(7);
             System.out.println(random);
         }
     }

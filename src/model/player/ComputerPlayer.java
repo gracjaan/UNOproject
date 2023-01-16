@@ -11,16 +11,26 @@ public class ComputerPlayer extends Player {
     public ComputerPlayer(String nickname) {
         super(nickname);
     }
-
+    private ArrayList<Integer> possibleMoves = new ArrayList<>();
     @Override
     public void playCard(Card card) {
-        ArrayList<Integer> possibleMoves = new ArrayList<>();
         for (int i = 0; i< this.getTable().getCurrentPlayer().getHand().size()-1; i++) {
             if (this.getTable().getPlayingMode().validMove(this.getTable().getCurrentPlayer().getHand().get(i), this.getTable().getCurrentCard().getColor(), this.getTable().getCurrentCard().getValue(), this.getTable().getIndicatedColor())) {
                 possibleMoves.add(i);
             }
         }
+        placeCard(determineBestMove());
+        Player nextPlayer;
+        if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
+            nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
+        }
+        else {
+            nextPlayer = super.getTable().getPlayers().get(0);
+        }
+        super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+
     }
+
 
     @Override
     public void pickColor() {
@@ -44,11 +54,6 @@ public class ComputerPlayer extends Player {
         }
     }
 
-    @Override
-    public boolean isWinner() {
-        return false;
-    }
-
     public ArrayList<Card> getValidMoves() {
         return null;
     }
@@ -56,8 +61,11 @@ public class ComputerPlayer extends Player {
     public HashMap<Integer, Card> assignScores() {
         return null;
     }
-
+    // currently random move
     public Card determineBestMove() {
-        return null;
+        Random r = new Random();
+        int random = r.nextInt(this.getHand().size()) ;
+        Card card = super.getHand().get(random);
+        return card;
     }
 }

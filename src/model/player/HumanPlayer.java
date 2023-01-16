@@ -22,20 +22,18 @@ public class HumanPlayer extends Player {
      * */
     @Override
     public void playCard(Card card) {
-            super.getTable().setDrawFourPlayable(true);
-            super.getHand().remove(card);
-            this.isWinner();
-            super.getTable().setCurrentCard(card);
-            super.getTable().getDeck().getUsedCards().add(card);
-            Player nextPlayer;
-            if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
-                nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
-            }
-            else {
-                nextPlayer = super.getTable().getPlayers().get(0);
-            }
-            super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+        placeCard(card);
+        Player nextPlayer;
+        if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
+            nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
         }
+        else {
+            nextPlayer = super.getTable().getPlayers().get(0);
+        }
+        super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+        }
+
+
 
     /**
      * @param amount receives amount of cards to draw

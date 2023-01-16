@@ -28,6 +28,14 @@ public abstract class Player implements PlayerActions {
             }
         }
     }
+    @Override
+    public void placeCard(Card card) {
+        getTable().setDrawFourPlayable(true);
+        getHand().remove(card);
+        isWinner();
+        getTable().setCurrentCard(card);
+        getTable().getDeck().getUsedCards().add(card);
+    }
     /**
      * @param amount amount of cards to possibly draw
      * @ensures size of playing cards is bigger than amount of cards to draw
