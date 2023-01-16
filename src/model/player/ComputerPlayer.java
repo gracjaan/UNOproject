@@ -5,6 +5,7 @@ import model.player.factory.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class ComputerPlayer extends Player {
     public ComputerPlayer(String nickname) {
@@ -13,22 +14,34 @@ public class ComputerPlayer extends Player {
 
     @Override
     public void playCard(Card card) {
-        
-    }
-
-    @Override
-    public void draw(int amount) {
-
-    }
-
-    @Override
-    public boolean checkDrawPossibility(int amount) {
-        return false;
+        ArrayList<Integer> possibleMoves = new ArrayList<>();
+        for (int i = 0; i< this.getTable().getCurrentPlayer().getHand().size()-1; i++) {
+            if (this.getTable().getPlayingMode().validMove(this.getTable().getCurrentPlayer().getHand().get(i), this.getTable().getCurrentCard().getColor(), this.getTable().getCurrentCard().getValue(), this.getTable().getIndicatedColor())) {
+                possibleMoves.add(i);
+            }
+        }
     }
 
     @Override
     public void pickColor() {
-
+        Random r = new Random();
+        int random = r.nextInt(4)+1;
+        switch (random) {
+            case 1:
+                super.getTable().setIndicatedColor(Card.Color.BLUE);
+                break;
+            case 2:
+                super.getTable().setIndicatedColor(Card.Color.RED);
+                break;
+            case 3:
+                super.getTable().setIndicatedColor(Card.Color.GREEN);
+                break;
+            case 4:
+                super.getTable().setIndicatedColor(Card.Color.YELLOW);
+                break;
+            default:
+                pickColor();
+        }
     }
 
     @Override

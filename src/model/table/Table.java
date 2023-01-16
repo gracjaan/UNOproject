@@ -6,10 +6,11 @@ import model.player.factory.Player;
 import model.table.gameModes.factory.PlayingMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Table {
     private ArrayList<Player> players;
-    private ArrayList<Player> scoreBoard;
+    private HashMap<Player, Integer> scoreBoard;
     private Deck deck;
     private int currentTurnIndex;
     private PlayingMode playingMode;
@@ -27,6 +28,7 @@ public class Table {
         this.indicatedColor = null;
         this.playingMode.distributeHands(this.players, this.deck);
         this.drawFourPlayable = true;
+        this.scoreBoard = new HashMap<>();
         adjustToFirstCard();
     }
 
@@ -91,16 +93,17 @@ public class Table {
         nextTurn();
     }
 
+
     /**
      * performs wild card actions for the starting card according to uno rules .
      */
-    private void adjustToFirstCard() {
+    public void adjustToFirstCard() {
         if  (this.getCurrentCard().getColor()==Card.Color.WILD) {
             // Dealer is last person in players, first player is at index 0.
             switch (this.getCurrentCard().getValue()) {
                 // Draw two: same as performWildCardAction
                 case DRAW_TWO:
-                    players.get(0).draw(2);
+                    players.get(currentTurnIndex).draw(2);
                     break;
                 // wild draw four: return to the deck and play another card.
                 case DRAW_FOUR:
@@ -120,6 +123,9 @@ public class Table {
                     break;
                 // wild card: the person to the left of the dealer chooses the color he would like to start with
                 case PICK_COLOR:
+                    // to find a way that you can play whatever card you like, except wild card
+                    // now it will start the game with pick color.
+                    // should be fixed when calling at the end of setup or before play in the main of UNO
                     this.getCurrentPlayer().pickColor();
                     break;
                 // reverse: dealer goes first players[0] and counterclockwise now.
@@ -131,14 +137,37 @@ public class Table {
             }
         }
     }
-
-    public Player hasWinner(){
+    // UNO: change to !hasWinner? instead of gameOver
+    public boolean hasWinner(){
         for (Player player: players){
             if (player.isWinner()){
-                return player;
+                return true;
             }
         }
-        return null;
+        return false;
+    }
+
+    public void calculateScores(Player winner) {
+        //should we rethink that a player is removed from players when he won because we play more rounds?
+        int score = 0;
+        for (Player player: players) {
+            if (player.getHand().size() > 0) {
+                for (Card card : player.getHand()) {
+                    if (card.getValue() == Card.Value.DRAW_FOUR || card.getValue() == Card.Value.PICK_COLOR) {
+                        score += 50;
+                    } else if (card.getValue() == Card.Value.DRAW_TWO || card.getValue() == Card.Value.SKIP || card.getValue() == Card.Value.CHANGE_DIRECTION) {
+                        score += 20;
+                    }
+                }
+            }
+        }
+        // add score to the scoreboard
+        if (this.scoreBoard.containsKey(winner)) {
+            int i = this.scoreBoard.get(winner) + score;
+            this.scoreBoard.put(winner, i);
+        }else {
+            this.scoreBoard.put(winner, score);
+        }
     }
 
 
@@ -179,7 +208,7 @@ public class Table {
         return indicatedColor;
     }
 
-    public ArrayList<Player> getScoreBoard() {
+    public HashMap<Player, Integer> getScoreBoard() {
         return this.scoreBoard;
     }
 
@@ -209,7 +238,7 @@ public class Table {
         this.indicatedColor = indicatedColor;
     }
 
-    public void setScoreBoard(ArrayList<Player> scoreBoard) {
+    public void setScoreBoard(HashMap<Player, Integer> scoreBoard) {
         this.scoreBoard = scoreBoard;
     }
 

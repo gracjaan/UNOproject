@@ -78,7 +78,7 @@ public class Normal extends PlayingMode {
         ArrayList<Card> tempDeck = deck.getPlayingCards();
         for (Player player: players) {
             ArrayList<Card> tempHand = new ArrayList<>();
-            for (int i=0;i<20;i++) {
+            for (int i=0;i<1;i++) {
                 tempHand.add(tempDeck.get(0));
                 tempDeck.remove(0);
             }
