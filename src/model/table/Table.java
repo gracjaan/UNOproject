@@ -193,6 +193,17 @@ public class Table {
         return this.players.get(currentTurnIndex-1);
     }
 
+    public Player getNextPlayer() {
+        Player nextPlayer;
+        if (this.getCurrentTurnIndex()<this.getPlayers().size()-1) {
+            nextPlayer = this.getPlayers().get(this.getCurrentTurnIndex()+1);
+        }
+        else {
+            nextPlayer = this.getPlayers().get(0);
+        }
+        return nextPlayer;
+    }
+
     public Player getCurrentPlayer() {
         return this.players.get(currentTurnIndex);
     }

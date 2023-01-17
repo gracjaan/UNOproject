@@ -23,13 +23,7 @@ public class HumanPlayer extends Player {
     @Override
     public void playCard(Card card) {
         placeCard(card);
-        Player nextPlayer;
-        if (super.getTable().getCurrentTurnIndex()<super.getTable().getPlayers().size()-1) {
-            nextPlayer = super.getTable().getPlayers().get(super.getTable().getCurrentTurnIndex()+1);
-        }
-        else {
-            nextPlayer = super.getTable().getPlayers().get(0);
-        }
+        Player nextPlayer = super.getTable().getNextPlayer();
         super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
         }
 
