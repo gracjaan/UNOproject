@@ -149,6 +149,9 @@ public class Table {
                     } else if (card.getValue() == Card.Value.DRAW_TWO || card.getValue() == Card.Value.SKIP || card.getValue() == Card.Value.CHANGE_DIRECTION) {
                         score += 20;
                     }
+                    else {
+                        score += card.getValue().ordinal() - 5;
+                    }
                 }
             }
         }

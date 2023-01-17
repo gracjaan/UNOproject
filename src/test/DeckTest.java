@@ -26,11 +26,8 @@ public class DeckTest {
     }
     @Test
     public void testRandomNumber() {
-        for (int i=0;i<100;i++) {
-            Random r = new Random();
-            int random = r.nextInt(7);
-            System.out.println(random);
-        }
+        Card card = new Card(Card.Color.BLUE, Card.Value.FIVE);
+        System.out.println(card.getValue().ordinal()-5);
     }
     }
 

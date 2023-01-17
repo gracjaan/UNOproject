@@ -95,7 +95,7 @@ public class UnoTest {
             }
             moves.get(table.getCurrentPlayer()).clear();
             for (int i = 0; i< table.getCurrentPlayer().getHand().size()-1; i++) {
-                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(i), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(i), table)) {
                     moves.get(table.getCurrentPlayer()).add(i);
                 }
             }

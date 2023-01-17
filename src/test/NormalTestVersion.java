@@ -3,6 +3,7 @@ package test;
 
 import model.card.Card;
 import model.deck.Deck;
+import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
 import model.player.factory.Player;
 
@@ -41,14 +42,15 @@ public class NormalTestVersion extends PlayingMode {
 
     /**
      * @param cardToPlay card to be played
-     * @param color color of a card on the table
-     * @param value value of the card o the table
-     * @param indicatedColor color indicated by last player
      * @ensures that move is valid
      * @return true if move is valid, otherwise false
      * */
     @Override
-    public boolean validMove(Card cardToPlay, Card.Color color, Card.Value value, Card.Color indicatedColor) {
+    public boolean validMove(Card cardToPlay, Table table) {
+        Card.Color color = table.getCurrentCard().getColor();
+        Card.Value value = table.getCurrentCard().getValue();
+        Card.Color indicatedColor = table.getIndicatedColor();
+
         if(indicatedColor==null) {
             if (cardToPlay.getColor() == Card.Color.WILD && color == Card.Color.WILD) {
                 return false;

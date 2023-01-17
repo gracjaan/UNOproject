@@ -3,9 +3,7 @@ package model.player;
 import model.card.Card;
 import model.player.factory.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 public class ComputerPlayer extends Player {
     public ComputerPlayer(String nickname) {
@@ -30,22 +28,21 @@ public class ComputerPlayer extends Player {
 
     @Override
     public void pickColor() {
-        Random r = new Random();
-        int random = r.nextInt(4)+1;
-        switch (random) {
-            case 1:
+        Card.Color color = cardColors();
+        switch (color) {
+            case BLUE:
                 System.out.println("computer chose color blue");
                 super.getTable().setIndicatedColor(Card.Color.BLUE);
                 break;
-            case 2:
+            case RED:
                 System.out.println("computer chose color red");
                 super.getTable().setIndicatedColor(Card.Color.RED);
                 break;
-            case 3:
+            case GREEN:
                 System.out.println("computer chose color green");
                 super.getTable().setIndicatedColor(Card.Color.GREEN);
                 break;
-            case 4:
+            case YELLOW:
                 System.out.println("computer chose color yellow");
                 super.getTable().setIndicatedColor(Card.Color.YELLOW);
                 break;
@@ -54,11 +51,37 @@ public class ComputerPlayer extends Player {
         }
     }
 
+    public Card.Color cardColors(){
+        HashMap<Card.Color, Integer> map = new HashMap<>();
+        for (Card card: super.getHand()){
+            if (map.containsKey(card.getColor())){
+                int i = map.get(card.getColor()) + 1;
+                map.put(card.getColor(), i);
+            }
+            else {
+                map.put(card.getColor(), 1);
+            }
+        }
+
+        map.remove(Card.Color.WILD);
+
+        int maxOccurances = 0;
+        Card.Color max = Card.Color.YELLOW;
+        for (Map.Entry<Card.Color, Integer> entry: map.entrySet()){
+            if (entry.getValue() > maxOccurances){
+                maxOccurances = entry.getValue();
+                max = entry.getKey();
+            }
+        }
+        System.out.println(max);
+        return max;
+    }
+
     public void getValidMoves() {
         for (int i = 0; i < super.getHand().size(); i++) {
             //System.out.println("here");
 //            System.out.println(super.getTable().getCurrentPlayer().getHand().get(i)+ " | " + super.getTable().getCurrentCard().toString() + " | " + super.getTable().getIndicatedColor());
-            if (super.getTable().getPlayingMode().validMove(super.getTable().getCurrentPlayer().getHand().get(i), super.getTable().getCurrentCard().getColor(), super.getTable().getCurrentCard().getValue(), super.getTable().getIndicatedColor())) {
+            if (super.getTable().getPlayingMode().validMove(super.getTable().getCurrentPlayer().getHand().get(i), super.getTable())) {
                 possibleMoves.add(i);
             }
         }
@@ -69,8 +92,12 @@ public class ComputerPlayer extends Player {
     }
     // currently random move
     public int determineBestMove() {
-        Random r = new Random();
-        int random = r.nextInt(possibleMoves.size()) ;
-        return possibleMoves.get(random);
+        int best = 0;
+        for (int i = 0; i < possibleMoves.size(); i++){
+            if (getHand().get(possibleMoves.get(i)).getValue() != Card.Value.DRAW_FOUR && getHand().get(possibleMoves.get(i)).getValue() != Card.Value.PICK_COLOR){
+                best = i;
+            }
+        }
+        return possibleMoves.get(best);
     }
 }

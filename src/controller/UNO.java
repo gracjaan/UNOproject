@@ -9,6 +9,7 @@ import model.table.Table;
 import model.table.gameModes.Normal;
 import view.TUI;
 
+import java.nio.Buffer;
 import java.util.*;
 
 public class UNO {
@@ -31,23 +32,37 @@ public class UNO {
      * Starts the game asking user for basic input to set up a game
      */
     public void start() {
-        System.out.print(">> Please enter number of players: ");
-        int playersAmount = scanner.nextInt();
-        players = new ArrayList<Player>();
-        Scanner scanner1 = new Scanner(System.in);
-        for (int i = 0; i < playersAmount; i++) {
-            System.out.print(">> Enter name of Player " + (i + 1) + ": ");
-            String name = scanner1.nextLine();
-            String[] spl = name.split(" ");
-            if (spl.length==2&&spl[1].equals("c")) {
-                players.add(new ComputerPlayer(spl[0]));
-            }else {
-                players.add(new HumanPlayer(name));
+        while (true) {
+            System.out.print(">> Please enter number of players: ");
+            try {
+                int playersAmount = scanner.nextInt();
+                players = new ArrayList<Player>();
+                Scanner scanner1 = new Scanner(System.in);
+                for (int i = 0; i < playersAmount; i++) {
+                    System.out.print(">> Enter name of Player " + (i + 1) + ": ");
+                    String name = scanner1.nextLine();
+                    String[] spl = name.split(" ");
+                    if (spl[spl.length-1].equals("c")) {
+                        StringBuffer sb = new StringBuffer(name);
+                        sb.deleteCharAt(sb.length()-1);
+                        sb.deleteCharAt(sb.length()-1);
+                        players.add(new ComputerPlayer(sb.toString()));
+                    }else {
+                        players.add(new HumanPlayer(name));
+                    }
+                }
+                System.out.print(">> Please enter mode: ");
+                String playingMode = scanner.next();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a numeric value.");
+                scanner.next();
             }
         }
-        System.out.print(">> Please enter mode: ");
-        String playingMode = scanner.next();
     }
+
+
+
 
     /**
      * Plays a game until not finished
@@ -422,7 +437,7 @@ public class UNO {
     public boolean inputDraw (String input){
         table.getCurrentPlayer().draw(1);
         table.setDrawFourPlayable(true);
-        if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+        if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), this.table)) {
             System.out.println("Would you like to play now?");
             return false;
         } else {
@@ -440,14 +455,14 @@ public class UNO {
                 table.setDrawFourPlayable(true);
             }
         } else {
-            System.out.println("Challenge unsuccessful! You're punished with additional 2 cards so it is +6 in total");
+            System.out.println("Challenge unsuccessful! You're punished with additional 2 cards ");
             table.getCurrentPlayer().draw(2);
         }
         return true;
     }
 
     public boolean inputCard(String input){
-        if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
+        if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), this.table)) {
             table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
             return true;
         }
@@ -474,10 +489,29 @@ public class UNO {
             System.out.println("You didn't say UNO. You are punished with two cards");
             table.getCurrentPlayer().draw(2);
         }
-        else {
+        else if (isInRange(splitted[0])){
             b = inputCard(input);
         }
+        else {
+            System.out.println("Query not recognized. Please try again following listed queries!");
+            b = false;
+        }
         return b;
+    }
+
+    public boolean isInRange(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(str);
+            if (i < table.getCurrentPlayer().getHand().size()) {
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return false;
     }
 
     /**

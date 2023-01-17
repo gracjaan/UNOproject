@@ -48,6 +48,6 @@ public class PlayerTest {
     public void testPlayTwoWildCards() {
         Card card = new Card(Card.Color.WILD, Card.Value.PICK_COLOR);
         table.setIndicatedColor(Card.Color.BLUE);
-        assertFalse(table.getPlayingMode().validMove(card, table.getCurrentCard().getColor(),table.getCurrentCard().getValue(), table.getIndicatedColor()));
+        assertFalse(table.getPlayingMode().validMove(card, table));
     }
 }
