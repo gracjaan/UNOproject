@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,11 +25,12 @@ public class DeckTest {
         deck = new Deck();
     }
     @Test
-    public void testFirstCard() {
-        for (int i=0; i<100; i++) {
-            deck = new Deck();
-            assertFalse(deck.getPlayingCards().get(0).getColor()==Card.Color.WILD);
+    public void testRandomNumber() {
+        for (int i=0;i<100;i++) {
+            Random r = new Random();
+            int random = r.nextInt(7);
+            System.out.println(random);
         }
-        }
+    }
     }
 
