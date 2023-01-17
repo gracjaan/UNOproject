@@ -14,18 +14,7 @@ public class HumanPlayer extends Player {
 
     //--------------------------METHODS--------------------------
 
-    /**
-     * @param card receives card to be played
-     * Removes card from players hand, sets it to currentCard and adds it to usedCards
-     * Calls performWildCardAction to do specific task
-     * Checks if player is a winner
-     * */
-    @Override
-    public void playCard(Card card) {
-        placeCard(card);
-        Player nextPlayer = super.getTable().getNextPlayer();
-        super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
-        }
+
 
 
 

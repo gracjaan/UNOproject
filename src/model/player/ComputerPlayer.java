@@ -12,19 +12,21 @@ public class ComputerPlayer extends Player {
         super(nickname);
     }
     private ArrayList<Integer> possibleMoves = new ArrayList<>();
-    @Override
-    public void playCard(Card card) {
-        for (int i = 0; i< this.getTable().getCurrentPlayer().getHand().size()-1; i++) {
-            if (this.getTable().getPlayingMode().validMove(this.getTable().getCurrentPlayer().getHand().get(i), this.getTable().getCurrentCard().getColor(), this.getTable().getCurrentCard().getValue(), this.getTable().getIndicatedColor())) {
-                possibleMoves.add(i);
-            }
+
+    public String translator () {
+        getValidMoves();
+        String s = "";
+        if (possibleMoves.isEmpty()) {
+            s+="draw";
+        }else if (super.getHand().size()==2) {
+            s+=determineBestMove();
+            s+=" uno";
+        }else {
+            s+=determineBestMove();
         }
-        placeCard(determineBestMove());
-        Player nextPlayer = super.getTable().getNextPlayer();
-        super.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
-
+        possibleMoves.clear();
+        return s;
     }
-
 
     @Override
     public void pickColor() {
@@ -32,15 +34,19 @@ public class ComputerPlayer extends Player {
         int random = r.nextInt(4)+1;
         switch (random) {
             case 1:
+                System.out.println("computer chose color blue");
                 super.getTable().setIndicatedColor(Card.Color.BLUE);
                 break;
             case 2:
+                System.out.println("computer chose color red");
                 super.getTable().setIndicatedColor(Card.Color.RED);
                 break;
             case 3:
+                System.out.println("computer chose color green");
                 super.getTable().setIndicatedColor(Card.Color.GREEN);
                 break;
             case 4:
+                System.out.println("computer chose color yellow");
                 super.getTable().setIndicatedColor(Card.Color.YELLOW);
                 break;
             default:
@@ -48,18 +54,23 @@ public class ComputerPlayer extends Player {
         }
     }
 
-    public ArrayList<Card> getValidMoves() {
-        return null;
+    public void getValidMoves() {
+        for (int i = 0; i < super.getHand().size(); i++) {
+            //System.out.println("here");
+//            System.out.println(super.getTable().getCurrentPlayer().getHand().get(i)+ " | " + super.getTable().getCurrentCard().toString() + " | " + super.getTable().getIndicatedColor());
+            if (super.getTable().getPlayingMode().validMove(super.getTable().getCurrentPlayer().getHand().get(i), super.getTable().getCurrentCard().getColor(), super.getTable().getCurrentCard().getValue(), super.getTable().getIndicatedColor())) {
+                possibleMoves.add(i);
+            }
+        }
     }
     // make a dictionary with score as key and card as value
     public HashMap<Integer, Card> assignScores() {
         return null;
     }
     // currently random move
-    public Card determineBestMove() {
+    public int determineBestMove() {
         Random r = new Random();
-        int random = r.nextInt(this.getHand().size()) ;
-        Card card = super.getHand().get(random);
-        return card;
+        int random = r.nextInt(possibleMoves.size()) ;
+        return possibleMoves.get(random);
     }
 }

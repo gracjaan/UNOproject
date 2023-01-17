@@ -2,6 +2,7 @@ package controller;
 
 import model.card.Card;
 import model.deck.Deck;
+import model.player.ComputerPlayer;
 import model.player.HumanPlayer;
 import model.player.factory.Player;
 import model.table.Table;
@@ -33,10 +34,16 @@ public class UNO {
         System.out.print(">> Please enter number of players: ");
         int playersAmount = scanner.nextInt();
         players = new ArrayList<Player>();
+        Scanner scanner1 = new Scanner(System.in);
         for (int i = 0; i < playersAmount; i++) {
             System.out.print(">> Enter name of Player " + (i + 1) + ": ");
-            String name = scanner.next();
-            players.add(new HumanPlayer(name));
+            String name = scanner1.nextLine();
+            String[] spl = name.split(" ");
+            if (spl.length==2&&spl[1].equals("c")) {
+                players.add(new ComputerPlayer(spl[0]));
+            }else {
+                players.add(new HumanPlayer(name));
+            }
         }
         System.out.print(">> Please enter mode: ");
         String playingMode = scanner.next();
@@ -46,15 +53,21 @@ public class UNO {
      * Plays a game until not finished
      */
     public void play() {
-        boolean exit = false;
-        while (!gameOver()) {
+        while (gameOver()==null) {
             this.roundOver = false;
             while (!this.roundOver) {
-                System.out.println(table.isDrawFourPlayable());
                 tablePrinter();
-                Scanner scan = new Scanner(System.in);
-                System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
-                String input1 = scan.nextLine();
+                String input1;
+                if (table.getCurrentPlayer()instanceof HumanPlayer) {
+                    Scanner scan = new Scanner(System.in);
+                    System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+                    input1 = scan.nextLine();
+                } else {
+                    System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+                    ComputerPlayer cp = (ComputerPlayer) table.getCurrentPlayer();
+                    input1 = cp.translator();
+                    System.out.println(input1);
+                }
                 if (!handleMove(input1)) {
                     continue;
                 }
@@ -68,17 +81,18 @@ public class UNO {
 //                        }
 //                        continue;
 //                    }
-//                }
+//
                 table.nextTurn();
+                if (gameOver()!=null) {
+                    System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
+                    break;
+                }
                 this.roundOver();
             }
             }
             System.out.println(">> GAME OVER!!!");
-            System.out.println(">> Would you like to play another one (y/n): ");
-            String input2 = scanner.next();
-            if (!input2.equals("y")) {
-            exit = true;
-        }
+//            System.out.println(">> Would you like to play another one (y/n): ");
+//            String input2 = scanner.next();
     }
 
 //    public void setup(ArrayList<Player> players) {
@@ -469,20 +483,18 @@ public class UNO {
     /**
      * Changes state of game to gamover when there is last player with cards
      * */
-    public boolean gameOver() {
+    public Player gameOver() {
         int position = 0;
         for (Player player: table.getScoreBoard().keySet()) {
             if (table.getScoreBoard().get(player) >= 500){
-                System.out.println(">> Player " + player.getNickname());
-                return true;
+                return player;
             }
         }
-        return false;
+        return null;
     }
 
     public void roundOver(){
         if (table.isHasWinner()) {
-            System.out.println("aldfgh");
             Deck d = new Deck();
             Collections.shuffle(d.getPlayingCards());
             int mpi = findDealer(d.getPlayingCards());
@@ -494,7 +506,6 @@ public class UNO {
             this.roundOver = true;
             table.setHasWinner(false);
         }
-
     }
 
 

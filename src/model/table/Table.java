@@ -24,6 +24,9 @@ public class Table {
         this.playingMode = playingMode;
         setUpRound(new Deck());
         this.scoreBoard = new HashMap<>();
+        for(Player player: this.players) {
+            scoreBoard.put(player, 0);
+        }
     }
 
     public void setUpRound(Deck deckArg){
@@ -83,13 +86,11 @@ public class Table {
     }
 
     public void drawFourEligibility() {
-        System.out.println(this.getDeck().getUsedCards().get(this.getDeck().getUsedCards().size()-2).getColor());
         for (Card card: this.getCurrentPlayer().getHand()) {
             if (card.getColor().equals(this.getDeck().getUsedCards().get(this.getDeck().getUsedCards().size()-2).getColor())){
                 this.drawFourPlayable = false;
             }
         }
-        System.out.println(this.isDrawFourPlayable());
     }
 
     public void skip() {
@@ -135,18 +136,7 @@ public class Table {
         }
 
     }
-    // UNO: change to !hasWinner? instead of gameOver
 
-
-    public boolean hasWinner(){
-        for (Player player: players){
-            if (player.isWinner()){
-                System.out.println("im here");
-                return true;
-            }
-        }
-        return false;
-    }
 
     public void calculateScores(Player winner) {
         //should we rethink that a player is removed from players when he won because we play more rounds?
@@ -163,13 +153,10 @@ public class Table {
             }
         }
         // add score to the scoreboard
-        if (this.scoreBoard.containsKey(winner)) {
-            int i = this.scoreBoard.get(winner) + score;
-            this.scoreBoard.put(winner, i);
-        }else {
-            this.scoreBoard.put(winner, score);
+        int i = this.scoreBoard.get(winner) + score;
+        this.scoreBoard.put(winner, i);
         }
-    }
+
 
 
     //--------------------------GETTERS--------------------------
