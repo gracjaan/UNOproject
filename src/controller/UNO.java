@@ -15,6 +15,7 @@ public class UNO {
     private ArrayList<Player> players;
     private Table table;
     private Card card;
+    private boolean roundOver = false;
 
     Scanner scanner = new Scanner(System.in);
 
@@ -46,8 +47,9 @@ public class UNO {
      */
     public void play() {
         boolean exit = false;
-        while (!exit) {
-            while (!this.gameOver()) {
+        while (!gameOver()) {
+            this.roundOver = false;
+            while (!this.roundOver) {
                 System.out.println(table.isDrawFourPlayable());
                 tablePrinter();
                 Scanner scan = new Scanner(System.in);
@@ -68,13 +70,14 @@ public class UNO {
 //                    }
 //                }
                 table.nextTurn();
+                this.roundOver();
+            }
             }
             System.out.println(">> GAME OVER!!!");
             System.out.println(">> Would you like to play another one (y/n): ");
             String input2 = scanner.next();
             if (!input2.equals("y")) {
-                exit = true;
-            }
+            exit = true;
         }
     }
 
@@ -148,6 +151,12 @@ public class UNO {
             }
             playerIndex++;
         }
+
+        if (maxValue == -1){
+            System.out.println("You drew only actioncards!");
+            findDealer(d);
+        }
+
         System.out.println("\nPlayer " + players.get(maxPlayerIndex) + " is a dealer!");
         return maxPlayerIndex;
     }
@@ -461,15 +470,31 @@ public class UNO {
      * Changes state of game to gamover when there is last player with cards
      * */
     public boolean gameOver() {
-        if (table.getPlayers().size()<=1) {
-            int position = 0;
-            for (Player player: table.getPlayers()) {
-                System.out.println(position+ ". " + player.toString());
-                position++;
+        int position = 0;
+        for (Player player: table.getScoreBoard().keySet()) {
+            if (table.getScoreBoard().get(player) >= 500){
+                System.out.println(">> Player " + player.getNickname());
+                return true;
             }
-            return true;
         }
         return false;
+    }
+
+    public void roundOver(){
+        if (table.isHasWinner()) {
+            System.out.println("aldfgh");
+            Deck d = new Deck();
+            Collections.shuffle(d.getPlayingCards());
+            int mpi = findDealer(d.getPlayingCards());
+            setPlayingOrder(mpi);
+            table.setPlayers(players);
+            table.setCurrentTurnIndex(0);
+            table.setUpRound(d);
+            table.adjustToFirstCard();
+            this.roundOver = true;
+            table.setHasWinner(false);
+        }
+
     }
 
 

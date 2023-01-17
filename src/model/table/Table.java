@@ -17,21 +17,24 @@ public class Table {
     private Card currentCard;
     private Card.Color indicatedColor;
     private boolean drawFourPlayable;
+    private boolean hasWinner;
 
     public Table(ArrayList<Player> players, PlayingMode playingMode) {
         this.players = players;
         this.playingMode = playingMode;
-        this.deck = new Deck();
+        setUpRound(new Deck());
+        this.scoreBoard = new HashMap<>();
+    }
+
+    public void setUpRound(Deck deckArg){
+        this.deck = deckArg;
         this.currentCard = this.deck.getPlayingCards().get(0);
         this.deck.getPlayingCards().remove(0);
         this.deck.getUsedCards().add(this.currentCard);
         this.indicatedColor = null;
         this.playingMode.distributeHands(this.players, this.deck);
         this.drawFourPlayable = true;
-        this.scoreBoard = new HashMap<>();
-        adjustToFirstCard();
     }
-
 
     //--------------------------METHODS--------------------------
 
@@ -98,49 +101,47 @@ public class Table {
      * performs wild card actions for the starting card according to uno rules .
      */
     public void adjustToFirstCard() {
-        if  (this.getCurrentCard().getColor()==Card.Color.WILD) {
-            // Dealer is last person in players, first player is at index 0.
-            switch (this.getCurrentCard().getValue()) {
-                // Draw two: same as performWildCardAction
-                case DRAW_TWO:
-                    players.get(currentTurnIndex).draw(2);
-                    break;
-                // wild draw four: return to the deck and play another card.
-                case DRAW_FOUR:
-                    Card card = this.getCurrentCard();
-                    this.setCurrentCard(this.deck.getPlayingCards().get(0));
-                    this.deck.getPlayingCards().remove(0);
-                    this.deck.getPlayingCards().add(card);
-                    this.deck.getUsedCards().add(this.getCurrentCard());
-                    // call again if new card is a wild card too
-                    if (this.getCurrentCard().getColor() == Card.Color.WILD) {
-                        adjustToFirstCard();
-                    }
-                    break;
-                // skip: the player to the left of the dealer is skipped (so same)
-                case SKIP:
-                    this.skip();
-                    break;
-                // wild card: the person to the left of the dealer chooses the color he would like to start with
-                case PICK_COLOR:
-                    // to find a way that you can play whatever card you like, except wild card
-                    // now it will start the game with pick color.
-                    // should be fixed when calling at the end of setup or before play in the main of UNO
-                    this.getCurrentPlayer().pickColor();
-                    break;
-                // reverse: dealer goes first players[0] and counterclockwise now.
-                case CHANGE_DIRECTION:
-                    this.reversePlayers();
-                    //ASSUMING: Dealer is the last in the player queue
-                    this.setCurrentTurnIndex(1);
-                    break;
-            }
+        // Dealer is last person in players, first player is at index 0.
+        switch (this.getCurrentCard().getValue()) {
+            case DRAW_TWO:
+                System.out.println("Unfortunately you've been punished with two cards at very beginning");
+                this.getCurrentPlayer().draw(2);
+                break;
+            case DRAW_FOUR:
+                Card card = this.getCurrentCard();
+                this.setCurrentCard(this.deck.getPlayingCards().get(0));
+                this.deck.getPlayingCards().remove(0);
+                this.deck.getPlayingCards().add(card);
+                this.deck.getUsedCards().add(this.getCurrentCard());
+                // call again if new card is a wild card too
+                if (this.getCurrentCard().getColor() == Card.Color.WILD) {
+                    adjustToFirstCard();
+                }
+                break;
+            case SKIP:
+                System.out.println(">> Player " + getCurrentPlayer().getNickname() + "was skipped hahahha");
+                this.skip();
+                break;
+            case PICK_COLOR:
+                System.out.println(">> Player: " + getCurrentPlayer().getNickname());
+                this.getCurrentPlayer().pickColor();
+                break;
+            case CHANGE_DIRECTION:
+                System.out.println("First card was 'change direction' therefore direction was changed");
+                this.reversePlayers();
+                //ASSUMING: Dealer is the last in the player queue
+                this.setCurrentTurnIndex(1);
+                break;
         }
+
     }
     // UNO: change to !hasWinner? instead of gameOver
+
+
     public boolean hasWinner(){
         for (Player player: players){
             if (player.isWinner()){
+                System.out.println("im here");
                 return true;
             }
         }
@@ -216,6 +217,10 @@ public class Table {
         return drawFourPlayable;
     }
 
+    public boolean isHasWinner() {
+        return hasWinner;
+    }
+
     //--------------------------SETTERS--------------------------
 
     public void setPlayers(ArrayList<Player> players) {
@@ -248,5 +253,9 @@ public class Table {
 
     public void setCurrentTurnIndex(int currentTurnIndex) {
         this.currentTurnIndex = currentTurnIndex;
+    }
+
+    public void setHasWinner(boolean hasWinner) {
+        this.hasWinner = hasWinner;
     }
 }

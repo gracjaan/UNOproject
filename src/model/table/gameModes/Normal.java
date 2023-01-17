@@ -21,6 +21,9 @@ public class Normal extends PlayingMode {
                 player.getTable().skip();
                 break;
             case DRAW_FOUR:
+                if (player.getTable().isHasWinner()){
+                    break;
+                }
                 player.pickColor();
                 nextPlayer.draw(4);
                 player.getTable().drawFourEligibility();
@@ -29,6 +32,9 @@ public class Normal extends PlayingMode {
                 player.getTable().skip();
                 break;
             case PICK_COLOR:
+                if (player.getTable().isHasWinner()){
+                    break;
+                }
                 player.pickColor();
                 break;
             case CHANGE_DIRECTION:

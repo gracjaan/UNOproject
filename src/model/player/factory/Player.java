@@ -65,8 +65,8 @@ public abstract class Player implements PlayerActions {
         if (getHand().size()==0) {
             System.out.println("Player " + this.getNickname() + " won this round.");
             getTable().calculateScores(this);
-            getTable().getPlayers().remove(this);
-            // end the game!
+            //getUNO().roundOver();
+            table.setHasWinner(true);
             for (Player p: this.getTable().getScoreBoard().keySet()) {
                 System.out.println(p.getNickname() + " : " + this.getTable().getScoreBoard().get(p));
             }

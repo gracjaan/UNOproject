@@ -1,17 +1,13 @@
 package test;
 import controller.UNO;
-import model.card.Card;
-import model.deck.Deck;
 import model.player.HumanPlayer;
 import model.player.factory.Player;
 import model.table.Table;
-import model.table.gameModes.Normal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -48,10 +44,10 @@ public class UnoTest {
     public void playAfterDrawingValid() {
         String input = "draw";
         Player player = table.getCurrentPlayer();
-        boolean condition = uno.evaluateMove(input);
+        boolean condition = uno.handleMove(input);
         if (!condition) {
             input = Integer.toString(table.getCurrentPlayer().getHand().size()-1);
-            assertEquals(true, uno.evaluateMove(input));
+            assertEquals(true, uno.handleMove(input));
         }
         else {
             table.nextTurn();
@@ -110,7 +106,7 @@ public class UnoTest {
             else {
                 input = "draw";
             }
-            if (!uno.evaluateMove(input)) {
+            if (!uno.handleMove(input)) {
                 continue;
             }
             table.nextTurn();
