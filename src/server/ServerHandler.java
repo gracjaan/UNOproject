@@ -257,7 +257,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
         String msg = "BGI | ";
-
+        msg += topCard + " | ";
+        // playerHand should be the hand of the specific player dont call sendToAll but when calling this method do it while looping through handlers.
+        msg += playerHand + " | ";
+        msg += playersList + " | ";
+        msg += isYourTurn;
+        sendMessage(msg);
     }
 
     /**

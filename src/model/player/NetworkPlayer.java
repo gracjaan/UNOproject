@@ -11,6 +11,7 @@ public class NetworkPlayer extends Player {
     }
     public String translate() {
 
+
         return "translation";
     }
     @Override

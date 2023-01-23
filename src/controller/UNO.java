@@ -4,6 +4,7 @@ import model.card.Card;
 import model.deck.Deck;
 import model.player.ComputerPlayer;
 import model.player.HumanPlayer;
+import model.player.NetworkPlayer;
 import model.player.factory.Player;
 import model.table.Table;
 import model.table.gameModes.Normal;
@@ -73,15 +74,19 @@ public class UNO {
             while (!this.roundOver) {
                 tablePrinter();
                 String input1;
-                if (table.getCurrentPlayer()instanceof HumanPlayer) {
+                if (table.getCurrentPlayer() instanceof HumanPlayer) {
                     Scanner scan = new Scanner(System.in);
                     System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
                     input1 = scan.nextLine();
-                } else {
+                } else if (table.getCurrentPlayer() instanceof ComputerPlayer) {
                     System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
                     ComputerPlayer cp = (ComputerPlayer) table.getCurrentPlayer();
                     input1 = cp.translator();
                     System.out.println(input1);
+                } else {
+                    NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
+                    input1 = np.translate();
+                    //maybe souts
                 }
                 if (!handleMove(input1)) {
                     continue;
