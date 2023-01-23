@@ -1,5 +1,9 @@
 package server;
 
+import model.player.ComputerPlayer;
+import model.player.HumanPlayer;
+import model.player.NetworkPlayer;
+import model.player.factory.Player;
 import server.contract.ServerProtocol;
 
 import java.io.BufferedReader;
@@ -7,16 +11,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ServerHandler implements ServerProtocol, Runnable{
     private Socket connection;
     private BufferedReader in;
     private PrintWriter out;
-    public ServerHandler(Socket connection) throws IOException {
+    private ArrayList<Player> players;
+    private Server server;
+    // create method to send mesg to all players.
+    public ServerHandler(Socket connection, Server server) throws IOException {
         this.connection = connection;
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
+        players = new ArrayList<>();
+        this.server = server;
     }
     public void doHandshake() throws IOException {
         //send HS to client
@@ -28,13 +38,16 @@ public class ServerHandler implements ServerProtocol, Runnable{
         }
         System.out.println("Connection successful.");
     }
-    public void sendMessage() throws IOException {
-        System.out.print("SEND: ");
-        String messageOut = "hi wassup";
-        out.println(messageOut);
+    public void sendMessage(String message) {
+        out.println(message);
         out.flush();
         if(out.checkError()) {
             System.out.println("An error occured during transmission.");
+        }
+    }
+    public void sendMessageToAll(String message) {
+        for (ServerHandler s: server.getHandlers()) {
+            s.sendMessage(message);
         }
     }
     public void receiveMessage() throws IOException {
@@ -65,22 +78,31 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleHandshake(String playerName, String playerType) {
-        out.println("key");
-        out.flush();
         String messageIn = null;
+        String spl[] = null;
         try {
             messageIn = in.readLine();
+            spl = messageIn.split(" | ");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        if (!messageIn.equals("AH")) {
+        if (!spl[0].equals("MH")) {
             out.println(Errors.E001);
             System.out.println(Errors.E001);
         } else {
-            System.out.println("Connection successful.");
+            if (spl[2].equals("human_player")) {
+                Player p = new NetworkPlayer(spl[1], this);
+                players.add(p);
+            } else {
+                out.println(Errors.E001);
+                System.out.println(Errors.E001);
+            }
+            }
+        out.println("AH");
+        out.flush();
+        System.out.println(spl[1] + " connected successfully.");
         }
 
-    }
 
     /**
      * This method handles the creation of a computerPlayer as requested by the client (admin) (ACP).
@@ -89,9 +111,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
      * @param playerName of type {@code String} representing the name of the computer player
      * @param strategy   of type {@code String} representing the strategy for the computer player
      */
+
+    // in order for this to be called with the according parameters --> caller Method or sth.
     @Override
     public void handleAddComputerPlayer(String playerName, String strategy) {
-
+        Player c = new ComputerPlayer(playerName);
+        players.add(c);
     }
 
     /**
@@ -102,7 +127,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleStartGame(String gameMode) {
-
+        // check if there are necessary changes in UNO.
+        server.getUno().setup(this.players);
+        server.getUno().play();
+        doGameStarted(gameMode);
     }
 
     /**
@@ -113,7 +141,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handlePlayCard(String card) {
-
+        // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
     }
 
     /**
@@ -122,7 +150,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleDrawCard() {
-
+        // same --> input = draw
     }
 
     /**
@@ -168,7 +196,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleSayUno() {
-
+        // add uno to the input that is given to uno.
     }
 
     /**
@@ -177,7 +205,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doInformAdmin() {
-
+        // assuming we are informing the first player that joined to become an admin (has to be instance of HP)
+        String msg = "IAD";
+        server.getHandlers().get(0).sendMessage(msg);
+        // when is someone informed that he is an admin? a message sent to all should probs be done in server.
     }
 
     /**
@@ -188,7 +219,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastPlayerJoined(String playerName) {
-
+        String msg = "BPJ | " + playerName;
+        sendMessage(msg);
     }
 
     /**
@@ -199,7 +231,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doGameStarted(String gameMode) {
-
+        String msg = "GST|" + gameMode;
+        sendMessageToAll(msg);
     }
 
     /**
@@ -208,7 +241,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doRoundStarted() {
-
+        String msg = "RST";
+        sendMessageToAll(msg);
     }
 
     /**
@@ -222,6 +256,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
+        String msg = "BGI | ";
 
     }
 
@@ -406,7 +441,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
             System.out.println("Connected.");
             while(true) {
                 this.receiveMessage();
-                this.sendMessage();
+                //this.sendMessage();
             }
         }catch(IOException e) {
             System.out.println("Sorry an error has occured, connection lost.");

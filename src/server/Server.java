@@ -1,13 +1,19 @@
 package server;
 
+import controller.UNO;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
 public class Server implements Runnable{
+    public Server() {
+        uno = new UNO();
+    }
     static final int DEFAULT_PORT = 5050;
     private static ArrayList<ServerHandler> handlers = new ArrayList<>();
+    private UNO uno;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -39,7 +45,7 @@ public class Server implements Runnable{
                 System.out.println("Listening on port " + port);
                 connection = listen.accept();
                 listen.close();
-                ServerHandler sh = new ServerHandler(connection);
+                ServerHandler sh = new ServerHandler(connection, this);
                 handlers.add(sh);
                 Thread sHThread = new Thread(sh);
                 sHThread.start();
@@ -49,5 +55,19 @@ public class Server implements Runnable{
         }
 
     }
+    //-----------------------------GETTERS & SETTERS-----------------------------
+
+    public UNO getUno() {
+        return uno;
+    }
+
+    public static ArrayList<ServerHandler> getHandlers() {
+        return handlers;
+    }
+
+    public void setUno(UNO uno) {
+        this.uno = uno;
+    }
+
 }
 
