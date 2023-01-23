@@ -269,7 +269,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastCardPlayed(String playerName, String playedCard) {
-
+        String result = "BCP|" + playerName + "|" + playedCard;
+        sendMessageToAll(result);
     }
 
     /**
@@ -280,7 +281,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastDrewCard(String playerName) {
-
+        String result = "BDC|" + playerName;
+        sendMessageToAll(result);
     }
 
     /**
@@ -291,7 +293,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastTurnSkipped(String playerName) {
-
+        String result = "BTS|" + playerName;
+        sendMessageToAll(result);
     }
 
     /**
@@ -302,7 +305,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastReverse(String direction) {
-
+        String result = "BRS|" + direction;
+        sendMessageToAll(result);
     }
 
     /**
@@ -313,7 +317,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastLeftGame(String playerName) {
-
+        String result = "BLG|" + playerName;
+        sendMessageToAll(result);
     }
 
     /**
@@ -324,7 +329,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doRemindPlay(String timeLeft) {
-
+        String result = "RP|" + timeLeft;
+        sendMessage(result);
     }
 
     /**
@@ -335,7 +341,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doRoundEnded(String winnerName) {
-
+        String result = "RE|" + winnerName;
+        sendMessageToAll(result);
     }
 
     /**
@@ -346,7 +353,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doGameEnded(String winnerName) {
-
+        String result = "GE|" + winnerName;
+        sendMessageToAll(result);
     }
 
     /**
@@ -357,7 +365,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doSendErrorCode(Errors errorCode) {
-
+        String result = "ERR|" + errorCode;
+        sendMessage(result);
     }
 
     /**
