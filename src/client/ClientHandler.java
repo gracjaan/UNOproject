@@ -13,11 +13,13 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ClientHandler implements ClientProtocol, Runnable {
+    private boolean isAdmin;
     private Socket connection;
     private BufferedReader in;
     private PrintWriter out;
     public ClientHandler(Socket connection) throws IOException {
         this.connection = connection;
+        this.isAdmin = false;
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
     }
@@ -82,6 +84,9 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void handleInformAdmin() {
         // create computer players, start game etc...
+        this.isAdmin = true;
+        System.out.println("I'm the admin");
+
     }
 
     /**
@@ -91,6 +96,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastPlayerJoined(String playerName) {
+        //adds playername to the game
+        System.out.println(playerName + " connected to the server");
     }
 
     /**
@@ -100,7 +107,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleGameStarted(String gameMode) {
-
+        System.out.println("Game has started in mode: " + gameMode);
     }
 
     /**
@@ -108,7 +115,12 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleRoundStarted() {
+        System.out.println("New round has started!");
+    }
 
+    public void callBGI (String str){
+        String [] splitted = str.split("|");
+        handleBroadcastGameInformation(splitted[1], splitted[2], splitted[3], splitted[4]);
     }
 
     /**
@@ -121,7 +133,22 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
-
+        if (isYourTurn.equals("true")){
+            System.out.println("========================================YOUR TURN=================================================");
+        }
+        else{
+            System.out.println("========================================NEW TURN==================================================");
+        }
+        System.out.println("| " + topCard + " |");
+        String [] splittedHand = playerHand.split(";");
+        for (int i = 0; i < splittedHand.length; i++ ){
+            System.out.print(i + "| " + splittedHand[i] + " |        ");
+        }
+        String [] splittedPlayers = playerHand.split(";");
+        for (int i = 0; i < splittedPlayers.length; i++){
+            String [] split = splittedPlayers[i].split(":");
+            System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
+        }
     }
 
     /**
@@ -132,7 +159,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastCardPlayed(String playerName, String playedCard) {
-
+        System.out.println(playerName + " played " + playedCard);
     }
 
     /**
@@ -142,7 +169,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastDrewCard(String playerName) {
-
+        System.out.println(playerName + " drew a card!");
     }
 
     /**
@@ -152,7 +179,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastTurnSkipped(String playerName) {
-
+        System.out.println(playerName + "'s turn was skipped!");
     }
 
     /**
@@ -162,7 +189,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastReverse(String direction) {
-
+        System.out.println("Direction was changed. Now it's " + direction);
     }
 
     /**
@@ -172,7 +199,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastLeftGame(String playerName) {
-
+        System.out.println(playerName + " left the game!");
     }
 
     /**
@@ -182,7 +209,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleRemindPlay(String timeLeft) {
-
+        System.out.println("You have " + timeLeft + " to make a move");
     }
 
     /**
@@ -192,7 +219,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleRoundEnded(String playerName) {
-
+        System.out.println("The round has ended! " + playerName + " was a winner!");
     }
 
     /**
@@ -202,7 +229,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleGameEnded(String playerName) {
-
+        System.out.println("The game has ended! " + playerName + " was an ultimate winner!");
     }
 
     /**
@@ -212,7 +239,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleSendErrorCode(String errorCode) {
-
+        System.out.println(errorCode);
     }
 
     /**
@@ -286,7 +313,10 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doAddComputerPlayer(String playerName, String strategy) {
-
+        if (isAdmin){
+            String result = "ACP|" + playerName + "|" + strategy;
+            out.println(result);
+        }
     }
 
     /**
@@ -298,7 +328,13 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doStartGame(String gameMode) {
-
+        if (isAdmin){
+            String result = "SG|" + gameMode;
+            out.println(result);
+        }
+        else{
+            System.out.println("Game is being setup in mode: " + gameMode);
+        }
     }
 
     /**
@@ -310,7 +346,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doPlayCard(String card) {
-
+        String result = "PC|" + card;
+        out.println(result);
     }
 
     /**
@@ -320,7 +357,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doDrawCard() {
-
+        out.println("DC");
     }
 
     /**
@@ -330,7 +367,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doLeaveGame() {
-
+        out.println("LG");
     }
 
     /**
