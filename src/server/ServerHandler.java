@@ -20,6 +20,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     private PrintWriter out;
     private ArrayList<Player> players;
     private Server server;
+
     // create method to send mesg to all players.
     public ServerHandler(Socket connection, Server server) throws IOException {
         this.connection = connection;
@@ -28,13 +29,49 @@ public class ServerHandler implements ServerProtocol, Runnable{
         players = new ArrayList<>();
         this.server = server;
     }
+
+    // seperate commands and call appropriate functions
+
+    private void seperateAndCall(String input) {
+        //server.getUno().getTable().getCurrentPlayer();
+        String[] splitted = input.split("|");
+        try {
+        switch (splitted[0]) {
+            case "MH":
+                handleHandshake(splitted[1], splitted[2]);
+                break;
+            case "ACP":
+                handleAddComputerPlayer(splitted[1], splitted[2]);
+                break;
+            case "SG":
+                handleStartGame(splitted[1]);
+                break;
+            case "PC":
+                handlePlayCard(splitted[1]);
+                break;
+            case "DC":
+                handleDrawCard();
+                break;
+            case "LG":
+                handleLeaveGame();
+                break;
+            default:
+                sendMessage(Errors.E001.getMessage());
+                break;
+        }
+        }catch (IndexOutOfBoundsException e) {
+            sendMessage(Errors.E001.getMessage());
+        }
+    }
+
+
     public void doHandshake() throws IOException {
         //send HS to client
         out.println("Tocjan");
         out.flush();
         String messageIn = in.readLine();
         if (!messageIn.equals("Tocjan")) {
-            throw new IOException("Wrong client connected.");
+            System.out.println("Wrong client connected");
         }
         System.out.println("Connection successful.");
     }
@@ -50,10 +87,16 @@ public class ServerHandler implements ServerProtocol, Runnable{
             s.sendMessage(message);
         }
     }
-    public void receiveMessage() throws IOException {
+    public void receiveMessage()  {
         System.out.println("WAITING...");
-        String messageIn = in.readLine();
+        String messageIn = null;
+        try {
+            messageIn = in.readLine();
+        } catch (IOException e) {
+            sendMessage(Errors.E001.getMessage());
+        }
         System.out.println("RECEIVED: " + messageIn);
+        seperateAndCall(messageIn);
     }
     public void closeConnection() throws IOException {
         out.println("Closing the Server.");
@@ -142,6 +185,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handlePlayCard(String card) {
         // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
+        // -->
+        // translate(String card) -> translate np. -> set up NP variable -> getter for that.
+
+        NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
+        p.translate(card);
+        //this.server.getUno().getTable().getCurrentPlayer();
     }
 
     /**
@@ -151,6 +200,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleDrawCard() {
         // same --> input = draw
+        NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
+        p.setTranslation("draw");
     }
 
     /**
@@ -219,7 +270,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastPlayerJoined(String playerName) {
-        String msg = "BPJ | " + playerName;
+        String msg = "BPJ|" + playerName;
         sendMessage(msg);
     }
 
@@ -256,11 +307,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
-        String msg = "BGI | ";
-        msg += topCard + " | ";
+        String msg = "BGI|";
+        msg += topCard + "|";
         // playerHand should be the hand of the specific player dont call sendToAll but when calling this method do it while looping through handlers.
-        msg += playerHand + " | ";
-        msg += playersList + " | ";
+        msg += playerHand + "|";
+        msg += playersList + "|";
         msg += isYourTurn;
         sendMessage(msg);
     }
@@ -450,16 +501,13 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void run() {
-        try {
-            this.doHandshake();
             System.out.println("Connected.");
             while(true) {
                 this.receiveMessage();
-                //this.sendMessage();
             }
-        }catch(IOException e) {
-            System.out.println("Sorry an error has occured, connection lost.");
-            System.out.println("Error: " + e);
-    }
+//        }catch(IOException e) {
+//            System.out.println("Sorry an error has occured, connection lost.");
+//            System.out.println("Error: " + e);
+//    }
 }
 }

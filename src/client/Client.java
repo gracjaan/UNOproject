@@ -44,13 +44,9 @@ public class Client implements Runnable {
         // create handler to do the handshake and exchange messages.
         try {
             ClientHandler ch = new ClientHandler(connection);
-            ch.doHandshake();
-            System.out.println("connected");
+            Thread cht = new Thread(ch);
+            cht.start();
 
-            while(true) {
-                ch.sendMessage();
-                ch.receiveMessage();
-            }
         }catch (IOException e) {
             System.out.println("gotcha again");
         }

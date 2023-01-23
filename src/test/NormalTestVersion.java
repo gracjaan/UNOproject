@@ -7,7 +7,6 @@ import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
 import model.player.factory.Player;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class NormalTestVersion extends PlayingMode {

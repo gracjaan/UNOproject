@@ -23,6 +23,64 @@ public class ClientHandler implements ClientProtocol, Runnable {
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
     }
+    private void seperateAndCall(String input) {
+        String[] splitted = input.split(" | ");
+        try {
+            switch (splitted[0]) {
+                case "AH":
+                    handleAcceptHandshake();
+                    break;
+                case "IAD":
+                    handleInformAdmin();
+                    break;
+                case "BPJ":
+                    handleBroadcastPlayerJoined(splitted[1]);
+                    break;
+                case "GCT":
+                    handleGameStarted(splitted[1]);
+                    break;
+                case "RST":
+                    handleRoundStarted();
+                    break;
+                case "BGI":
+                    handleBroadcastGameInformation(splitted[1], splitted[2], splitted[3], splitted[4]);
+                    break;
+                case "BCP":
+                    handleBroadcastCardPlayed(splitted[1], splitted[2]);
+                    break;
+                case "BDC":
+                    handleBroadcastDrewCard(splitted[1]);
+                    break;
+                case "BTS":
+                    handleBroadcastTurnSkipped(splitted[1]);
+                    break;
+                case "BRS":
+                    handleBroadcastReverse(splitted[1]);
+                    break;
+                case "BLG":
+                    handleBroadcastLeftGame(splitted[1]);
+                    break;
+                case "RP":
+                    handleRemindPlay(splitted[1]);
+                    break;
+                case "RE":
+                    handleRoundEnded(splitted[1]);
+                    break;
+                case "GE":
+                    handleGameEnded(splitted[1]);
+                    break;
+                case "ERR":
+                    handleSendErrorCode(splitted[1]);
+                default:
+                    String s = ServerProtocol.Errors.E001.getMessage();
+                    sendMessage(s);
+                    break;
+            }
+        }catch (IndexOutOfBoundsException e) {
+            sendMessage(ServerProtocol.Errors.E001.getMessage());
+        }
+    }
+
     public void doHandshake() throws IOException {
         //send HS to client
         out.println("Tocjan");
@@ -33,10 +91,10 @@ public class ClientHandler implements ClientProtocol, Runnable {
         }
         System.out.println("Connection successful.");
     }
-    public void sendMessage() throws IOException {
+    public void sendMessage(String messageOut) {
         System.out.print("SEND: ");
-        Scanner scannner = new Scanner(System.in);
-        String messageOut = scannner.nextLine();
+//        Scanner scannner = new Scanner(System.in);
+//        String messageOut = scannner.nextLine();
         out.println(messageOut);
         out.flush();
         if(out.checkError()) {
@@ -47,6 +105,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         System.out.println("WAITING...");
         String messageIn = in.readLine();
         System.out.println("RECEIVED: " + messageIn);
+        seperateAndCall(messageIn);
     }
     public void closeConnection() throws IOException {
         out.println("Closing the Server.");
@@ -300,7 +359,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doMakeHandshake(String playerName, String playerType) {
-
+        String hs = "MH|" + playerName + "|" + playerType;
+        sendMessage(hs);
     }
 
     /**
@@ -429,6 +489,26 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void run() {
-
+        // player name and type of player
+        System.out.print(">> Please enter name and playerType");
+        Scanner scan = new Scanner(System.in);
+        String nextLn = scan.nextLine();
+        String[] splitted = nextLn.split(" ");
+        StringBuffer sb = new StringBuffer(nextLn);
+        sb.deleteCharAt(sb.length()-1);
+        sb.deleteCharAt(sb.length()-1);
+        if (splitted[splitted.length-1].equals("c")) {
+            doMakeHandshake(sb.toString(), "computer_player");
+        }else {
+            doMakeHandshake(sb.toString(), "human_player");
+        }
+        while (true) {
+            try {
+                // wait for the message to be sent.
+                receiveMessage();
+            } catch (IOException e) {
+                sendMessage(ServerProtocol.Errors.E001.getMessage());
+            }
+        }
     }
 }

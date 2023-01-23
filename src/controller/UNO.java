@@ -73,7 +73,7 @@ public class UNO {
             this.roundOver = false;
             while (!this.roundOver) {
                 tablePrinter();
-                String input1;
+                String input1 = null;
                 if (table.getCurrentPlayer() instanceof HumanPlayer) {
                     Scanner scan = new Scanner(System.in);
                     System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
@@ -85,7 +85,7 @@ public class UNO {
                     System.out.println(input1);
                 } else {
                     NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
-                    input1 = np.translate();
+                    input1 = np.getTranslation();
                     //maybe souts
                 }
                 if (!handleMove(input1)) {
