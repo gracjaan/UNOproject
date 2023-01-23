@@ -1,416 +1,302 @@
-package server;
+package server.contract;
+/**
+ * This interface includes all relevant protocol codes, and methods that the server of Uno Game will need to use in order to ensure
+ * secure integration with the network protocol that was designed.
+ *
+ * Relevant JavaDocs are added.
+ */
+public interface ServerProtocol {
+    /**
+     * This enum class contains all the relevant protocol error codes and associated messages that will be used.
+     * They are placed on the server-side for better access management, but the Client class can make use of them with the public access modifier.
+     */
+    enum Errors {
+        E001("Protocol violated"),
+        E002("The player name [PlayerName] has been taken. Please enter another name."),
+        E003("Parameters/arguments are missing or violate protocol. Please re-enter."),
+        E004("The desired game is already in action. Please choose another game."),
+        E005("The desired game is at maximum capacity. Please choose another game."),
+        E006("Invalid input. Please type a valid input."),
+        E007("Player [Name] has disconnected"),
+        E008("Invalid Username. Please enter a valid username according to specifications."),
+        E009("The message could not be sent."),
+        E010("Please select a valid card for the game."),
+        E011("You have requested more computer players than there are spaces available.");
 
-import server.contract.ServerProtocol;
+        private final String message;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Scanner;
-
-public class ServerHandler implements ServerProtocol, Runnable{
-    private Socket connection;
-    private BufferedReader in;
-    private PrintWriter out;
-    public ServerHandler(Socket connection) throws IOException {
-        this.connection = connection;
-        in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        out = new PrintWriter(connection.getOutputStream());
-    }
-    public void doHandshake() throws IOException {
-        //send HS to client
-        out.println("Tocjan");
-        out.flush();
-        String messageIn = in.readLine();
-        if (!messageIn.equals("Tocjan")) {
-            throw new IOException("Wrong client connected.");
+        Errors(String errorMessage) {
+            this.message = errorMessage;
         }
-        System.out.println("Connection successful.");
-    }
-    public void sendMessage() throws IOException {
-        System.out.print("SEND: ");
-        String messageOut = "hi wassup";
-        out.println(messageOut);
-        out.flush();
-        if(out.checkError()) {
-            System.out.println("An error occured during transmission.");
+
+        public String getMessage() {
+            return this.message;
         }
-    }
-    public void receiveMessage() throws IOException {
-        System.out.println("WAITING...");
-        String messageIn = in.readLine();
-        System.out.println("RECEIVED: " + messageIn);
-    }
-    public void closeConnection() throws IOException {
-        out.println("Closing the Server.");
-        out.flush();
-        connection.close();
-        System.out.println("Connection Closed.");
-        System.exit(1);
     }
 
     /**
+     * The following list contains the server commands (commands that are sent from the server to the client).
+     *
+     * The access modifier is public because the client will need access to these in order to determine what appropriate course of action needs to be
+     * taken with respect to each particular command sent by the server. Further documentation for each command can be found in the protocol description table.
+     */
+    enum ServerCommands {
+        AH("Accept handshake"),
+        IAD("Inform Admin"),
+        BPJ("Broadcast player joined"),
+        GST("Game started"),
+        RST("Round started"),
+        BGI("Broadcast game information"),
+        BCP("Broadcast card played"),
+        BDC("Broadcast drew card"),
+        BTS("Broadcast turn skipped"),
+        BRS("Broadcast reverse"),
+        BLG("Broadcast left game"),
+        RP("Remind play"),
+        RE("Round ended"),
+        GE("Game ended"),
+        ERR("Send error code"),
+        /* This command is one that can be used by both, but to avoid duplication, it was placed inside the server protocol. */
+        LOL("List of Lobbies"),
+        BCL("Broadcast Created Lobby"),
+        BJL("Player joined lobby"),
+        BM("Broadcast Chat Message"),
+        BUNO("Broadcast Say UNO");
+
+        private final String action;
+
+        ServerCommands(String action) {
+            this.action = action;
+        }
+
+        public String getAction() {
+            return this.action;
+        }
+    }
+
+
+    /* Handlers */
+
+    /**
      * This method is called when a connection is first made, and the client performs a "potentially valid" handshake.
-     * <p>
+     *
      * The method assesses whether the client has performed a valid handshake, and if this is the case, the method returns an
      * appropriate correspondence containing relevant information that the verified UnoClient needs to know in the form of a
      * welcome message (AH).
      * Once the data packet is produced, it is sent.
-     * <p>
-     * If the handshake is not valid, the method itself invokes the sendErrorCode() method to send the appropriate error code.
      *
+     * If the handshake is not valid, the method itself invokes the sendErrorCode() method to send the appropriate error code.
      * @param playerName of type {@code String} representing the unique name of the player
      * @param playerType of type {@code String} representing computer_player ot human_player
      */
-    @Override
-    public void handleHandshake(String playerName, String playerType) {
-        out.println("key");
-        out.flush();
-        String messageIn = null;
-        try {
-            messageIn = in.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (!messageIn.equals("AH")) {
-            out.println(Errors.E001);
-            System.out.println(Errors.E001);
-        } else {
-            System.out.println("Connection successful.");
-        }
-
-    }
+    void handleHandshake(String playerName, String playerType);
 
     /**
      * This method handles the creation of a computerPlayer as requested by the client (admin) (ACP).
      * It relates heavily with the game-logic.
-     *
      * @param playerName of type {@code String} representing the name of the computer player
-     * @param strategy   of type {@code String} representing the strategy for the computer player
+     * @param strategy of type {@code String} representing the strategy for the computer player
      */
-    @Override
-    public void handleAddComputerPlayer(String playerName, String strategy) {
-
-    }
+    void handleAddComputerPlayer(String playerName, String strategy);
 
     /**
      * This method handles the command from the client (admin) to start the game (SG).
      * It relates heavily with the game-logic.
-     *
      * @param gameMode of type {@code String} representing the type/mode of the game
      */
-    @Override
-    public void handleStartGame(String gameMode) {
-
-    }
+    void handleStartGame(String gameMode);
 
     /**
      * This method handles the response from a client regarding the card that they chose to play (PC).
      * It relates heavily with the game-logic.
-     *
      * @param card of type {@code String} representing the card that the client wants to play
      */
-    @Override
-    public void handlePlayCard(String card) {
-
-    }
+    void handlePlayCard(String card);
 
     /**
      * This method handles the response from a client regarding the fact that they chose to draw a card (DC).
      * It relates heavily with the game-logic.
      */
-    @Override
-    public void handleDrawCard() {
-
-    }
+    void handleDrawCard();
 
     /**
      * This method handles the command from the client to leave the game (LG).
      */
-    @Override
-    public void handleLeaveGame() {
+    void handleLeaveGame();
 
-    }
+
+    /* Handlers for additional features */
 
     /**
      * This method handles the client-side request for the creation of a lobby, and responds in an appropriate manner (CL).
-     *
      * @param lobbyName of type String, representing the name of the lobby.
      */
-    @Override
-    public void handleCreateLobby(String lobbyName) {
-
-    }
+    void handleCreateLobby(String lobbyName);
 
     /**
      * This method handles the client-side request for joining a lobby, and responds in an appropriate manner (JL).
-     *
      * @param lobbyName of type String, representing the name of the lobby.
      */
-    @Override
-    public void handleJoinLobby(String lobbyName) {
-
-    }
+    void handleJoinLobby(String lobbyName);
 
     /**
      * The method processes the message and forwards it to all other clients within the chat (SM).
-     *
      * @param message of type String, representing the message.
      */
-    @Override
-    public void handleSendMessage(String message) {
-
-    }
+    void handleSendMessage(String message);
 
     /**
      * The method processes the client saying Uno, which then needs to be processed (UNO).
      */
-    @Override
-    public void handleSayUno() {
+    void handleSayUno();
 
-    }
+
+    /* Sending Methods */
 
     /**
      * This method creates the appropriate tag and message corresponding to the player being informed that they are the admin (IAD).
      * Once the data packet is produced, it is sent.
      */
-    @Override
-    public void doInformAdmin() {
-
-    }
+    void doInformAdmin();
 
     /**
      * This method creates the appropriate tag and message corresponding to a new player joining the lobby (BPJ).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName Refers to the name of the player that joined the lobby.
      */
-    @Override
-    public void doBroadcastPlayerJoined(String playerName) {
-
-    }
+    void doBroadcastPlayerJoined(String playerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to the game commencing (GST).
      * Once the data packet is produced, it is sent.
-     *
      * @param gameMode of type GameMode, referring to the gameMode of this particular game (normal, progressive, seven_o, jump)in).
      */
-    @Override
-    public void doGameStarted(String gameMode) {
-
-    }
+    void doGameStarted(String gameMode);
 
     /**
      * This method creates the appropriate tag and message corresponding to the round beginning (RST).
      * Once the data packet is produced, it is sent.
      */
-    @Override
-    public void doRoundStarted() {
-
-    }
+    void doRoundStarted();
 
     /**
      * This method creates the appropriate tag and message corresponding to the game information being sent to clients (BGI).
      * Once the data packet is produced, it is sent.
-     *
-     * @param topCard     of type String, representing the card.
-     * @param playerHand  of type String, representing this particular network client player's hand.
+     * @param topCard of type String, representing the card.
+     * @param playerHand of type String, representing this particular network client player's hand.
      * @param playersList of type {@code String} representing the list of players of the game sorted by the order of turn
-     * @param isYourTurn  of type {@code String} indicates if it is the player’s turn
+     * @param isYourTurn of type {@code String} indicates if it is the player’s turn
      */
-    @Override
-    public void doBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
-
-    }
+    void doBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn);
 
     /**
      * This method creates the appropriate tag and message corresponding to a card being played in the game (BCP).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName of type String, representing the name of the player who played the card.
      * @param playedCard of type {@code String} representing the card played
      */
-    @Override
-    public void doBroadcastCardPlayed(String playerName, String playedCard) {
-
-    }
+    void doBroadcastCardPlayed(String playerName, String playedCard);
 
     /**
      * This method creates the appropriate tag and message corresponding to a player drawing a card in the game (BDC).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName of type String, representing the name of the player who played the card.
      */
-    @Override
-    public void doBroadcastDrewCard(String playerName) {
-
-    }
+    void doBroadcastDrewCard(String playerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to a player's turn being skipped in the game (BTS).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName of type String, representing the name of the player who played the card.
      */
-    @Override
-    public void doBroadcastTurnSkipped(String playerName) {
-
-    }
+    void doBroadcastTurnSkipped(String playerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to the direction of the game reversing (BRS).
      * Once the data packet is produced, it is sent.
-     *
      * @param direction of type String, representing the direction (clockwise, anti-clockwise).
      */
-    @Override
-    public void doBroadcastReverse(String direction) {
-
-    }
+    void doBroadcastReverse(String direction);
 
     /**
      * This method creates the appropriate tag and message to inform other players that a network player has left/forfeited (BLG).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName of type String, representing the name of the player who left.
      */
-    @Override
-    public void doBroadcastLeftGame(String playerName) {
-
-    }
+    void doBroadcastLeftGame(String playerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to reminding a player that it is his turn(RP).
      * Once the data packet is produced, it is sent.
-     *
      * @param timeLeft of type int, representing the seconds that the player has left to make a move.
      */
-    @Override
-    public void doRemindPlay(String timeLeft) {
-
-    }
+    void doRemindPlay(String timeLeft);
 
     /**
      * This method creates the appropriate tag and message corresponding to when a round has ended (RE).
      * Once the data packet is produced, it is sent.
-     *
      * @param winnerName of type String, representing the name of the player who won that round.
      */
-    @Override
-    public void doRoundEnded(String winnerName) {
-
-    }
+    void doRoundEnded(String winnerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to a player winning the game (GE).
      * Once the data packet is produced, it is sent.
-     *
      * @param winnerName of type String, representing the name of the player who won the game.
      */
-    @Override
-    public void doGameEnded(String winnerName) {
-
-    }
+    void doGameEnded(String winnerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to an error code (E***).
      * Once the data packet is produced, it is sent.
-     *
      * @param errorCode of type Errors, representing the error code.
      */
-    @Override
-    public void doSendErrorCode(Errors errorCode) {
+    void doSendErrorCode(Errors errorCode);
 
-    }
+
+    /* Network-Related Handling */
 
     /**
      * This method exists so that the server can implement a mechanism to handle an inactive player (RP can be used).
      */
-    @Override
-    public void doHandleInactivePlayer() {
-
-    }
+    void doHandleInactivePlayer();
 
     /**
      * This method exists so that the server can handle a client that disconnected (by terminating the socket and adjusting the game).
      */
-    @Override
-    public void doHandleClientDisconnected() {
+    void doHandleClientDisconnected();
 
-    }
+
+    /* Additional features */
 
     /**
      * This method creates the appropriate tag and message corresponding to listing the available lobbies (LOL).
      * The method lists the available lobbies, that clients can join.
      * Once the data packet is produced, it is sent.
-     *
-     * @param lobbiesList
      */
-    @Override
-    public void doBroadcastListOfLobbies(String lobbiesList) {
-
-    }
+    void doBroadcastListOfLobbies(String lobbiesList);
 
     /**
      * This method creates the appropriate tag and message corresponding to a user creating a lobby (BCL).
      * The method returns a message if the creation of the lobby was successful.
      * Once the data packet is produced, it is sent.
-     *
      * @param lobbyName of type {@code String} representing the unique name of the lobby
      */
-    @Override
-    public void doBroadcastCreatedLobby(String lobbyName) {
-
-    }
+    void doBroadcastCreatedLobby(String lobbyName);
 
     /**
      * This method creates the appropriate tag and message corresponding to player joining a lobby (BJL).
      * Once the data packet is produced, it is sent.
-     *
      * @param playerName of type {@code String} representing the unique name of the winner of the game
      */
-    @Override
-    public void doBroadcastPlayerJoinedLobby(String playerName) {
-
-    }
+    void doBroadcastPlayerJoinedLobby(String playerName);
 
     /**
      * This method creates the appropriate tag and message corresponding to player sending a message (BM).
      * The method broadcasts a message sent my a client to the other clients.
      * Once the data packet is produced, it is sent.
-     *
      * @param message of type String, representing the chat message.
      */
-    @Override
-    public void doBroadcastMessage(String message) {
+    void doBroadcastMessage(String message);
 
-    }
-
-    /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    @Override
-    public void run() {
-        try {
-            this.doHandshake();
-            System.out.println("Connected.");
-            while(true) {
-                this.receiveMessage();
-                this.sendMessage();
-            }
-        }catch(IOException e) {
-            System.out.println("Sorry an error has occured, connection lost.");
-            System.out.println("Error: " + e);
-    }
-}
 }
