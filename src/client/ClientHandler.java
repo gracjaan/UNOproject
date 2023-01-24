@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientHandler implements ClientProtocol, Runnable {
@@ -24,7 +25,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         out = new PrintWriter(connection.getOutputStream());
     }
     private void seperateAndCall(String input) {
-        String[] splitted = input.split(" | ");
+        String[] splitted = input.split("[|]");
         try {
             switch (splitted[0]) {
                 case "AH":
@@ -78,6 +79,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
             }
         }catch (IndexOutOfBoundsException e) {
             sendMessage(ServerProtocol.Errors.E001.getMessage());
+            System.out.println("Index out of bounds");
         }
     }
 
@@ -96,6 +98,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
 //        Scanner scannner = new Scanner(System.in);
 //        String messageOut = scannner.nextLine();
         out.println(messageOut);
+        System.out.println(messageOut);
         out.flush();
         if(out.checkError()) {
             System.out.println("An error occured during transmission.");
@@ -103,7 +106,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
     public void receiveMessage() throws IOException {
         System.out.println("WAITING...");
-        String messageIn = in.readLine();
+        String messageIn = null;
+        messageIn = in.readLine();
         System.out.println("RECEIVED: " + messageIn);
         seperateAndCall(messageIn);
     }
@@ -120,21 +124,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleAcceptHandshake() {
-        String messageIn = null;
-        try {
-            messageIn = in.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (!messageIn.equals("key")) {
-            out.println(ServerProtocol.Errors.E001);
-            System.out.println(ServerProtocol.Errors.E001);
-        } else {
-            out.println("AH");
-            out.flush();
-            System.out.println("Connection successful.");
-        }
-
+        System.out.println("Handshake accepted.");
     }
 
     /**
@@ -144,8 +134,10 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void handleInformAdmin() {
         // create computer players, start game etc...
         this.isAdmin = true;
-        System.out.println("I'm the admin");
-
+        System.out.println("You're the admin");
+        // just for now adding CP and starting the game.
+        doAddComputerPlayer("tom", "advanced");
+        doStartGame("normal");
     }
 
     /**
@@ -178,7 +170,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     public void callBGI (String str){
-        String [] splitted = str.split("|");
+        String [] splitted = str.split("[|]");
         handleBroadcastGameInformation(splitted[1], splitted[2], splitted[3], splitted[4]);
     }
 
@@ -375,7 +367,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void doAddComputerPlayer(String playerName, String strategy) {
         if (isAdmin){
             String result = "ACP|" + playerName + "|" + strategy;
-            out.println(result);
+            sendMessage(result);
         }
     }
 
@@ -390,7 +382,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void doStartGame(String gameMode) {
         if (isAdmin){
             String result = "SG|" + gameMode;
-            out.println(result);
+            sendMessage(result);
         }
         else{
             System.out.println("Game is being setup in mode: " + gameMode);
@@ -495,9 +487,9 @@ public class ClientHandler implements ClientProtocol, Runnable {
         String nextLn = scan.nextLine();
         String[] splitted = nextLn.split(" ");
         StringBuffer sb = new StringBuffer(nextLn);
-        sb.deleteCharAt(sb.length()-1);
-        sb.deleteCharAt(sb.length()-1);
         if (splitted[splitted.length-1].equals("c")) {
+            sb.deleteCharAt(sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
             doMakeHandshake(sb.toString(), "computer_player");
         }else {
             doMakeHandshake(sb.toString(), "human_player");

@@ -1,5 +1,7 @@
 package server;
 
+import controller.UNO;
+import model.card.Card;
 import model.player.ComputerPlayer;
 import model.player.HumanPlayer;
 import model.player.NetworkPlayer;
@@ -34,7 +36,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
 
     private void seperateAndCall(String input) {
         //server.getUno().getTable().getCurrentPlayer();
-        String[] splitted = input.split("|");
+        String[] splitted = input.split("[|]");
         try {
         switch (splitted[0]) {
             case "MH":
@@ -89,9 +91,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
     public void receiveMessage()  {
         System.out.println("WAITING...");
-        String messageIn = null;
+        String messageIn = "";
         try {
             messageIn = in.readLine();
+
         } catch (IOException e) {
             sendMessage(Errors.E001.getMessage());
         }
@@ -121,29 +124,23 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleHandshake(String playerName, String playerType) {
-        String messageIn = null;
-        String spl[] = null;
-        try {
-            messageIn = in.readLine();
-            spl = messageIn.split(" | ");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (!spl[0].equals("MH")) {
+        // duplicate player names? as validation for playerName
+        if (playerType.equals("human_player")) {
+            Player p = new NetworkPlayer(playerName, this);
+            players.add(p);
+        } else if (playerType.equals("computer_player")){
+            Player p = new ComputerPlayer(playerName);
+            players.add(p);
+        }else {
             out.println(Errors.E001);
             System.out.println(Errors.E001);
-        } else {
-            if (spl[2].equals("human_player")) {
-                Player p = new NetworkPlayer(spl[1], this);
-                players.add(p);
-            } else {
-                out.println(Errors.E001);
-                System.out.println(Errors.E001);
-            }
-            }
+        }
         out.println("AH");
         out.flush();
-        System.out.println(spl[1] + " connected successfully.");
+        System.out.println(playerName + " connected successfully.");
+        if (players.size()==1) {
+            doInformAdmin();
+        }
         }
 
 
@@ -171,7 +168,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleStartGame(String gameMode) {
         // check if there are necessary changes in UNO.
+        // BGI?
         server.getUno().setup(this.players);
+//        Thread myUno = new Thread(new UNO());
+//        myUno.start();
         server.getUno().play();
         doGameStarted(gameMode);
     }
@@ -258,7 +258,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void doInformAdmin() {
         // assuming we are informing the first player that joined to become an admin (has to be instance of HP)
         String msg = "IAD";
-        server.getHandlers().get(0).sendMessage(msg);
+        this.sendMessage(msg);
         // when is someone informed that he is an admin? a message sent to all should probs be done in server.
     }
 

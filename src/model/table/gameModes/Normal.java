@@ -2,6 +2,7 @@ package model.table.gameModes;
 
 import model.card.Card;
 import model.deck.Deck;
+import model.player.NetworkPlayer;
 import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
 import model.player.factory.Player;
@@ -30,6 +31,11 @@ public class Normal extends PlayingMode {
                 break;
             case SKIP:
                 player.getTable().skip();
+                for (Player p: player.getTable().getPlayers()) {
+                    if (p instanceof NetworkPlayer) {
+                        ((NetworkPlayer) p).getSh().doBroadcastTurnSkipped(nextPlayer.getNickname());
+                    }
+                }
                 break;
             case PICK_COLOR:
                 if (player.getTable().isHasWinner()){
@@ -38,6 +44,11 @@ public class Normal extends PlayingMode {
                 player.pickColor();
                 break;
             case CHANGE_DIRECTION:
+                for (Player p: player.getTable().getPlayers()) {
+                    if (p instanceof NetworkPlayer) {
+                        ((NetworkPlayer) p).getSh().doBroadcastReverse(String.valueOf(player.getTable().isClockWise()));
+                    }
+                }
                 player.getTable().reversePlayers();
                 break;
         }

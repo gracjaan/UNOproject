@@ -13,7 +13,7 @@ import view.TUI;
 import java.nio.Buffer;
 import java.util.*;
 
-public class UNO {
+public class UNO implements Runnable{
     private TUI tui = new TUI();
     private ArrayList<Player> players;
     private Table table;
@@ -103,6 +103,11 @@ public class UNO {
 //                    }
 //
                 table.nextTurn();
+                for (Player p: players) {
+                    if (p instanceof NetworkPlayer) {
+                        ((NetworkPlayer) p).broadcastAfterTurn();
+                    }
+                }
                 if (gameOver()!=null) {
                     System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
                     break;
@@ -162,9 +167,9 @@ public class UNO {
 //
 //    }
     public void setup(ArrayList<Player> players) {
+        this.players = players;
         ArrayList<Card> d = new Deck().getPlayingCards();
         Collections.shuffle(d);
-
         int mpi = findDealer(d);
         setPlayingOrder(mpi);
         createTable();
@@ -196,6 +201,7 @@ public class UNO {
     }
 
     private void setPlayingOrder(int maxPlayerIndex) {
+        // set currentTurnIndex to maxPlayerIndex + 1
         ArrayList<Player> tempArr = new ArrayList<>();
         for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
             tempArr.add(players.get(i));
@@ -476,32 +482,32 @@ public class UNO {
 
     }
 
-    public boolean handleMove(String input){
-        String [] splitted = input.split(" ");
-        boolean b = true;
-
-        if (splitted[0].equals("draw")){
-            b = inputDraw(input);
+    public boolean handleMove(String input) {
+        System.out.println(input);
+        boolean b = false;
+        if (input != null) {
+            String[] splitted = input.split(" ");
+            System.out.println(Arrays.toString(splitted));
+            System.out.println("not null");
+            b = true;
+            if (splitted[0].equals("draw")) {
+                b = inputDraw(input);
+            } else if (splitted[0].equals("challenge")) {
+                b = inputChallenge(input);
+            } else if (splitted.length == 2 && splitted[1].equals("uno")) {
+                b = inputCard(splitted[0]);
+            } else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))) {
+                b = inputCard(splitted[0]);
+                System.out.println("You didn't say UNO. You are punished with two cards");
+                table.getCurrentPlayer().draw(2);
+            } else if (isInRange(splitted[0])) {
+                b = inputCard(input);
+            } else {
+                System.out.println("Query not recognized. Please try again following listed queries!");
+                b = false;
+            }
         }
-        else if (splitted[0].equals("challenge")){
-            b = inputChallenge(input);
-        }
-        else if (splitted.length == 2 && splitted[1].equals("uno")){
-            b = inputCard(splitted[0]);
-        }
-        else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))){
-            b = inputCard(splitted[0]);
-            System.out.println("You didn't say UNO. You are punished with two cards");
-            table.getCurrentPlayer().draw(2);
-        }
-        else if (isInRange(splitted[0])){
-            b = inputCard(input);
-        }
-        else {
-            System.out.println("Query not recognized. Please try again following listed queries!");
-            b = false;
-        }
-        return b;
+            return b;
     }
 
     public boolean isInRange(String str) {
@@ -523,10 +529,16 @@ public class UNO {
      * Changes state of game to gamover when there is last player with cards
      * */
     public Player gameOver() {
-        int position = 0;
+        String winner = "";
         for (Player player: table.getScoreBoard().keySet()) {
             if (table.getScoreBoard().get(player) >= 500){
+                winner = player.getNickname();
                 return player;
+            }
+        }
+        for (Player p: players) {
+            if (p instanceof NetworkPlayer) {
+                ((NetworkPlayer) p).getSh().doGameEnded(winner);
             }
         }
         return null;
@@ -534,6 +546,12 @@ public class UNO {
 
     public void roundOver(){
         if (table.isHasWinner()) {
+            String winner = Collections.max(table.getScoreBoard().entrySet(), Map.Entry.comparingByValue()).getKey().getNickname();
+            for (Player p: players) {
+                if (p instanceof NetworkPlayer) {
+                    ((NetworkPlayer) p).getSh().doRoundEnded(winner);
+                }
+            }
             Deck d = new Deck();
             Collections.shuffle(d.getPlayingCards());
             int mpi = findDealer(d.getPlayingCards());
@@ -573,5 +591,21 @@ public class UNO {
 
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        play();
     }
 }

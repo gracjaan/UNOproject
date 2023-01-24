@@ -18,6 +18,7 @@ public class Table {
     private Card.Color indicatedColor;
     private boolean drawFourPlayable;
     private boolean hasWinner;
+    private boolean clockWise;
 
     public Table(ArrayList<Player> players, PlayingMode playingMode) {
         this.players = players;
@@ -27,6 +28,7 @@ public class Table {
         for(Player player: this.players) {
             scoreBoard.put(player, 0);
         }
+        clockWise=true;
     }
 
     public void setUpRound(Deck deckArg){
@@ -48,29 +50,37 @@ public class Table {
         if (this.players.size()==2) {
             nextTurn();
         }
-        else {
-            ArrayList<Player> tempArr = new ArrayList<>();
-            tempArr.add(players.get(currentTurnIndex));
-            for (int i = currentTurnIndex - 1; i >= 0; i--) {
-                tempArr.add(players.get(i));
-            }
-            for (int i = players.size() - 1; i > currentTurnIndex; i--) {
-                tempArr.add(players.get(i));
-            }
-            players = tempArr;
-            currentTurnIndex = 0;
-        }
+        clockWise = !clockWise;
+//        else {
+//            ArrayList<Player> tempArr = new ArrayList<>();
+//            tempArr.add(players.get(currentTurnIndex));
+//            for (int i = currentTurnIndex - 1; i >= 0; i--) {
+//                tempArr.add(players.get(i));
+//            }
+//            for (int i = players.size() - 1; i > currentTurnIndex; i--) {
+//                tempArr.add(players.get(i));
+//            }
+//            players = tempArr;
+//            currentTurnIndex = 0;
+//        }
     }
 
     /**
      * Determines next turn
      * */
     public void nextTurn() {
-        if (currentTurnIndex<players.size()-1) {
-            currentTurnIndex++;
-        }
-        else {
-            currentTurnIndex = 0;
+        if(clockWise) {
+            if (currentTurnIndex < players.size() - 1) {
+                currentTurnIndex++;
+            } else {
+                currentTurnIndex = 0;
+            }
+        }else {
+            if (currentTurnIndex > 0) {
+                currentTurnIndex--;
+            }else {
+                currentTurnIndex = players.size()-1;
+            }
         }
         resetIndicatedColor();
     }
@@ -177,21 +187,33 @@ public class Table {
     }
 
     public Player getPreviousPlayer(){
-        if (currentTurnIndex == 0){
-            return this.players.get(players.size()-1);
-        }
-        return this.players.get(currentTurnIndex-1);
+       if (clockWise) {
+           if (currentTurnIndex == 0) {
+               return this.players.get(players.size() - 1);
+           }
+           return this.players.get(currentTurnIndex - 1);
+       }else {
+           if (currentTurnIndex == players.size()-1) {
+               return this.players.get(0);
+           } else {
+               return this.players.get(currentTurnIndex+1);
+           }
+       }
     }
 
     public Player getNextPlayer() {
-        Player nextPlayer;
-        if (this.getCurrentTurnIndex()<this.getPlayers().size()-1) {
-            nextPlayer = this.getPlayers().get(this.getCurrentTurnIndex()+1);
+        if (clockWise) {
+            if (currentTurnIndex == players.size()-1) {
+                return this.players.get(0);
+            }
+            return this.players.get(currentTurnIndex + 1);
+        }else {
+            if (currentTurnIndex == 0) {
+                return this.players.get(players.size()-1);
+            } else {
+                return this.players.get(currentTurnIndex-1);
+            }
         }
-        else {
-            nextPlayer = this.getPlayers().get(0);
-        }
-        return nextPlayer;
     }
 
     public Player getCurrentPlayer() {
@@ -222,6 +244,9 @@ public class Table {
         return hasWinner;
     }
 
+    public boolean isClockWise() {
+        return clockWise;
+    }
     //--------------------------SETTERS--------------------------
 
     public void setPlayers(ArrayList<Player> players) {

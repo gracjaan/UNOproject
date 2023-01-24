@@ -9,8 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +25,15 @@ public class DeckTest {
     }
     @Test
     public void testRandomNumber() {
-        Card card = new Card(Card.Color.BLUE, Card.Value.FIVE);
-        System.out.println(card.getValue().ordinal()-5);
+        Card card = new Card(Card.Color.BLUE, Card.Value.SKIP);
+        System.out.println(card.getValue());
+        HashMap<Player, Integer> hash = new HashMap<>();
+        hash.put(new HumanPlayer("tom"), 450);
+        hash.put(new HumanPlayer("asdf"), 320);
+        hash.put(new HumanPlayer("twr"), 430);
+        hash.put(new HumanPlayer("t32r"), 270);
+        String winner = Collections.max(hash.entrySet(), Map.Entry.comparingByValue()).getKey().getNickname();
+        System.out.println(winner);
     }
     }
 
