@@ -78,6 +78,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         System.out.println("Connection successful.");
     }
     public void sendMessage(String message) {
+        System.out.println("SEND: " + message);
         out.println(message);
         out.flush();
         if(out.checkError()) {
@@ -169,11 +170,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void handleStartGame(String gameMode) {
         // check if there are necessary changes in UNO.
         // BGI?
+        doGameStarted(gameMode);
         server.getUno().setup(this.players);
 //        Thread myUno = new Thread(new UNO());
 //        myUno.start();
         server.getUno().play();
-        doGameStarted(gameMode);
+
     }
 
     /**
@@ -283,7 +285,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doGameStarted(String gameMode) {
         String msg = "GST|" + gameMode;
-        sendMessageToAll(msg);
+        sendMessage(msg);
     }
 
     /**
@@ -293,7 +295,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doRoundStarted() {
         String msg = "RST";
-        sendMessageToAll(msg);
+        sendMessage(msg);
     }
 
     /**
@@ -326,7 +328,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastCardPlayed(String playerName, String playedCard) {
         String result = "BCP|" + playerName + "|" + playedCard;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -338,7 +340,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastDrewCard(String playerName) {
         String result = "BDC|" + playerName;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -350,7 +352,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastTurnSkipped(String playerName) {
         String result = "BTS|" + playerName;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -362,7 +364,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastReverse(String direction) {
         String result = "BRS|" + direction;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -374,7 +376,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastLeftGame(String playerName) {
         String result = "BLG|" + playerName;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -398,7 +400,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doRoundEnded(String winnerName) {
         String result = "RE|" + winnerName;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**
@@ -410,7 +412,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doGameEnded(String winnerName) {
         String result = "GE|" + winnerName;
-        sendMessageToAll(result);
+        sendMessage(result);
     }
 
     /**

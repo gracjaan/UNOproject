@@ -24,7 +24,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
     }
-    private void seperateAndCall(String input) {
+    private synchronized void seperateAndCall(String input) {
         String[] splitted = input.split("[|]");
         try {
             switch (splitted[0]) {
@@ -37,13 +37,14 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 case "BPJ":
                     handleBroadcastPlayerJoined(splitted[1]);
                     break;
-                case "GCT":
+                case "GST":
                     handleGameStarted(splitted[1]);
                     break;
                 case "RST":
                     handleRoundStarted();
                     break;
                 case "BGI":
+                    System.out.println("i got here");
                     handleBroadcastGameInformation(splitted[1], splitted[2], splitted[3], splitted[4]);
                     break;
                 case "BCP":
@@ -72,10 +73,10 @@ public class ClientHandler implements ClientProtocol, Runnable {
                     break;
                 case "ERR":
                     handleSendErrorCode(splitted[1]);
+                    break;
                 default:
                     String s = ServerProtocol.Errors.E001.getMessage();
                     sendMessage(s);
-                    break;
             }
         }catch (IndexOutOfBoundsException e) {
             sendMessage(ServerProtocol.Errors.E001.getMessage());
@@ -195,11 +196,16 @@ public class ClientHandler implements ClientProtocol, Runnable {
         for (int i = 0; i < splittedHand.length; i++ ){
             System.out.print(i + "| " + splittedHand[i] + " |        ");
         }
-        String [] splittedPlayers = playerHand.split(";");
+        String [] splittedPlayers = playersList.split(";");
         for (int i = 0; i < splittedPlayers.length; i++){
             String [] split = splittedPlayers[i].split(":");
             System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
         }
+        System.out.println(">> input please");
+        Scanner scan = new Scanner(System.in);
+        String ind = scan.nextLine();
+        String card = splittedHand[Integer.parseInt(ind)];
+        doPlayCard(card);
     }
 
     /**
@@ -399,7 +405,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void doPlayCard(String card) {
         String result = "PC|" + card;
-        out.println(result);
+        sendMessage(result);
     }
 
     /**
@@ -409,7 +415,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doDrawCard() {
-        out.println("DC");
+        sendMessage("DC");
     }
 
     /**
@@ -419,7 +425,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doLeaveGame() {
-        out.println("LG");
+        sendMessage("LG");
     }
 
     /**

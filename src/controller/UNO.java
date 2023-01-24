@@ -85,7 +85,9 @@ public class UNO implements Runnable{
                     System.out.println(input1);
                 } else {
                     NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
+                    np.broadcastAfterTurn();
                     input1 = np.getTranslation();
+                    System.out.println(np.getTranslation());
                     //maybe souts
                 }
                 if (!handleMove(input1)) {
@@ -103,11 +105,11 @@ public class UNO implements Runnable{
 //                    }
 //
                 table.nextTurn();
-                for (Player p: players) {
-                    if (p instanceof NetworkPlayer) {
-                        ((NetworkPlayer) p).broadcastAfterTurn();
-                    }
-                }
+//                for (Player p: players) {
+//                    if (p instanceof NetworkPlayer) {
+//                        ((NetworkPlayer) p).broadcastAfterTurn();
+//                    }
+//                }
                 if (gameOver()!=null) {
                     System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
                     break;
@@ -533,12 +535,12 @@ public class UNO implements Runnable{
         for (Player player: table.getScoreBoard().keySet()) {
             if (table.getScoreBoard().get(player) >= 500){
                 winner = player.getNickname();
+                for (Player p: players) {
+                    if (p instanceof NetworkPlayer) {
+                        ((NetworkPlayer) p).getSh().doGameEnded(winner);
+                    }
+                }
                 return player;
-            }
-        }
-        for (Player p: players) {
-            if (p instanceof NetworkPlayer) {
-                ((NetworkPlayer) p).getSh().doGameEnded(winner);
             }
         }
         return null;

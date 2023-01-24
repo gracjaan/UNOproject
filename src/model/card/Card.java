@@ -84,7 +84,7 @@ public class Card {
 
     //--------------------------toString--------------------------
     public String toString(){
-        return "[" + this.color + " "  + this.value + "]";
+        return this.color.toString() + " "  + this.value.toString();
     }
 
 }
