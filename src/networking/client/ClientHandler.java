@@ -1,16 +1,13 @@
-package client;
+package networking.client;
 
-import client.contract.ClientProtocol;
-import model.player.NetworkPlayer;
-import model.player.factory.Player;
-import server.contract.ServerProtocol;
+import networking.client.contract.ClientProtocol;
+import networking.server.contract.ServerProtocol;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientHandler implements ClientProtocol, Runnable {
@@ -85,12 +82,12 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     public void doHandshake() throws IOException {
-        //send HS to client
+        //send HS to networking.client
         out.println("Tocjan");
         out.flush();
         String messageIn = in.readLine();
         if (!messageIn.equals("Tocjan")) {
-            throw new IOException("Wrong client connected.");
+            throw new IOException("Wrong networking.client connected.");
         }
         System.out.println("Connection successful.");
     }
@@ -121,7 +118,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method informs the client that the handshake was accepted (AH).
+     * This method informs the networking.client that the handshake was accepted (AH).
      */
     @Override
     public void handleAcceptHandshake() {
@@ -129,7 +126,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method handles the message being sent by the server regarding informing the client that they are the admin (IAD).
+     * This method handles the message being sent by the networking.server regarding informing the networking.client that they are the admin (IAD).
      */
     @Override
     public void handleInformAdmin() {
@@ -137,7 +134,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         this.isAdmin = true;
         System.out.println("You're the admin");
         // just for now adding CP and starting the game.
-        doAddComputerPlayer("tom", "advanced");
+        //doAddComputerPlayer("tom", "advanced");
         doStartGame("normal");
     }
 
@@ -149,7 +146,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void handleBroadcastPlayerJoined(String playerName) {
         //adds playername to the game
-        System.out.println(playerName + " connected to the server");
+        System.out.println(playerName + " connected to the networking.server");
     }
 
     /**
@@ -275,7 +272,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method handles the message being sent by the server, reminding the client to play (RP).
+     * This method handles the message being sent by the networking.server, reminding the networking.client to play (RP).
      *
      * @param timeLeft of type {@code String} representing the time left to play
      */
@@ -335,7 +332,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method handles the message being sent by the server about a player joining the lobby (BJL).
+     * This method handles the message being sent by the networking.server about a player joining the lobby (BJL).
      *
      * @param playerName of type {@code String} representing the unique name of the winner of the game
      */
@@ -355,7 +352,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method handles the message being sent by the server after a player says UNO (BUNO).
+     * This method handles the message being sent by the networking.server after a player says UNO (BUNO).
      */
     @Override
     public void handleBroadcastSayUNO() {
@@ -364,7 +361,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
 
     /**
      * This method creates the appropriate tag and message corresponding to the make handshake (MH)..
-     * The method initializes the handshake of the client and the server with the parameters provided.
+     * The method initializes the handshake of the networking.client and the networking.server with the parameters provided.
      * Once the data packet is produced, the sender() method is invoked.
      *
      * @param playerName of type {@code String} representing the unique name of the player
@@ -412,20 +409,29 @@ public class ClientHandler implements ClientProtocol, Runnable {
 
     /**
      * This method creates the appropriate tag and message corresponding to a card being played (PC).
-     * The method is being used when it is the client's turn, and he needs to play a card. The chosen card is passed as a parameter to the method.
+     * The method is being used when it is the networking.client's turn, and he needs to play a card. The chosen card is passed as a parameter to the method.
      * Once the data packet is produced, the sender() method is invoked.
      *
-     * @param card of type {@code String} representing the card that the client wants to play
+     * @param card of type {@code String} representing the card that the networking.client wants to play
      */
     @Override
     public void doPlayCard(String card) {
-        String result = "PC|" + card;
-        sendMessage(result);
+        String[] spl = card.split(" ");
+        if (spl[0].equals("WILD")) {
+            System.out.println(">> Please pick a color!");
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.next();
+            String res = "PC|" + card+"|"+input;
+            sendMessage(res);
+        } else {
+            String result = "PC|" + card;
+            sendMessage(result);
+        }
     }
 
     /**
      * This method creates the appropriate tag and message corresponding to a card being drawn (DC).
-     * The method is being used when it is the client's turn, and he wants to draw a card.
+     * The method is being used when it is the networking.client's turn, and he wants to draw a card.
      * Once the data packet is produced, the sender() method is invoked.
      */
     @Override
@@ -434,8 +440,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client leaving the game (LG).
-     * The method is being used when the client wants to leave the game.
+     * This method creates the appropriate tag and message corresponding to a networking.client leaving the game (LG).
+     * The method is being used when the networking.client wants to leave the game.
      * Once the data packet is produced, the sender() method is invoked.
      */
     @Override
@@ -444,8 +450,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client creating a lobby (CL).
-     * The method is being used when the client wants to create a lobby.
+     * This method creates the appropriate tag and message corresponding to a networking.client creating a lobby (CL).
+     * The method is being used when the networking.client wants to create a lobby.
      * Once the data packet is produced, the sender() method is invoked.
      *
      * @param lobbyName of type String, representing the name of the lobby.
@@ -456,8 +462,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client joining a lobby (JL).
-     * The method is being used when the client wants to join a lobby.
+     * This method creates the appropriate tag and message corresponding to a networking.client joining a lobby (JL).
+     * The method is being used when the networking.client wants to join a lobby.
      * Once the data packet is produced, the sender() method is invoked.
      *
      * @param lobbyName of type String, representing the name of the lobby.
@@ -468,8 +474,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client sending a message in the chat (SM).
-     * The method is being used when the client wants to send a message in the chat.
+     * This method creates the appropriate tag and message corresponding to a networking.client sending a message in the chat (SM).
+     * The method is being used when the networking.client wants to send a message in the chat.
      * Once the data packet is produced, the sender() method is invoked.
      *
      * @param message of type String, representing the message.
@@ -480,8 +486,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client saying UNO to avoid punishment(UNO).
-     * The method is being used when the client wants to say UNO.
+     * This method creates the appropriate tag and message corresponding to a networking.client saying UNO to avoid punishment(UNO).
+     * The method is being used when the networking.client wants to say UNO.
      * Once the data packet is produced, the sender() method is invoked.
      */
     @Override

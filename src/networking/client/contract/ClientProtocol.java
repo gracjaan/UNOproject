@@ -1,6 +1,6 @@
-package client.contract;
+package networking.client.contract;
 /**
- * This interface includes all relevant protocol codes, and methods that the client of Uno Game will need to use in order to ensure
+ * This interface includes all relevant protocol codes, and methods that the networking.client of Uno Game will need to use in order to ensure
  * secure integration with the network protocol that was designed.
  *
  * Relevant JavaDocs are added.
@@ -8,10 +8,10 @@ package client.contract;
 public interface ClientProtocol {
 
     /**
-     * The following list contains the client commands (commands that are sent from the client to the server).
+     * The following list contains the networking.client commands (commands that are sent from the networking.client to the networking.server).
      *
-     * The access modifier is public because the server will need access to these in order to determine what appropriate course of action needs to be
-     * taken with respect to each particular command sent by the client. Further documentation for each command can be found in the protocol description table.
+     * The access modifier is public because the networking.server will need access to these in order to determine what appropriate course of action needs to be
+     * taken with respect to each particular command sent by the networking.client. Further documentation for each command can be found in the protocol description table.
      */
     enum ClientCommand {
         MH("Make Handshake"),
@@ -37,15 +37,15 @@ public interface ClientProtocol {
     }
 
 
-    /* Handlers - those handlers are used to handle messages received from the server. */
+    /* Handlers - those handlers are used to handle messages received from the networking.server. */
 
     /**
-     * This method informs the client that the handshake was accepted (AH).
+     * This method informs the networking.client that the handshake was accepted (AH).
      */
     void handleAcceptHandshake();
 
     /**
-     * This method handles the message being sent by the server regarding informing the client that they are the admin (IAD).
+     * This method handles the message being sent by the networking.server regarding informing the networking.client that they are the admin (IAD).
      */
     void handleInformAdmin();
 
@@ -107,7 +107,7 @@ public interface ClientProtocol {
     void handleBroadcastLeftGame(String playerName);
 
     /**
-     * This method handles the message being sent by the server, reminding the client to play (RP).
+     * This method handles the message being sent by the networking.server, reminding the networking.client to play (RP).
      * @param timeLeft of type {@code String} representing the time left to play
      */
     void handleRemindPlay(String timeLeft);
@@ -146,7 +146,7 @@ public interface ClientProtocol {
     void handleBroadcastCreatedLobby(String lobbyName);
 
     /**
-     * This method handles the message being sent by the server about a player joining the lobby (BJL).
+     * This method handles the message being sent by the networking.server about a player joining the lobby (BJL).
      * @param playerName of type {@code String} representing the unique name of the winner of the game
      */
     void handleBroadcastPlayerJoinedLobby(String playerName);
@@ -158,7 +158,7 @@ public interface ClientProtocol {
     void handleBroadcastMessage(String message);
 
     /**
-     * This method handles the message being sent by the server after a player says UNO (BUNO).
+     * This method handles the message being sent by the networking.server after a player says UNO (BUNO).
      */
     void handleBroadcastSayUNO();
 
@@ -167,7 +167,7 @@ public interface ClientProtocol {
 
     /**
      * This method creates the appropriate tag and message corresponding to the make handshake (MH)..
-     * The method initializes the handshake of the client and the server with the parameters provided.
+     * The method initializes the handshake of the networking.client and the networking.server with the parameters provided.
      * Once the data packet is produced, the sender() method is invoked.
      * @param playerName of type {@code String} representing the unique name of the player
      * @param playerType of type {@code String} representing computer_player ot human_player
@@ -175,7 +175,7 @@ public interface ClientProtocol {
     void doMakeHandshake(String playerName, String playerType);
 
 
-    /* Admin methods - in order to be able to use those methods the client, connected to the server,
+    /* Admin methods - in order to be able to use those methods the networking.client, connected to the networking.server,
      * needs to be the one that created the game, so is chosen as an admin.
      */
 
@@ -201,22 +201,22 @@ public interface ClientProtocol {
 
     /**
      * This method creates the appropriate tag and message corresponding to a card being played (PC).
-     * The method is being used when it is the client's turn, and he needs to play a card. The chosen card is passed as a parameter to the method.
+     * The method is being used when it is the networking.client's turn, and he needs to play a card. The chosen card is passed as a parameter to the method.
      * Once the data packet is produced, the sender() method is invoked.
-     * @param card of type {@code String} representing the card that the client wants to play
+     * @param card of type {@code String} representing the card that the networking.client wants to play
      */
-    void doPlayCard(String card); // this should have no parameter because client does not have card on client-side. Look at the table, also he knows his cards in the hand
+    void doPlayCard(String card); // this should have no parameter because networking.client does not have card on networking.client-side. Look at the table, also he knows his cards in the hand
 
     /**
      * This method creates the appropriate tag and message corresponding to a card being drawn (DC).
-     * The method is being used when it is the client's turn, and he wants to draw a card.
+     * The method is being used when it is the networking.client's turn, and he wants to draw a card.
      * Once the data packet is produced, the sender() method is invoked.
      */
     void doDrawCard();
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client leaving the game (LG).
-     * The method is being used when the client wants to leave the game.
+     * This method creates the appropriate tag and message corresponding to a networking.client leaving the game (LG).
+     * The method is being used when the networking.client wants to leave the game.
      * Once the data packet is produced, the sender() method is invoked.
      */
     void doLeaveGame();
@@ -225,32 +225,32 @@ public interface ClientProtocol {
     /* Handlers for additional features */
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client creating a lobby (CL).
-     * The method is being used when the client wants to create a lobby.
+     * This method creates the appropriate tag and message corresponding to a networking.client creating a lobby (CL).
+     * The method is being used when the networking.client wants to create a lobby.
      * Once the data packet is produced, the sender() method is invoked.
      * @param lobbyName of type String, representing the name of the lobby.
      */
     void doCreateLobby(String lobbyName);
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client joining a lobby (JL).
-     * The method is being used when the client wants to join a lobby.
+     * This method creates the appropriate tag and message corresponding to a networking.client joining a lobby (JL).
+     * The method is being used when the networking.client wants to join a lobby.
      * Once the data packet is produced, the sender() method is invoked.
      * @param lobbyName of type String, representing the name of the lobby.
      */
     void doJoinLobby(String lobbyName);
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client sending a message in the chat (SM).
-     * The method is being used when the client wants to send a message in the chat.
+     * This method creates the appropriate tag and message corresponding to a networking.client sending a message in the chat (SM).
+     * The method is being used when the networking.client wants to send a message in the chat.
      * Once the data packet is produced, the sender() method is invoked.
      * @param message of type String, representing the message.
      */
     void doSendMessage(String message);
 
     /**
-     * This method creates the appropriate tag and message corresponding to a client saying UNO to avoid punishment(UNO).
-     * The method is being used when the client wants to say UNO.
+     * This method creates the appropriate tag and message corresponding to a networking.client saying UNO to avoid punishment(UNO).
+     * The method is being used when the networking.client wants to say UNO.
      * Once the data packet is produced, the sender() method is invoked.
      */
     void doSayUno();

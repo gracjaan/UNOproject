@@ -1,12 +1,10 @@
-package server;
+package networking.server;
 
-import controller.UNO;
-import model.card.Card;
 import model.player.ComputerPlayer;
-import model.player.HumanPlayer;
 import model.player.NetworkPlayer;
 import model.player.factory.Player;
-import server.contract.ServerProtocol;
+import networking.Lobby;
+import networking.server.contract.ServerProtocol;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,13 +12,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class ServerHandler implements ServerProtocol, Runnable{
     private Socket connection;
     private BufferedReader in;
     private PrintWriter out;
-    private ArrayList<Player> players;
     private Server server;
 
     // create method to send mesg to all players.
@@ -28,14 +24,13 @@ public class ServerHandler implements ServerProtocol, Runnable{
         this.connection = connection;
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
-        players = new ArrayList<>();
         this.server = server;
     }
 
     // seperate commands and call appropriate functions
 
     private void seperateAndCall(String input) {
-        //server.getUno().getTable().getCurrentPlayer();
+        //networking.server.getUno().getTable().getCurrentPlayer();
         String[] splitted = input.split("[|]");
         try {
         switch (splitted[0]) {
@@ -49,6 +44,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
                 handleStartGame(splitted[1]);
                 break;
             case "PC":
+                if (splitted.length==3) {
+                    String c = splitted[1]+":"+splitted[2];
+                    handlePlayCard(c);
+                }
                 handlePlayCard(splitted[1]);
                 break;
             case "DC":
@@ -68,12 +67,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
 
 
     public void doHandshake() throws IOException {
-        //send HS to client
+        //send HS to networking.client
         out.println("Tocjan");
         out.flush();
         String messageIn = in.readLine();
         if (!messageIn.equals("Tocjan")) {
-            System.out.println("Wrong client connected");
+            System.out.println("Wrong networking.client connected");
         }
         System.out.println("Connection successful.");
     }
@@ -111,9 +110,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * This method is called when a connection is first made, and the client performs a "potentially valid" handshake.
+     * This method is called when a connection is first made, and the networking.client performs a "potentially valid" handshake.
      * <p>
-     * The method assesses whether the client has performed a valid handshake, and if this is the case, the method returns an
+     * The method assesses whether the networking.client has performed a valid handshake, and if this is the case, the method returns an
      * appropriate correspondence containing relevant information that the verified UnoClient needs to know in the form of a
      * welcome message (AH).
      * Once the data packet is produced, it is sent.
@@ -128,10 +127,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // duplicate player names? as validation for playerName
         if (playerType.equals("human_player")) {
             Player p = new NetworkPlayer(playerName, this);
-            players.add(p);
+            server.getPlayers().add(p);
         } else if (playerType.equals("computer_player")){
             Player p = new ComputerPlayer(playerName);
-            players.add(p);
+            server.getPlayers().add(p);
         }else {
             out.println(Errors.E001);
             System.out.println(Errors.E001);
@@ -139,14 +138,14 @@ public class ServerHandler implements ServerProtocol, Runnable{
         out.println("AH");
         out.flush();
         System.out.println(playerName + " connected successfully.");
-        if (players.size()==1) {
+        if (server.getHandlers().size()==2) {
             doInformAdmin();
         }
         }
 
 
     /**
-     * This method handles the creation of a computerPlayer as requested by the client (admin) (ACP).
+     * This method handles the creation of a computerPlayer as requested by the networking.client (admin) (ACP).
      * It relates heavily with the game-logic.
      *
      * @param playerName of type {@code String} representing the name of the computer player
@@ -157,11 +156,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleAddComputerPlayer(String playerName, String strategy) {
         Player c = new ComputerPlayer(playerName);
-        players.add(c);
+        server.getPlayers().add(c);
     }
 
     /**
-     * This method handles the command from the client (admin) to start the game (SG).
+     * This method handles the command from the networking.client (admin) to start the game (SG).
      * It relates heavily with the game-logic.
      *
      * @param gameMode of type {@code String} representing the type/mode of the game
@@ -171,32 +170,35 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // check if there are necessary changes in UNO.
         // BGI?
         doGameStarted(gameMode);
-        server.getUno().setup(this.players);
+        server.getUno().setup(this.server.getPlayers());
         Thread myUno = new Thread(server.getUno());
         myUno.start();
-        //server.getUno().play();
+        //networking.server.getUno().play();
 
     }
 
     /**
-     * This method handles the response from a client regarding the card that they chose to play (PC).
+     * This method handles the response from a networking.client regarding the card that they chose to play (PC).
      * It relates heavily with the game-logic.
      *
-     * @param card of type {@code String} representing the card that the client wants to play
+     * @param card of type {@code String} representing the card that the networking.client wants to play
      */
     @Override
     public void handlePlayCard(String card) {
-        // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
-        // -->
-        // translate(String card) -> translate np. -> set up NP variable -> getter for that.
-
+        String[] spl = card.split(":");
         NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
-        p.translate(card);
-        //this.server.getUno().getTable().getCurrentPlayer();
+        if (spl.length==2) {
+            p.pickColor(spl[1]);
+        }else {
+            p.translate(card);
+        }
+        // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
+        // translate(String card) -> translate np. -> set up NP variable -> getter for that.
+        //this.networking.server.getUno().getTable().getCurrentPlayer();
     }
 
     /**
-     * This method handles the response from a client regarding the fact that they chose to draw a card (DC).
+     * This method handles the response from a networking.client regarding the fact that they chose to draw a card (DC).
      * It relates heavily with the game-logic.
      */
     @Override
@@ -208,7 +210,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * This method handles the command from the client to leave the game (LG).
+     * This method handles the command from the networking.client to leave the game (LG).
      */
     @Override
     public void handleLeaveGame() {
@@ -216,23 +218,26 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * This method handles the client-side request for the creation of a lobby, and responds in an appropriate manner (CL).
+     * This method handles the networking.client-side request for the creation of a lobby, and responds in an appropriate manner (CL).
      *
      * @param lobbyName of type String, representing the name of the lobby.
      */
     @Override
     public void handleCreateLobby(String lobbyName) {
-
+        // should be global, a list of current lobbies that should be stored in the server.
+        Lobby lobby = new Lobby(lobbyName);
+        this.server.addLobby(lobby);
     }
 
     /**
-     * This method handles the client-side request for joining a lobby, and responds in an appropriate manner (JL).
+     * This method handles the networking.client-side request for joining a lobby, and responds in an appropriate manner (JL).
      *
      * @param lobbyName of type String, representing the name of the lobby.
      */
     @Override
     public void handleJoinLobby(String lobbyName) {
-
+        // who is the player???
+        //this.server.getLobby(lobbyName).addPlayer();
     }
 
     /**
@@ -246,7 +251,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * The method processes the client saying Uno, which then needs to be processed (UNO).
+     * The method processes the networking.client saying Uno, which then needs to be processed (UNO).
      */
     @Override
     public void handleSayUno() {
@@ -262,7 +267,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // assuming we are informing the first player that joined to become an admin (has to be instance of HP)
         String msg = "IAD";
         this.sendMessage(msg);
-        // when is someone informed that he is an admin? a message sent to all should probs be done in server.
+        // when is someone informed that he is an admin? a message sent to all should probs be done in networking.server.
     }
 
     /**
@@ -304,7 +309,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      * Once the data packet is produced, it is sent.
      *
      * @param topCard     of type String, representing the card.
-     * @param playerHand  of type String, representing this particular network client player's hand.
+     * @param playerHand  of type String, representing this particular network networking.client player's hand.
      * @param playersList of type {@code String} representing the list of players of the game sorted by the order of turn
      * @param isYourTurn  of type {@code String} indicates if it is the player’s turn
      */
@@ -429,7 +434,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * This method exists so that the server can implement a mechanism to handle an inactive player (RP can be used).
+     * This method exists so that the networking.server can implement a mechanism to handle an inactive player (RP can be used).
      */
     @Override
     public void doHandleInactivePlayer() {
@@ -437,7 +442,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     /**
-     * This method exists so that the server can handle a client that disconnected (by terminating the socket and adjusting the game).
+     * This method exists so that the networking.server can handle a networking.client that disconnected (by terminating the socket and adjusting the game).
      */
     @Override
     public void doHandleClientDisconnected() {
@@ -481,7 +486,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
 
     /**
      * This method creates the appropriate tag and message corresponding to player sending a message (BM).
-     * The method broadcasts a message sent my a client to the other clients.
+     * The method broadcasts a message sent my a networking.client to the other clients.
      * Once the data packet is produced, it is sent.
      *
      * @param message of type String, representing the chat message.

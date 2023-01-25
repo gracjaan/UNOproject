@@ -1,6 +1,6 @@
-package server.contract;
+package networking.server.contract;
 /**
- * This interface includes all relevant protocol codes, and methods that the server of Uno Game will need to use in order to ensure
+ * This interface includes all relevant protocol codes, and methods that the networking.server of Uno Game will need to use in order to ensure
  * secure integration with the network protocol that was designed.
  *
  * Relevant JavaDocs are added.
@@ -8,7 +8,7 @@ package server.contract;
 public interface ServerProtocol {
     /**
      * This enum class contains all the relevant protocol error codes and associated messages that will be used.
-     * They are placed on the server-side for better access management, but the Client class can make use of them with the public access modifier.
+     * They are placed on the networking.server-side for better access management, but the Client class can make use of them with the public access modifier.
      */
     enum Errors {
         E001("Protocol violated"),
@@ -35,10 +35,10 @@ public interface ServerProtocol {
     }
 
     /**
-     * The following list contains the server commands (commands that are sent from the server to the client).
+     * The following list contains the networking.server commands (commands that are sent from the networking.server to the networking.client).
      *
-     * The access modifier is public because the client will need access to these in order to determine what appropriate course of action needs to be
-     * taken with respect to each particular command sent by the server. Further documentation for each command can be found in the protocol description table.
+     * The access modifier is public because the networking.client will need access to these in order to determine what appropriate course of action needs to be
+     * taken with respect to each particular command sent by the networking.server. Further documentation for each command can be found in the protocol description table.
      */
     enum ServerCommands {
         AH("Accept handshake"),
@@ -56,7 +56,7 @@ public interface ServerProtocol {
         RE("Round ended"),
         GE("Game ended"),
         ERR("Send error code"),
-        /* This command is one that can be used by both, but to avoid duplication, it was placed inside the server protocol. */
+        /* This command is one that can be used by both, but to avoid duplication, it was placed inside the networking.server protocol. */
         LOL("List of Lobbies"),
         BCL("Broadcast Created Lobby"),
         BJL("Player joined lobby"),
@@ -78,9 +78,9 @@ public interface ServerProtocol {
     /* Handlers */
 
     /**
-     * This method is called when a connection is first made, and the client performs a "potentially valid" handshake.
+     * This method is called when a connection is first made, and the networking.client performs a "potentially valid" handshake.
      *
-     * The method assesses whether the client has performed a valid handshake, and if this is the case, the method returns an
+     * The method assesses whether the networking.client has performed a valid handshake, and if this is the case, the method returns an
      * appropriate correspondence containing relevant information that the verified UnoClient needs to know in the form of a
      * welcome message (AH).
      * Once the data packet is produced, it is sent.
@@ -92,7 +92,7 @@ public interface ServerProtocol {
     void handleHandshake(String playerName, String playerType);
 
     /**
-     * This method handles the creation of a computerPlayer as requested by the client (admin) (ACP).
+     * This method handles the creation of a computerPlayer as requested by the networking.client (admin) (ACP).
      * It relates heavily with the game-logic.
      * @param playerName of type {@code String} representing the name of the computer player
      * @param strategy of type {@code String} representing the strategy for the computer player
@@ -100,27 +100,27 @@ public interface ServerProtocol {
     void handleAddComputerPlayer(String playerName, String strategy);
 
     /**
-     * This method handles the command from the client (admin) to start the game (SG).
+     * This method handles the command from the networking.client (admin) to start the game (SG).
      * It relates heavily with the game-logic.
      * @param gameMode of type {@code String} representing the type/mode of the game
      */
     void handleStartGame(String gameMode);
 
     /**
-     * This method handles the response from a client regarding the card that they chose to play (PC).
+     * This method handles the response from a networking.client regarding the card that they chose to play (PC).
      * It relates heavily with the game-logic.
-     * @param card of type {@code String} representing the card that the client wants to play
+     * @param card of type {@code String} representing the card that the networking.client wants to play
      */
     void handlePlayCard(String card);
 
     /**
-     * This method handles the response from a client regarding the fact that they chose to draw a card (DC).
+     * This method handles the response from a networking.client regarding the fact that they chose to draw a card (DC).
      * It relates heavily with the game-logic.
      */
     void handleDrawCard();
 
     /**
-     * This method handles the command from the client to leave the game (LG).
+     * This method handles the command from the networking.client to leave the game (LG).
      */
     void handleLeaveGame();
 
@@ -128,13 +128,13 @@ public interface ServerProtocol {
     /* Handlers for additional features */
 
     /**
-     * This method handles the client-side request for the creation of a lobby, and responds in an appropriate manner (CL).
+     * This method handles the networking.client-side request for the creation of a lobby, and responds in an appropriate manner (CL).
      * @param lobbyName of type String, representing the name of the lobby.
      */
     void handleCreateLobby(String lobbyName);
 
     /**
-     * This method handles the client-side request for joining a lobby, and responds in an appropriate manner (JL).
+     * This method handles the networking.client-side request for joining a lobby, and responds in an appropriate manner (JL).
      * @param lobbyName of type String, representing the name of the lobby.
      */
     void handleJoinLobby(String lobbyName);
@@ -146,7 +146,7 @@ public interface ServerProtocol {
     void handleSendMessage(String message);
 
     /**
-     * The method processes the client saying Uno, which then needs to be processed (UNO).
+     * The method processes the networking.client saying Uno, which then needs to be processed (UNO).
      */
     void handleSayUno();
 
@@ -183,7 +183,7 @@ public interface ServerProtocol {
      * This method creates the appropriate tag and message corresponding to the game information being sent to clients (BGI).
      * Once the data packet is produced, it is sent.
      * @param topCard of type String, representing the card.
-     * @param playerHand of type String, representing this particular network client player's hand.
+     * @param playerHand of type String, representing this particular network networking.client player's hand.
      * @param playersList of type {@code String} representing the list of players of the game sorted by the order of turn
      * @param isYourTurn of type {@code String} indicates if it is the player’s turn
      */
@@ -257,12 +257,12 @@ public interface ServerProtocol {
     /* Network-Related Handling */
 
     /**
-     * This method exists so that the server can implement a mechanism to handle an inactive player (RP can be used).
+     * This method exists so that the networking.server can implement a mechanism to handle an inactive player (RP can be used).
      */
     void doHandleInactivePlayer();
 
     /**
-     * This method exists so that the server can handle a client that disconnected (by terminating the socket and adjusting the game).
+     * This method exists so that the networking.server can handle a networking.client that disconnected (by terminating the socket and adjusting the game).
      */
     void doHandleClientDisconnected();
 
@@ -293,7 +293,7 @@ public interface ServerProtocol {
 
     /**
      * This method creates the appropriate tag and message corresponding to player sending a message (BM).
-     * The method broadcasts a message sent my a client to the other clients.
+     * The method broadcasts a message sent my a networking.client to the other clients.
      * Once the data packet is produced, it is sent.
      * @param message of type String, representing the chat message.
      */

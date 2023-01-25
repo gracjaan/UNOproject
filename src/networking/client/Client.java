@@ -1,11 +1,7 @@
-package client;
-
-import server.Server;
+package networking.client;
 
 import java.io.IOException;
 import java.net.Socket;
-
-import static java.lang.Thread.currentThread;
 
 public class Client implements Runnable {
     static final int DEFAULT_PORT = 5050;
@@ -34,7 +30,7 @@ public class Client implements Runnable {
         // get Computer and port number
         port = DEFAULT_PORT;
 
-        // Open connection to server
+        // Open connection to networking.server
         try {
             System.out.println("connecting to localhost on port 5050");
             connection = new Socket(computer, port);

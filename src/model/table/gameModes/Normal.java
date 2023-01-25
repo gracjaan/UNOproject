@@ -41,7 +41,12 @@ public class Normal extends PlayingMode {
                 if (player.getTable().isHasWinner()){
                     break;
                 }
-                player.pickColor();
+                if (player instanceof NetworkPlayer) {
+                    break;
+                }else {
+                    player.pickColor();
+                }
+
                 break;
             case CHANGE_DIRECTION:
                 for (Player p: player.getTable().getPlayers()) {

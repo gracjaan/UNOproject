@@ -2,10 +2,9 @@ package model.player;
 
 import model.card.Card;
 import model.player.factory.Player;
-import server.ServerHandler;
+import networking.server.ServerHandler;
 
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class NetworkPlayer extends Player {
@@ -56,9 +55,28 @@ public class NetworkPlayer extends Player {
 
     @Override
     public void pickColor() {
-        // where does the server command come from? protocol needs update.
+        // where does the networking.server command come from? protocol needs update.
         // pick color according to input from the network
     }
+    public void pickColor(String color) {
+        switch (color) {
+            case "BLUE":
+                super.getTable().setIndicatedColor(Card.Color.BLUE);
+                break;
+            case "RED":
+                super.getTable().setIndicatedColor(Card.Color.RED);
+                break;
+            case "GREEN":
+                super.getTable().setIndicatedColor(Card.Color.GREEN);
+                break;
+            case "YELLOW":
+                super.getTable().setIndicatedColor(Card.Color.YELLOW);
+                break;
+            default:
+                super.getTable().setIndicatedColor(Card.Color.YELLOW);
+        }
+    }
+
 
     public String getTranslation() {
         //System.out.println(Thread.currentThread().getName());

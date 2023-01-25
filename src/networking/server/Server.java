@@ -1,6 +1,8 @@
-package server;
+package networking.server;
 
 import controller.UNO;
+import model.player.factory.Player;
+import networking.Lobby;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,6 +16,8 @@ public class Server implements Runnable{
     static final int DEFAULT_PORT = 5050;
     private static ArrayList<ServerHandler> handlers = new ArrayList<>();
     private UNO uno;
+    private ArrayList<Lobby> lobbies = new ArrayList<>();
+    private ArrayList<Player> players = new ArrayList<>();
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -56,12 +60,23 @@ public class Server implements Runnable{
 
     }
     //-----------------------------GETTERS & SETTERS-----------------------------
+    public void addLobby(Lobby lobby) {
+        this.lobbies.add(lobby);
+    }
+    public Lobby getLobby(String lobbyName) {
+        for (Lobby l: lobbies) {
+            if (l.getName().equals(lobbyName)) {
+                return l;
+            }
+        }
+        return null;
+    }
 
     public UNO getUno() {
         return uno;
     }
 
-    public static ArrayList<ServerHandler> getHandlers() {
+    public ArrayList<ServerHandler> getHandlers() {
         return handlers;
     }
 
@@ -69,5 +84,12 @@ public class Server implements Runnable{
         this.uno = uno;
     }
 
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
 }
 
