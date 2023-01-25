@@ -67,6 +67,10 @@ public class Normal extends PlayingMode {
         Card.Color indicatedColor = table.getIndicatedColor();
 
         if(indicatedColor==null) {
+//            System.out.println("Color of top card "+color);
+//            System.out.println("Value of top card "+value);
+//            System.out.println("Color of card to play "+cardToPlay.getColor());
+//            System.out.println("Value of card to play "+cardToPlay.getValue());
             if (cardToPlay.getColor() == Card.Color.WILD && color == Card.Color.WILD) {
                 return false;
             } else if (cardToPlay.getColor() == Card.Color.WILD) {

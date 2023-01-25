@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class NetworkPlayer extends Player {
     private ServerHandler sh;
-    private String translation;
+    private String translation ="";
     private final ReentrantLock LOCK = new ReentrantLock();
     private final Condition canGet = LOCK.newCondition();
     private final Condition canSet = LOCK.newCondition();
@@ -21,7 +21,9 @@ public class NetworkPlayer extends Player {
         this.sh = serverHandler;
     }
     public synchronized void translate(String card) {
-
+        if (card.equals("draw")) {
+            this.setTranslation("draw");
+        }
         int ind = 0;
         String[] spl = card.split(" ");
         for (Card c: super.getHand()) {
@@ -59,37 +61,45 @@ public class NetworkPlayer extends Player {
     }
 
     public String getTranslation() {
-        System.out.println(Thread.currentThread().getName());
+        //System.out.println(Thread.currentThread().getName());
+        //System.out.println("I lock to get");
         LOCK.lock();
         try {
-            while (!condition) {
+            while ((this.translation == null) || this.translation.isEmpty()) {
+                //System.out.println("I wait for it not to be empty");
                 canGet.await();
             }
-            condition = false;
             canSet.signal();
+            LOCK.unlock();
             return this.translation;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } finally {
-            LOCK.unlock();
         }
+
     }
 
     public void setTranslation(String translation) {
-        System.out.println(translation);
+        //System.out.println("I lock to write");
         LOCK.lock();
         try {
-            while (condition) {
+            //System.out.println(this.translation);
+            while (!(this.translation== null) && !this.translation.isEmpty()) {
+                System.out.println("I wait for it to be empty");
                 canSet.await();
             }
             this.translation = translation;
-            condition = true;
+            //System.out.println(translation);
+
             canGet.signal();
+            LOCK.unlock();
+
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } finally {
-            LOCK.unlock();
         }
+    }
+
+    public void resetTranslation() {
+        this.translation = null;
     }
 
     public ServerHandler getSh() {

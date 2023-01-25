@@ -203,7 +203,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void handleDrawCard() {
         // same --> input = draw
         NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
-        p.setTranslation("draw");
+        p.translate("draw");
+        doBroadcastDrewCard(p.getNickname());
     }
 
     /**

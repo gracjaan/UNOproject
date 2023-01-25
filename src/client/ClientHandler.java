@@ -200,8 +200,13 @@ public class ClientHandler implements ClientProtocol, Runnable {
             System.out.println(">> input please");
             Scanner scan = new Scanner(System.in);
             String ind = scan.nextLine();
-            String card = splittedHand[Integer.parseInt(ind)];
-            doPlayCard(card);
+            if (ind.equals("draw")) {
+                doDrawCard();
+            }else {
+                String card = splittedHand[Integer.parseInt(ind)];
+                doPlayCard(card);
+            }
+
         }
         else{
             System.out.println("========================================NEW TURN==================================================");

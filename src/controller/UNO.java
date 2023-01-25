@@ -97,6 +97,7 @@ public class UNO implements Runnable{
                     System.out.println(Thread.currentThread().getName());
                     input1 = np.getTranslation();
                     System.out.println(np.getTranslation());
+                    np.resetTranslation();
                     System.out.println("brum");
                     //maybe souts
                 }
@@ -487,11 +488,14 @@ public class UNO implements Runnable{
     }
 
     public boolean inputCard(String input){
+        System.out.println("Hand "+Arrays.toString(table.getCurrentPlayer().getHand().toArray()));
+        System.out.println("Card on index "+table.getCurrentPlayer().getHand().get(Integer.parseInt(input)).toString());
         if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), this.table)) {
             table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
             return true;
         }
         System.out.println("Invalid Move. Please try again!");
+
         return false;
 
     }
@@ -501,8 +505,8 @@ public class UNO implements Runnable{
         boolean b = false;
         if (input != null) {
             String[] splitted = input.split(" ");
-            System.out.println(Arrays.toString(splitted));
-            System.out.println("not null");
+//            System.out.println(Arrays.toString(splitted));
+//            System.out.println("not null");
             b = true;
             if (splitted[0].equals("draw")) {
                 b = inputDraw(input);
