@@ -72,6 +72,10 @@ public class Server implements Runnable{
         return null;
     }
 
+    public ArrayList<Lobby> getLobbies() {
+        return lobbies;
+    }
+
     public UNO getUno() {
         return uno;
     }

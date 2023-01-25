@@ -71,6 +71,12 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 case "ERR":
                     handleSendErrorCode(splitted[1]);
                     break;
+                case "LOL":
+                    handleBroadcastListOfLobbies(splitted[1]);
+                case "BCL":
+                    handleBroadcastCreatedLobby(splitted[1]);
+                case "BJL":
+                    handleBroadcastPlayerJoinedLobby(splitted[1]);
                 default:
                     String s = ServerProtocol.Errors.E001.getMessage();
                     sendMessage(s);
@@ -145,7 +151,6 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastPlayerJoined(String playerName) {
-        //adds playername to the game
         System.out.println(playerName + " connected to the networking.server");
     }
 
@@ -318,7 +323,11 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastListOfLobbies(String lobbiesList) {
-
+        String[] spl = lobbiesList.split(";");
+        for (String s: spl) {
+            String[] l = s.split(":");
+            System.out.println(l[0]+": " + l[1] + " players waiting");
+        }
     }
 
     /**
@@ -328,7 +337,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastCreatedLobby(String lobbyName) {
-
+        System.out.println("Lobby " + lobbyName  + " has been created.");
     }
 
     /**
@@ -338,7 +347,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastPlayerJoinedLobby(String playerName) {
-
+        System.out.println(playerName + " has joined the lobby.");
     }
 
     /**
@@ -348,7 +357,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastMessage(String message) {
-
+        // message should contain the playername?
+        System.out.println("CHAT: " + message);
     }
 
     /**

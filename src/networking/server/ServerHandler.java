@@ -18,6 +18,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     private BufferedReader in;
     private PrintWriter out;
     private Server server;
+    private Player correspondingPlayer;
 
     // create method to send mesg to all players.
     public ServerHandler(Socket connection, Server server) throws IOException {
@@ -56,6 +57,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
             case "LG":
                 handleLeaveGame();
                 break;
+            case "CL":
+                handleCreateLobby(splitted[1]);
+            case "JL":
+                handleJoinLobby(splitted[1]);
             default:
                 sendMessage(Errors.E001.getMessage());
                 break;
@@ -128,9 +133,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
         if (playerType.equals("human_player")) {
             Player p = new NetworkPlayer(playerName, this);
             server.getPlayers().add(p);
+            this.correspondingPlayer = p;
         } else if (playerType.equals("computer_player")){
+            // make a networked computer player! --> especially regarding the tournament.
             Player p = new ComputerPlayer(playerName);
             server.getPlayers().add(p);
+            this.correspondingPlayer = p;
         }else {
             out.println(Errors.E001);
             System.out.println(Errors.E001);
@@ -236,8 +244,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleJoinLobby(String lobbyName) {
-        // who is the player???
-        //this.server.getLobby(lobbyName).addPlayer();
+        // the corresponding player is the player instance that is connected to this serverhandler
+        this.server.getLobby(lobbyName).addPlayer(correspondingPlayer);
     }
 
     /**
@@ -458,7 +466,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastListOfLobbies(String lobbiesList) {
-
+        String msg = "LOL|";
+        for (Lobby l: this.server.getLobbies()) {
+            msg+=l.getName()+":"+l.getPlayers().size()+";";
+        }
+        sendMessageToAll(msg);
     }
 
     /**
@@ -470,7 +482,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastCreatedLobby(String lobbyName) {
-
+        String msg = "BCL|"+lobbyName;
+        sendMessageToAll(msg);
     }
 
     /**
@@ -481,7 +494,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastPlayerJoinedLobby(String playerName) {
-
+        String msg = "BJL|" + playerName;
+        sendMessageToAll(msg);
     }
 
     /**
