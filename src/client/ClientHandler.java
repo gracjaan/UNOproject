@@ -187,25 +187,35 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void handleBroadcastGameInformation(String topCard, String playerHand, String playersList, String isYourTurn) {
         if (isYourTurn.equals("true")){
             System.out.println("========================================YOUR TURN=================================================");
+            System.out.println("| " + topCard + " |");
+            String [] splittedHand = playerHand.split(";");
+            for (int i = 0; i < splittedHand.length; i++ ){
+                System.out.print(i + "| " + splittedHand[i] + " |        ");
+            }
+            String [] splittedPlayers = playersList.split(";");
+            for (int i = 0; i < splittedPlayers.length; i++){
+                String [] split = splittedPlayers[i].split(":");
+                System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
+            }
+            System.out.println(">> input please");
+            Scanner scan = new Scanner(System.in);
+            String ind = scan.nextLine();
+            String card = splittedHand[Integer.parseInt(ind)];
+            doPlayCard(card);
         }
         else{
             System.out.println("========================================NEW TURN==================================================");
+            System.out.println("| " + topCard + " |");
+            String [] splittedHand = playerHand.split(";");
+            for (int i = 0; i < splittedHand.length; i++ ){
+                System.out.print(i + "| " + splittedHand[i] + " |        ");
+            }
+            String [] splittedPlayers = playersList.split(";");
+            for (int i = 0; i < splittedPlayers.length; i++){
+                String [] split = splittedPlayers[i].split(":");
+                System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
+            }
         }
-        System.out.println("| " + topCard + " |");
-        String [] splittedHand = playerHand.split(";");
-        for (int i = 0; i < splittedHand.length; i++ ){
-            System.out.print(i + "| " + splittedHand[i] + " |        ");
-        }
-        String [] splittedPlayers = playersList.split(";");
-        for (int i = 0; i < splittedPlayers.length; i++){
-            String [] split = splittedPlayers[i].split(":");
-            System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
-        }
-        System.out.println(">> input please");
-        Scanner scan = new Scanner(System.in);
-        String ind = scan.nextLine();
-        String card = splittedHand[Integer.parseInt(ind)];
-        doPlayCard(card);
     }
 
     /**

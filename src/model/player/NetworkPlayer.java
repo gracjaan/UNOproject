@@ -59,35 +59,35 @@ public class NetworkPlayer extends Player {
     }
 
     public String getTranslation() {
-        synchronized (canSet) {
-            LOCK.lock();
-            while (condition) {
-                try {
-                    canGet.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        System.out.println(Thread.currentThread().getName());
+        LOCK.lock();
+        try {
+            while (!condition) {
+                canGet.await();
             }
-            condition = !condition;
-            canSet.notify();
-            LOCK.unlock();
+            condition = false;
+            canSet.signal();
             return this.translation;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            LOCK.unlock();
         }
     }
 
     public void setTranslation(String translation) {
-        synchronized (canGet) {
-            LOCK.lock();
-            while (!condition) {
-                try {
-                    canSet.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        System.out.println(translation);
+        LOCK.lock();
+        try {
+            while (condition) {
+                canSet.await();
             }
-            condition = !condition;
-            canGet.notify();
             this.translation = translation;
+            condition = true;
+            canGet.signal();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
             LOCK.unlock();
         }
     }

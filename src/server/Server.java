@@ -47,7 +47,7 @@ public class Server implements Runnable{
                 listen.close();
                 ServerHandler sh = new ServerHandler(connection, this);
                 handlers.add(sh);
-                Thread sHThread = new Thread(sh);
+                Thread sHThread = new Thread(sh,"Gracjan");
                 sHThread.start();
             }
         }catch (IOException e) {

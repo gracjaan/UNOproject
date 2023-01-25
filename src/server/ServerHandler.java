@@ -172,9 +172,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // BGI?
         doGameStarted(gameMode);
         server.getUno().setup(this.players);
-//        Thread myUno = new Thread(new UNO());
-//        myUno.start();
-        server.getUno().play();
+        Thread myUno = new Thread(server.getUno());
+        myUno.start();
+        //server.getUno().play();
 
     }
 

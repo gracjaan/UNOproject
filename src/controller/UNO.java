@@ -64,6 +64,13 @@ public class UNO implements Runnable{
 
 
 
+    public void informAll(){
+        for (Player player: this.players){
+            if (player instanceof NetworkPlayer){
+                ((NetworkPlayer) player).broadcastAfterTurn();
+            }
+        }
+    }
 
     /**
      * Plays a game until not finished
@@ -73,6 +80,7 @@ public class UNO implements Runnable{
             this.roundOver = false;
             while (!this.roundOver) {
                 tablePrinter();
+                informAll();
                 String input1 = null;
                 if (table.getCurrentPlayer() instanceof HumanPlayer) {
                     Scanner scan = new Scanner(System.in);
@@ -85,12 +93,15 @@ public class UNO implements Runnable{
                     System.out.println(input1);
                 } else {
                     NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
-                    np.broadcastAfterTurn();
+                    //np.broadcastAfterTurn();
+                    System.out.println(Thread.currentThread().getName());
                     input1 = np.getTranslation();
                     System.out.println(np.getTranslation());
+                    System.out.println("brum");
                     //maybe souts
                 }
                 if (!handleMove(input1)) {
+                    //tell clienthandler move was invlaid
                     continue;
                 }
 //                if (input1.equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR){
@@ -104,6 +115,7 @@ public class UNO implements Runnable{
 //                        continue;
 //                    }
 //
+
                 table.nextTurn();
 //                for (Player p: players) {
 //                    if (p instanceof NetworkPlayer) {
