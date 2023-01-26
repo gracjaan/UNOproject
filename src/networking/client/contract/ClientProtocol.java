@@ -24,7 +24,10 @@ public interface ClientProtocol {
         CL("Create Lobby"),
         JL("Join Lobby"),
         SM("Send Chat Message"),
-        UNO("Say Uno");
+        UNO("Say Uno"),
+        RC("Retain Picked Card"),
+        CC("Color Choice"),
+        MC7("Make Choice 7");
 
         private final String action;
 
@@ -162,6 +165,31 @@ public interface ClientProtocol {
      */
     void handleBroadcastSayUNO();
 
+    /**
+     * This method is intended to handle the possibility when a player picks up a playable card, and is requested whether they want to play it.
+     * @param playableCard of type String, representing the playable card.
+     */
+    void handleDrewPlayableCard(String playableCard);
+
+    /**
+     * This method is intended to handle the request for the player to the left of the dealer for the color of the card.
+     * THIS METHOD IS ONLY HANDLED IN THE EVENT THAT THE FIRST CARD DRAWN FROM THE PILE ONTO THE PLAYING AREA (FROM THE DECK) IS A WILD!
+     */
+    void handleAskColor();
+
+    /**
+     * This method is intended to display to the client when a color is changed.
+     * @param color of type String, representing the new color.
+     */
+    void handleBroadcastColorChange(String color);
+
+    /**
+     * This is a free method: use it to your advantage to display specific information from the server as you would like.
+     * This method will handle the displaying to the client.
+     * @param args of type String, representing multiple arguments of your choice.
+     */
+    void handleBroadcastGameMessage(String... args);
+
 
     /* Methods implementing protocols from Client to Server */
 
@@ -215,8 +243,8 @@ public interface ClientProtocol {
     void doDrawCard();
 
     /**
-     * This method creates the appropriate tag and message corresponding to a networking.client leaving the game (LG).
-     * The method is being used when the networking.client wants to leave the game.
+     * This method creates the appropriate tag and message corresponding to a networking.Client leaving the game (LG).
+     * The method is being used when the networking.Client wants to leave the game.
      * Once the data packet is produced, the sender() method is invoked.
      */
     void doLeaveGame();
@@ -254,5 +282,24 @@ public interface ClientProtocol {
      * Once the data packet is produced, the sender() method is invoked.
      */
     void doSayUno();
+    /**
+     * This method creates an appropriate tag and message corresponding to the choice made by a player whether to retain the Card that they picked.
+     * @param choice of type String, true if they want to play, false if they do not want to play the card.
+     */
+    void doRetainCard(String choice);
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the choice made by the player to the left of the dealer about what color to be played.
+     * This happens under the event that the first card of play (pulled from the deck onto the playing space) is a WILD, meaning the player to the left of the dealer chooses the color.
+     * @param color of type String, representation of color.
+     */
+    void doColorChoice(String color);
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the choice regarding the player to switch cards with in the Seven-0 game-mode.
+     * @param playerName of type String, representing the player with whom they want to change cards with.
+     * @param card of type String, representing the seven that was played and needs to be sent to the server.
+     */
+    void doMakeChoiceSeven(String playerName, String card);
 }
 

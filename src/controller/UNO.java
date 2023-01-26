@@ -81,48 +81,20 @@ public class UNO implements Runnable{
             while (!this.roundOver) {
                 tablePrinter();
                 informAll();
-                String input1 = null;
-                if (table.getCurrentPlayer() instanceof HumanPlayer) {
-                    Scanner scan = new Scanner(System.in);
-                    System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
-                    input1 = scan.nextLine();
-                } else if (table.getCurrentPlayer() instanceof ComputerPlayer) {
-                    System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
-                    ComputerPlayer cp = (ComputerPlayer) table.getCurrentPlayer();
-                    input1 = cp.translator();
-                    System.out.println(input1);
-                } else {
-                    NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
-                    //np.broadcastAfterTurn();
-                    System.out.println(Thread.currentThread().getName());
-                    input1 = np.getTranslation();
-                    System.out.println(np.getTranslation());
-                    np.resetTranslation();
-                    System.out.println("brum");
-                    //maybe souts
+                String input1 = createInput();
+//                if (!handleMove(input1)) {
+//                    //tell clienthandler move was invlaid
+//                    continue;
+//                }
+                while (!handleMove(input1)) {
+                    if (table.getCurrentPlayer()instanceof NetworkPlayer) {
+                        ((NetworkPlayer)table.getCurrentPlayer()).broadcastAfterTurn();
+                    }
+                    input1 = createInput();
                 }
-                if (!handleMove(input1)) {
-                    //tell clienthandler move was invlaid
-                    continue;
-                }
-//                if (input1.equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR){
-//                    if (!table.isDrawFourPlayable()){
-//                        System.out.println("Previous player was punished with drawing 4 cards, since he placed it illegally.");
-//                        table.getPreviousPlayer().draw(4);
-//                        for (int i = 0; i < 4; i++){
-//                            table.getCurrentPlayer().getHand().remove(table.getCurrentPlayer().getHand().size()-1);
-//                            table.setDrawFourPlayable(true);
-//                        }
-//                        continue;
-//                    }
-//
 
                 table.nextTurn();
-//                for (Player p: players) {
-//                    if (p instanceof NetworkPlayer) {
-//                        ((NetworkPlayer) p).broadcastAfterTurn();
-//                    }
-//                }
+
                 if (gameOver()!=null) {
                     System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
                     break;
@@ -135,52 +107,31 @@ public class UNO implements Runnable{
 //            String input2 = scanner.next();
     }
 
-//    public void setup(ArrayList<Player> players) {
-//        // Shuffle the deck
-//        ArrayList<Card> d = new Deck().getPlayingCards();
-//        Collections.shuffle(d);
+    private String createInput() {
+        String input1 = null;
+        if (table.getCurrentPlayer() instanceof HumanPlayer) {
+            Scanner scan = new Scanner(System.in);
+            System.out.println(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+            input1 = scan.nextLine();
+        } else if (table.getCurrentPlayer() instanceof ComputerPlayer) {
+            System.out.print(">> " + table.getCurrentPlayer().getNickname() + " make your move: ");
+            ComputerPlayer cp = (ComputerPlayer) table.getCurrentPlayer();
+            input1 = cp.translator();
+            System.out.println(input1);
+        } else {
+            NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
+            //np.broadcastAfterTurn();
+            System.out.println(Thread.currentThread().getName());
+            input1 = np.getTranslation();
+            System.out.println(np.getTranslation());
+            np.resetTranslation();
+            System.out.println("brum");
+            //maybe souts
+        }
+        return input1;
+    }
+
 //
-//        // Deal one card to each player and find the player with the highest card value
-//        int maxValue = 0;
-//        int playerIndex = 0;
-//        int maxPlayerIndex = 0;
-//        for (Player player : players) {
-//            Card dealtCard = d.remove(0);
-//            System.out.println("Player " + players.get(playerIndex) + " drew " + dealtCard.toString());
-//            if (dealtCard.getValue().ordinal() > maxValue) {
-//                maxValue = dealtCard.getValue().ordinal();
-//                maxPlayerIndex = playerIndex;
-//            }
-//            playerIndex++;
-//        }
-//
-//        System.out.println("\nPlayer " + players.get(maxPlayerIndex) + " is a dealer!");
-//
-//        ArrayList<Player> tempArr = new ArrayList<>();
-//        for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
-//            tempArr.add(players.get(i));
-//        }
-//        for (int i = 0; i < maxPlayerIndex; i++) {
-//            tempArr.add(players.get(i));
-//        }
-//        tempArr.add(players.get(maxPlayerIndex));
-//        players = tempArr;
-//
-//        System.out.println("Following order applies: ");
-//        for (int i = 0; i < players.size(); i++) {
-//            System.out.print(players.get(i) + "; ");
-//        }
-//        System.out.println("\n\n");
-//
-//        table = new Table(players, new Normal());
-//        for (Player player : players) {
-//            player.setTable(table);
-//        }
-//        System.out.println();
-//
-//        table.adjustToFirstCard();
-//
-//    }
     public void setup(ArrayList<Player> players) {
         this.players = players;
         ArrayList<Card> d = new Deck().getPlayingCards();
@@ -256,215 +207,25 @@ public class UNO implements Runnable{
      * @param input receives input given by player
      *              Handles input
      */
-//    public boolean evaluateMove(String input) {
-////        String[] splitted = input.split(" ");
-////        if (splitted[0].equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR) {
-////            if (!table.isDrawFourPlayable()) {
-////                System.out.println("Previous player was punished with drawing 4 cards, since he placed it illegally.");
-////                table.getPreviousPlayer().draw(4);
-////                for (int i = 0; i < 4; i++) {
-////                    table.getCurrentPlayer().getHand().remove(table.getCurrentPlayer().getHand().size() - 1);
-////                    table.setDrawFourPlayable(true);
-////                }
-////            } else {
-////                System.out.println("Challenge unsuccessful!");
-////            }
-////            return false;
-////        } else if (table.getCurrentPlayer().getHand().size() != 2) {
-////            if (splitted[0].equals("draw")) {
-////                table.getCurrentPlayer().draw(1);
-////                table.setDrawFourPlayable(true);
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    System.out.println("Would you like to play now?");
-////                    return false;
-////                } else {
-////                    System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
-////                }
-////            } else {
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-////                } else {
-////                    System.out.println("Invalid Move. Please try again!");
-////                    return false;
-////                }
-////            }
-////        } else {
-////            if (splitted[0].equals("draw")) {
-////                table.getCurrentPlayer().draw(1);
-////                table.setDrawFourPlayable(true);
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    System.out.println("Would you like to play now?");
-////                    return false;
-////                } else {
-////                    System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
-////                }
-////            }
-////            else if (table.getCurrentPlayer().getHand().size() == 2 && splitted.length == 2 && splitted[1].equals("uno")) {
-////                //evaluateMove(splitted[0]);
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-////                } else {
-////                    System.out.println("Invalid Move. Please try again!");
-////                    return false;
-////                }
-////            } else if (table.getCurrentPlayer().getHand().size() == 2) {
-////                System.out.println("You didn't say UNO. The punishment is drawing 2 cards!");
-////                table.getCurrentPlayer().draw(2);
-////            }
-////        }
-////        //return true;
-////
-////
-////
-////        if (splitted.length == 1) {
-////            if (splitted[0].equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR) {
-////                if (!table.isDrawFourPlayable()) {
-////                    System.out.println("Previous player was punished with drawing 4 cards, since he placed it illegally.");
-////                    table.getPreviousPlayer().draw(4);
-////                    for (int i = 0; i < 4; i++) {
-////                        table.getCurrentPlayer().getHand().remove(table.getCurrentPlayer().getHand().size() - 1);
-////                        table.setDrawFourPlayable(true);
-////                    }
-////                } else {
-////                    System.out.println("Challenge unsuccessful!");
-////                }
-////                return false;
-////            }
-////            else if (splitted[0].equals("draw")) {
-////                table.getCurrentPlayer().draw(1);
-////                table.setDrawFourPlayable(true);
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    System.out.println("Would you like to play now?");
-////                    return false;
-////                } else {
-////                    System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
-////                }
-////            }
-////            else {
-////                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                    table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-////                } else {
-////                    System.out.println("Invalid Move. Please try again!");
-////                    return false;
-////                }
-////            }
-////        }
-////        return true;
-////    }
-//        //________________prev
-////        if (splitted[0].equals("draw")) {
-////            table.getCurrentPlayer().draw(1);
-////            table.setDrawFourPlayable(true);
-////            if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size()-1),table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                System.out.println("Would you like to play now?");
-////                return false;
-////            }
-////            else {
-////                System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
-////            }
-////        } else if (splitted[0].equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR) {
-////            if (!table.isDrawFourPlayable()) {
-////                System.out.println("Previous player was punished with drawing 4 cards, since he placed it illegally.");
-////                table.getPreviousPlayer().draw(4);
-////                for (int i = 0; i < 4; i++) {
-////                    table.getCurrentPlayer().getHand().remove(table.getCurrentPlayer().getHand().size() - 1);
-////                    table.setDrawFourPlayable(true);
-////                }
-////            }
-////            return false;
-////        } else if (splitted[0].equals("challenge")) {
-////            System.out.println("challenge unsuccessful");
-////        } else if (table.getCurrentPlayer().getHand().size() == 2) {
-////
-////            if (!(table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor()))) {
-////                System.out.println("Invalid Move. Please try again!");
-////                return false;
-////            }
-////
-////            if (splitted.length == 2 && splitted[1].equals("uno")) {
-////                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-////            } else {
-////                System.out.println("You didn't say UNO. The punishment is drawing 2 cards!");
-////                table.getCurrentPlayer().draw(2);
-////            }
-////        } else {
-////            if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-////                table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-////            } else {
-////                System.out.println("Invalid Move. Please try again!");
-////                return false;
-////            }
-////        }
-////        table.setDrawFourPlayable(true);
-////        return true;
-////    }
-//        // _________ last version
-//        boolean b = true;
-//        if (table.getCurrentPlayer().getHand().size() == 2){
-//            b = helperTwoCards(input);
-//        }
-//        else {
-//            b = helperNotTwoCards(input);
-//        }
-//        return b;
-//    }
 
-//    public boolean helperNotTwoCards(String input){
-//        String[] splitted = input.split(" ");
-//        if (splitted.length == 1) {
-//            if (splitted[0].equals("challenge") && table.getCurrentCard().getColor() == Card.Color.WILD && table.getCurrentCard().getValue() == Card.Value.DRAW_FOUR) {
-//                if (!table.isDrawFourPlayable()) {
-//                    System.out.println("Previous player was punished with drawing 4 cards, since he placed it illegally.");
-//                    table.getPreviousPlayer().draw(4);
-//                    for (int i = 0; i < 4; i++) {
-//                        table.getCurrentPlayer().getHand().remove(table.getCurrentPlayer().getHand().size() - 1);
-//                        table.setDrawFourPlayable(true);
-//                    }
-//                } else {
-//                    System.out.println("Challenge unsuccessful!");
-//                }
-//                return false;
-//            }
-//            else if (splitted[0].equals("draw")) {
-//                table.getCurrentPlayer().draw(1);
-//                table.setDrawFourPlayable(true);
-//                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-//                    System.out.println("Would you like to play now?");
-//                    return false;
-//                } else {
-//                    System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
-//                }
-//            }
-//            else {
-//                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])), table.getCurrentCard().getColor(), table.getCurrentCard().getValue(), table.getIndicatedColor())) {
-//                    table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(splitted[0])));
-//                } else {
-//                    System.out.println("Invalid Move. Please try again!");
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-//
-//    public boolean helperTwoCards (String input){
-//        boolean b = true;
-//        String[] splitted = input.split(" ");
-//        if (splitted.length == 2 && splitted[1].equals("uno")){
-//            b = helperNotTwoCards(splitted[0]);
-//        }
-//        else {
-//            System.out.println("You didn't say UNO. You get punished with two cards");
-//            table.getCurrentPlayer().draw(2);
-//        }
-//        return b;
-//    }
 
     public boolean inputDraw (String input){
+        String choice = null;
         table.getCurrentPlayer().draw(1);
         table.setDrawFourPlayable(true);
         if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), this.table)) {
             System.out.println("Would you like to play now?");
+            // we need to call the SH corresponding method.
+            if (table.getCurrentPlayer()instanceof NetworkPlayer) {
+                NetworkPlayer np = (NetworkPlayer) table.getCurrentPlayer();
+                Card c = np.getHand().get(np.getHand().size() - 1);
+                String card = c.getColor() + " " + c.getValue().toString();
+                np.getSh().doDrewPlayableCard(card);
+                choice = np.getTranslation();
+                if (choice.equals("skip")) {
+                    return true;
+                }
+            }
             return false;
         } else {
             System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
@@ -520,7 +281,11 @@ public class UNO implements Runnable{
                 table.getCurrentPlayer().draw(2);
             } else if (isInRange(splitted[0])) {
                 b = inputCard(input);
-            } else {
+            } else if (splitted[0].equals("skip")) {
+                System.out.println("skip was recognized");
+                b=true;
+            }
+            else {
                 System.out.println("Query not recognized. Please try again following listed queries!");
                 b = false;
             }

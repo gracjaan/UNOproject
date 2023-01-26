@@ -39,6 +39,7 @@ public abstract class Player implements PlayerActions {
         placeCard(card);
         Player nextPlayer = this.getTable().getNextPlayer();
         this.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
+
     }
     @Override
     public void placeCard(Card card) {

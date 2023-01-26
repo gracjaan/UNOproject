@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ServerHandler implements ServerProtocol, Runnable{
     private Socket connection;
@@ -33,6 +34,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     private void seperateAndCall(String input) {
         //networking.server.getUno().getTable().getCurrentPlayer();
         String[] splitted = input.split("[|]");
+        System.out.println(Arrays.toString(splitted));
         try {
         switch (splitted[0]) {
             case "MH":
@@ -45,10 +47,6 @@ public class ServerHandler implements ServerProtocol, Runnable{
                 handleStartGame(splitted[1]);
                 break;
             case "PC":
-                if (splitted.length==3) {
-                    String c = splitted[1]+":"+splitted[2];
-                    handlePlayCard(c);
-                }
                 handlePlayCard(splitted[1]);
                 break;
             case "DC":
@@ -59,8 +57,16 @@ public class ServerHandler implements ServerProtocol, Runnable{
                 break;
             case "CL":
                 handleCreateLobby(splitted[1]);
+                break;
             case "JL":
                 handleJoinLobby(splitted[1]);
+                break;
+            case "CC":
+                handleColorChoice(splitted[1]);
+                break;
+            case "RC":
+                handleRetainCard(splitted[1]);
+                break;
             default:
                 sendMessage(Errors.E001.getMessage());
                 break;
@@ -99,6 +105,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
         String messageIn = "";
         try {
             messageIn = in.readLine();
+            if (messageIn==null) {
+                closeConnection();
+                handleLeaveGame();
+                doHandleClientDisconnected();
+                // todo
+            }
 
         } catch (IOException e) {
             sendMessage(Errors.E001.getMessage());
@@ -193,20 +205,15 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handlePlayCard(String card) {
-        String[] spl = card.split(":");
         NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
-        if (spl.length==2) {
-            p.pickColor(spl[1]);
-        }else {
-            p.translate(card);
-        }
+        p.translate(card);
         // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
         // translate(String card) -> translate np. -> set up NP variable -> getter for that.
         //this.networking.server.getUno().getTable().getCurrentPlayer();
     }
 
     /**
-     * This method handles the response from a networking.client regarding the fact that they chose to draw a card (DC).
+     * This method handles the response from a networking.Client regarding the fact that they chose to draw a card (DC).
      * It relates heavily with the game-logic.
      */
     @Override
@@ -234,7 +241,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void handleCreateLobby(String lobbyName) {
         // should be global, a list of current lobbies that should be stored in the server.
         Lobby lobby = new Lobby(lobbyName);
+        lobby.addPlayer(correspondingPlayer);
         this.server.addLobby(lobby);
+        doInformAdmin();
     }
 
     /**
@@ -264,6 +273,50 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleSayUno() {
         // add uno to the input that is given to uno.
+    }
+
+    /**
+     * This method is intended to handle the client's choice whether to play the drawn card or not.
+     *
+     * @param choice of type String, representing false if they do not want to play, true if they want to play it.
+     */
+    @Override
+    public void handleRetainCard(String choice) {
+        if (choice.equals("true")){
+            if (correspondingPlayer instanceof NetworkPlayer){
+                String card = correspondingPlayer.getHand().get(correspondingPlayer.getHand().size()-1).getColor() + " " + correspondingPlayer.getHand().get(correspondingPlayer.getHand().size()-1).getValue().toString();
+                ((NetworkPlayer) correspondingPlayer).translate(card);
+            }
+        }
+        else {
+            if (correspondingPlayer instanceof NetworkPlayer) {
+                ((NetworkPlayer) correspondingPlayer).translate("skip");
+            }
+        }
+    }
+
+    /**
+     * This method is intended to handle the client's choice in changing the color (ONLY IN THE INSTANCE THAT THE FIRST CARD DRAWN FROM THE DECK TO THE PLAYING SPACE IS A WILD).
+     *
+     * @param color of type String, representing the color.
+     */
+    @Override
+    public synchronized void handleColorChoice(String color) {
+        NetworkPlayer p = (NetworkPlayer) correspondingPlayer;
+        p.pickColor(color);
+        doBroadcastColourChange(color);
+        notifyAll();
+    }
+
+    /**
+     * This method is intended to handle the client's choice for the player they want to swap hands with.
+     *
+     * @param playerName of type String, representing the name of the player.
+     * @param card       of type String, representing the SEVEN that was played.
+     */
+    @Override
+    public void handleMakeChoiceSeven(String playerName, String card) {
+
     }
 
     /**
@@ -439,6 +492,56 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void doSendErrorCode(Errors errorCode) {
         String result = "ERR|" + errorCode;
         sendMessage(result);
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to a player drawing a card that can be played directly (DPC).
+     * Once the data packet is produced, it is sent.
+     *
+     * @param card of type String, representing the card that the player drew.
+     */
+    @Override
+    public void doDrewPlayableCard(String card) {
+        String msg = "DPC|" + card;
+        sendMessage(msg);
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to a player playing a wild card (AC).
+     * Once the data packet is produced, it is sent.
+     */
+    @Override
+    public synchronized void doAskColour() {
+        String msg = "AC";
+        sendMessage(msg);
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to a player changing the colour that is current played (BCC).
+     * Once the data packet is produced, it is sent.
+     *
+     * @param colour of type String, representing the colour that the player chose to switch to.
+     */
+    @Override
+    public void doBroadcastColourChange(String colour) {
+        String msg = "BCC|" + colour;
+        sendMessage(msg);
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the server sending messages relating to the game (BGM).
+     * Once the data packet is produced, it is sent.
+     *
+     * @param message of type String, representing the message that needs to be sent.
+     */
+    @Override
+    public void doBroadcastGameMessage(String... message) {
+
     }
 
     /**

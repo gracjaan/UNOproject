@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientHandler implements ClientProtocol, Runnable {
@@ -23,6 +24,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
     private synchronized void seperateAndCall(String input) {
         String[] splitted = input.split("[|]");
+        System.out.println(Arrays.toString(splitted));
         try {
             switch (splitted[0]) {
                 case "AH":
@@ -73,10 +75,25 @@ public class ClientHandler implements ClientProtocol, Runnable {
                     break;
                 case "LOL":
                     handleBroadcastListOfLobbies(splitted[1]);
+                    break;
                 case "BCL":
                     handleBroadcastCreatedLobby(splitted[1]);
+                    break;
                 case "BJL":
                     handleBroadcastPlayerJoinedLobby(splitted[1]);
+                    break;
+                case "BPC":
+                    handleDrewPlayableCard(splitted[1]);
+                    break;
+                case "AC":
+                    handleAskColor();
+                    break;
+                case "DPC":
+                    handleDrewPlayableCard(splitted[1]);
+                    break;
+                case "BCC":
+                    handleBroadcastColorChange(splitted[1]);
+                    break;
                 default:
                     String s = ServerProtocol.Errors.E001.getMessage();
                     sendMessage(s);
@@ -370,6 +387,60 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     /**
+     * This method is intended to handle the possibility when a player picks up a playable card, and is requested whether they want to play it.
+     *
+     * @param playableCard of type String, representing the playable card.
+     */
+    @Override
+    public void handleDrewPlayableCard(String playableCard) {
+        System.out.println("Do you want to play this card now?");
+        Scanner scan = new Scanner(System.in);
+        String a = scan.next();
+        // yes and no no caps
+        if (a.equals("yes")) {
+            doRetainCard("true");
+        }else if (a.equals("no")) {
+            doRetainCard("false");
+        }else {
+            System.out.println("Please try again. Only 'yes' and 'no' are accepted.");
+            handleDrewPlayableCard(playableCard);
+        }
+    }
+
+    /**
+     * This method is intended to handle the request for the player to the left of the dealer for the color of the card.
+     * THIS METHOD IS ONLY HANDLED IN THE EVENT THAT THE FIRST CARD DRAWN FROM THE PILE ONTO THE PLAYING AREA (FROM THE DECK) IS A WILD!
+     */
+    @Override
+    public void handleAskColor() {
+        Scanner scan = new Scanner(System.in);
+        System.out.print(">> Please pick a color ");
+        String c = scan.next();
+        doColorChoice(c.toUpperCase());
+    }
+
+    /**
+     * This method is intended to display to the client when a color is changed.
+     *
+     * @param color of type String, representing the new color.
+     */
+    @Override
+    public void handleBroadcastColorChange(String color) {
+        System.out.println("The color was changed to " + color);
+    }
+
+    /**
+     * This is a free method: use it to your advantage to display specific information from the server as you would like.
+     * This method will handle the displaying to the client.
+     *
+     * @param args of type String, representing multiple arguments of your choice.
+     */
+    @Override
+    public void handleBroadcastGameMessage(String... args) {
+
+    }
+
+    /**
      * This method creates the appropriate tag and message corresponding to the make handshake (MH)..
      * The method initializes the handshake of the networking.client and the networking.server with the parameters provided.
      * Once the data packet is produced, the sender() method is invoked.
@@ -426,17 +497,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doPlayCard(String card) {
-        String[] spl = card.split(" ");
-        if (spl[0].equals("WILD")) {
-            System.out.println(">> Please pick a color!");
-            Scanner scanner = new Scanner(System.in);
-            String input = scanner.next();
-            String res = "PC|" + card+"|"+input;
-            sendMessage(res);
-        } else {
             String result = "PC|" + card;
             sendMessage(result);
-        }
     }
 
     /**
@@ -502,6 +564,40 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doSayUno() {
+
+    }
+
+    /**
+     * This method creates an appropriate tag and message corresponding to the choice made by a player whether to retain the Card that they picked.
+     *
+     * @param choice of type String, true if they want to play, false if they do not want to play the card.
+     */
+    @Override
+    public void doRetainCard(String choice) {
+        String msg = "RC|" + choice;
+        sendMessage(msg);
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the choice made by the player to the left of the dealer about what color to be played.
+     * This happens under the event that the first card of play (pulled from the deck onto the playing space) is a WILD, meaning the player to the left of the dealer chooses the color.
+     *
+     * @param color of type String, representation of color.
+     */
+    @Override
+    public void doColorChoice(String color) {
+        String msg = "CC|" + color;
+        sendMessage(msg);
+    }
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the choice regarding the player to switch cards with in the Seven-0 game-mode.
+     *
+     * @param playerName of type String, representing the player with whom they want to change cards with.
+     * @param card       of type String, representing the seven that was played and needs to be sent to the server.
+     */
+    @Override
+    public void doMakeChoiceSeven(String playerName, String card) {
 
     }
 

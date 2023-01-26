@@ -6,6 +6,8 @@ package networking.server.contract;
  * Relevant JavaDocs are added.
  */
 public interface ServerProtocol {
+
+    char DELIMITER = '|';
     /**
      * This enum class contains all the relevant protocol error codes and associated messages that will be used.
      * They are placed on the networking.server-side for better access management, but the Client class can make use of them with the public access modifier.
@@ -44,8 +46,8 @@ public interface ServerProtocol {
         AH("Accept handshake"),
         IAD("Inform Admin"),
         BPJ("Broadcast player joined"),
-        GST("Game started"),
-        RST("Round started"),
+        GST("Broadcast game started"),
+        RST("Broadcast round started"),
         BGI("Broadcast game information"),
         BCP("Broadcast card played"),
         BDC("Broadcast drew card"),
@@ -56,7 +58,11 @@ public interface ServerProtocol {
         RE("Round ended"),
         GE("Game ended"),
         ERR("Send error code"),
-        /* This command is one that can be used by both, but to avoid duplication, it was placed inside the networking.server protocol. */
+        DPC("Player drew a playable card"),
+        AC("Ask for colour"),
+        BCC("Broadcast colour change"),
+        BGM("Broadcast game message"),
+        /* This command is one that can be used by both, but to avoid duplication, it was placed inside the server protocol. */
         LOL("List of Lobbies"),
         BCL("Broadcast Created Lobby"),
         BJL("Player joined lobby"),
@@ -149,6 +155,24 @@ public interface ServerProtocol {
      * The method processes the networking.client saying Uno, which then needs to be processed (UNO).
      */
     void handleSayUno();
+    /**
+     * This method is intended to handle the client's choice whether to play the picked card or not.
+     * @param choice of type String, representing false if they do not want to play, true if they want to play it.
+     */
+    void handleRetainCard(String choice);
+
+    /**
+     * This method is intended to handle the client's choice in changing the color (ONLY IN THE INSTANCE THAT THE FIRST CARD DRAWN FROM THE DECK TO THE PLAYING SPACE IS A WILD).
+     * @param color of type String, representing the color.
+     */
+    void handleColorChoice(String color);
+
+    /**
+     * This method is intended to handle the client's choice for the player they want to swap hands with.
+     * @param playerName of type String, representing the name of the player.
+     * @param card of type String, representing the SEVEN that was played.
+     */
+    void handleMakeChoiceSeven(String playerName, String card);
 
 
     /* Sending Methods */
@@ -252,6 +276,32 @@ public interface ServerProtocol {
      * @param errorCode of type Errors, representing the error code.
      */
     void doSendErrorCode(Errors errorCode);
+    /**
+     * This method creates the appropriate tag and message corresponding to a player drawing a card that can be played directly (DPC).
+     * Once the data packet is produced, it is sent.
+     * @param card of type String, representing the card that the player drew.
+     */
+    void doDrewPlayableCard(String card);
+
+    /**
+     * This method creates the appropriate tag and message corresponding to a player playing a wild card (AC).
+     * Once the data packet is produced, it is sent.
+     */
+    void doAskColour();
+
+    /**
+     * This method creates the appropriate tag and message corresponding to a player changing the colour that is current played (BCC).
+     * Once the data packet is produced, it is sent.
+     * @param colour of type String, representing the colour that the player chose to switch to.
+     */
+    void doBroadcastColourChange(String colour);
+
+    /**
+     * This method creates the appropriate tag and message corresponding to the server sending messages relating to the game (BGM).
+     * Once the data packet is produced, it is sent.
+     * @param message of type String, representing the message that needs to be sent.
+     */
+    void doBroadcastGameMessage(String... message);
 
 
     /* Network-Related Handling */

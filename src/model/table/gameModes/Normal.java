@@ -25,7 +25,13 @@ public class Normal extends PlayingMode {
                 if (player.getTable().isHasWinner()){
                     break;
                 }
-                player.pickColor();
+                if (player instanceof NetworkPlayer) {
+                    NetworkPlayer np = (NetworkPlayer) player;
+                    np.getSh().doAskColour();
+                    // wait until pickColor method is called before proceeding
+                }else {
+                    player.pickColor();
+                }
                 nextPlayer.draw(4);
                 player.getTable().drawFourEligibility();
                 break;
@@ -42,7 +48,10 @@ public class Normal extends PlayingMode {
                     break;
                 }
                 if (player instanceof NetworkPlayer) {
-                    break;
+                    NetworkPlayer np = (NetworkPlayer) player;
+                    np.getSh().doAskColour();
+                    // wait until pickColor method is called before proceeding
+
                 }else {
                     player.pickColor();
                 }
@@ -88,9 +97,9 @@ public class Normal extends PlayingMode {
                 return true;
             }
             }else {
-            if (indicatedColor == cardToPlay.getColor()) {
-                return true;
-            }
+                if (indicatedColor.equals(cardToPlay.getColor())) {
+                    return true;
+                }
         }
         return false;
     }

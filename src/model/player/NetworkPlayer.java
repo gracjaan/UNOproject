@@ -22,6 +22,8 @@ public class NetworkPlayer extends Player {
     public synchronized void translate(String card) {
         if (card.equals("draw")) {
             this.setTranslation("draw");
+        } else if (card.equals("skip")) {
+            this.setTranslation("skip");
         }
         int ind = 0;
         String[] spl = card.split(" ");
@@ -58,6 +60,7 @@ public class NetworkPlayer extends Player {
         // where does the networking.server command come from? protocol needs update.
         // pick color according to input from the network
     }
+    // wait until this is called to proceed with the game.
     public void pickColor(String color) {
         switch (color) {
             case "BLUE":
@@ -73,7 +76,7 @@ public class NetworkPlayer extends Player {
                 super.getTable().setIndicatedColor(Card.Color.YELLOW);
                 break;
             default:
-                super.getTable().setIndicatedColor(Card.Color.YELLOW);
+                this.sh.doAskColour();
         }
     }
 
