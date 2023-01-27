@@ -109,6 +109,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
             s.sendMessage(message);
         }
     }
+    public void sendMessageToLobby(String message) {
+        for (Player p: this.server.getPlayersInLobby(correspondingPlayer)) {
+            ((NetworkPlayer)p).getSh().sendMessage(message);
+        }
+    }
     public void receiveMessage()  {
         System.out.println("WAITING...");
         String messageIn = "";
@@ -328,7 +333,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         if (correspondingPlayer instanceof NetworkPlayer) {
             ((NetworkPlayer)correspondingPlayer).setAddUno(true);
         }
-        sendMessageToAll("BUNO|"+correspondingPlayer.getNickname());
+        sendMessageToLobby("BUNO|"+correspondingPlayer.getNickname());
     }
 
     /**
@@ -600,7 +605,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastGameMessage(String... message) {
-
+        String msg = "BGM|" + Arrays.toString(message);
+        sendMessage(msg);
     }
 
     /**
@@ -658,7 +664,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastPlayerJoinedLobby(String playerName) {
         String msg = "BJL|" + playerName;
-        sendMessageToAll(msg);
+        sendMessageToLobby(msg);
     }
 
     /**

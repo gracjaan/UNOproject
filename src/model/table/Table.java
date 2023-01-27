@@ -2,6 +2,7 @@ package model.table;
 
 import model.card.Card;
 import model.deck.Deck;
+import model.player.NetworkPlayer;
 import model.player.factory.Player;
 import model.table.gameModes.factory.PlayingMode;
 
@@ -117,6 +118,9 @@ public class Table {
             case DRAW_TWO:
                 System.out.println("Unfortunately you've been punished with two cards at very beginning");
                 this.getCurrentPlayer().draw(2);
+                if (this.getCurrentPlayer()instanceof NetworkPlayer) {
+                    ((NetworkPlayer)this.getCurrentPlayer()).getSh().doBroadcastGameMessage("Unfortunately you've been punished with two cards at very beginning");
+                }
                 break;
             case DRAW_FOUR:
                 Card card = this.getCurrentCard();
@@ -135,13 +139,17 @@ public class Table {
                 break;
             case PICK_COLOR:
                 System.out.println(">> Player: " + getCurrentPlayer().getNickname());
-                this.getCurrentPlayer().pickColor();
+                if (this.getCurrentPlayer()instanceof NetworkPlayer) {
+                    ((NetworkPlayer)this.getCurrentPlayer()).getSh().doAskColour();
+                }else {
+                    this.getCurrentPlayer().pickColor();
+                }
                 break;
             case CHANGE_DIRECTION:
                 System.out.println("First card was 'change direction' therefore direction was changed");
                 this.reversePlayers();
-                //ASSUMING: Dealer is the last in the player queue
-                this.setCurrentTurnIndex(1);
+                //skip instead of setting current turn index to 0
+                this.skip();
                 break;
         }
 

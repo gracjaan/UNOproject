@@ -97,6 +97,9 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 case "BUNO":
                     handleBroadcastSayUNO();
                     break;
+                case "BGM":
+                    handleBroadcastGameMessage(splitted[1]);
+                    break;
                 default:
                     System.out.println(ServerProtocol.Errors.E001.getMessage());
             }
@@ -506,7 +509,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleBroadcastGameMessage(String... args) {
-
+        System.out.println(args);
     }
 
     /**
