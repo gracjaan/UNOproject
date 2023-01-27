@@ -67,8 +67,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
             case "RC":
                 handleRetainCard(splitted[1]);
                 break;
+            case "UNO":
+                handleSayUno();
+                break;
             default:
                 sendMessage(Errors.E001.getMessage());
+                System.out.println(input);
                 break;
         }
         }catch (IndexOutOfBoundsException e) {
@@ -88,7 +92,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         System.out.println("Connection successful.");
     }
     public void sendMessage(String message) {
-        System.out.println("SEND: " + message);
+        System.out.println("SEND to "+ this.correspondingPlayer.getNickname() + ": " + message);
         out.println(message);
         out.flush();
         if(out.checkError()) {
@@ -141,6 +145,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleHandshake(String playerName, String playerType) {
+        for (Player p: server.getPlayers()) {
+            if (p.getNickname().equals(playerName)) {
+                sendMessage("ERR|E002");
+            }
+        }
         // duplicate player names? as validation for playerName
         if (playerType.equals("human_player")) {
             Player p = new NetworkPlayer(playerName, this);
@@ -152,8 +161,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
             server.getPlayers().add(p);
             this.correspondingPlayer = p;
         }else {
-            out.println(Errors.E001);
-            System.out.println(Errors.E001);
+            sendMessage("ERR|E003");
+            System.out.println(Errors.E003.getMessage());
         }
         out.println("AH");
         out.flush();
@@ -272,7 +281,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleSayUno() {
-        // add uno to the input that is given to uno.
+        if (correspondingPlayer instanceof NetworkPlayer) {
+            ((NetworkPlayer)correspondingPlayer).setAddUno(true);
+        }
+        sendMessageToAll("BUNO|"+correspondingPlayer.getNickname());
     }
 
     /**

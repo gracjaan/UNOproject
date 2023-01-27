@@ -14,6 +14,7 @@ public class NetworkPlayer extends Player {
     private final Condition canGet = LOCK.newCondition();
     private final Condition canSet = LOCK.newCondition();
     private boolean condition = false;
+    private boolean addUno = false;
 
     public NetworkPlayer(String nickname, ServerHandler serverHandler) {
         super(nickname);
@@ -29,7 +30,12 @@ public class NetworkPlayer extends Player {
         String[] spl = card.split(" ");
         for (Card c: super.getHand()) {
             if (spl[0].equals(c.getColor().toString())&&spl[1].equals(c.getValue().toString())) {
-                this.setTranslation(Integer.toString(ind));
+                String s = Integer.toString(ind);
+                if (addUno) {
+                    s += " uno";
+                    this.addUno = false;
+                }
+                this.setTranslation(s);
             }
             ind++;
         }
@@ -129,5 +135,13 @@ public class NetworkPlayer extends Player {
 
     public void setSh(ServerHandler sh) {
         this.sh = sh;
+    }
+
+    public boolean isAddUno() {
+        return addUno;
+    }
+
+    public void setAddUno(boolean addUno) {
+        this.addUno = addUno;
     }
 }

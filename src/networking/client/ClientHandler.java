@@ -82,9 +82,6 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 case "BJL":
                     handleBroadcastPlayerJoinedLobby(splitted[1]);
                     break;
-                case "BPC":
-                    handleDrewPlayableCard(splitted[1]);
-                    break;
                 case "AC":
                     handleAskColor();
                     break;
@@ -94,12 +91,13 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 case "BCC":
                     handleBroadcastColorChange(splitted[1]);
                     break;
+                case "BUNO":
+                    handleBroadcastSayUNO();
+                    break;
                 default:
-                    String s = ServerProtocol.Errors.E001.getMessage();
-                    sendMessage(s);
+                    System.out.println(ServerProtocol.Errors.E001.getMessage());
             }
         }catch (IndexOutOfBoundsException e) {
-            sendMessage(ServerProtocol.Errors.E001.getMessage());
             System.out.println("Index out of bounds");
         }
     }
@@ -194,6 +192,26 @@ public class ClientHandler implements ClientProtocol, Runnable {
         handleBroadcastGameInformation(splitted[1], splitted[2], splitted[3], splitted[4]);
     }
 
+    private boolean isInRange(String str, String[] splittedHand) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(str);
+            if (i < splittedHand.length) {
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return false;
+    }
+    private String askInput() {
+        System.out.println(">> input please");
+        Scanner scan = new Scanner(System.in);
+        String ind = scan.nextLine();
+        return ind;
+    }
     /**
      * This method handles the message being sent by the broadcast game information method (BGI).
      *
@@ -216,14 +234,26 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 String [] split = splittedPlayers[i].split(":");
                 System.out.println(split[0] + " has " + split[1] + " cards and " + split[2] + " points!");
             }
-            System.out.println(">> input please");
-            Scanner scan = new Scanner(System.in);
-            String ind = scan.nextLine();
-            if (ind.equals("draw")) {
+            String ind = askInput();
+            String[] split = ind.split(" ");
+            if (split.length>1&&split[1].equals("uno")&&splittedHand.length==2) {
+                doSayUno();
+                if (isInRange(split[0], splittedHand)) {
+                    String card = splittedHand[Integer.parseInt(split[0])];
+                    doPlayCard(card);
+                }else {
+                    handleBroadcastGameInformation(topCard, playerHand, playersList, isYourTurn);
+                }
+            } else if (ind.equals("draw")) {
                 doDrawCard();
-            }else {
-                String card = splittedHand[Integer.parseInt(ind)];
-                doPlayCard(card);
+            }
+            else {
+                if (isInRange(ind, splittedHand)) {
+                    String card = splittedHand[Integer.parseInt(ind)];
+                    doPlayCard(card);
+                }else {
+                    handleBroadcastGameInformation(topCard, playerHand, playersList, isYourTurn);
+                }
             }
 
         }
@@ -330,7 +360,22 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleSendErrorCode(String errorCode) {
-        System.out.println(errorCode);
+        switch (errorCode) {
+            case "E001":
+                System.out.println("Please enter a valid command.");
+                break;
+            case "E002":
+                askStartInput();
+                System.out.println(ServerProtocol.Errors.E002.getMessage());
+                break;
+            case "E003":
+                System.out.println("Please enter a valid command!");
+                break;
+            case "E006":
+                System.out.println("Please type a valid input.");
+
+
+        }
     }
 
     /**
@@ -396,7 +441,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         System.out.println("Do you want to play this card now?");
         Scanner scan = new Scanner(System.in);
         String a = scan.next();
-        // yes and no no caps
+        // yes and no, no caps
         if (a.equals("yes")) {
             doRetainCard("true");
         }else if (a.equals("no")) {
@@ -564,7 +609,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doSayUno() {
-
+        sendMessage("UNO");
     }
 
     /**
@@ -601,6 +646,21 @@ public class ClientHandler implements ClientProtocol, Runnable {
 
     }
 
+    private void askStartInput() {
+        System.out.print(">> Please enter name and playerType");
+        Scanner scan = new Scanner(System.in);
+        String nextLn = scan.nextLine();
+        String[] splitted = nextLn.split(" ");
+        StringBuffer sb = new StringBuffer(nextLn);
+        if (splitted[splitted.length-1].equals("c")) {
+            sb.deleteCharAt(sb.length()-1);
+            sb.deleteCharAt(sb.length()-1);
+            doMakeHandshake(sb.toString(), "computer_player");
+        }else {
+            doMakeHandshake(sb.toString(), "human_player");
+        }
+    }
+
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's
@@ -615,24 +675,13 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void run() {
         // player name and type of player
-        System.out.print(">> Please enter name and playerType");
-        Scanner scan = new Scanner(System.in);
-        String nextLn = scan.nextLine();
-        String[] splitted = nextLn.split(" ");
-        StringBuffer sb = new StringBuffer(nextLn);
-        if (splitted[splitted.length-1].equals("c")) {
-            sb.deleteCharAt(sb.length()-1);
-            sb.deleteCharAt(sb.length()-1);
-            doMakeHandshake(sb.toString(), "computer_player");
-        }else {
-            doMakeHandshake(sb.toString(), "human_player");
-        }
+        askStartInput();
         while (true) {
             try {
                 // wait for the message to be sent.
                 receiveMessage();
             } catch (IOException e) {
-                sendMessage(ServerProtocol.Errors.E001.getMessage());
+                System.out.println("IOException");
             }
         }
     }

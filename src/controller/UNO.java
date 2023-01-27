@@ -65,6 +65,8 @@ public class UNO implements Runnable{
 
 
     public void informAll(){
+        // restricted to lobby
+        // todo
         for (Player player: this.players){
             if (player instanceof NetworkPlayer){
                 ((NetworkPlayer) player).broadcastAfterTurn();
@@ -85,10 +87,18 @@ public class UNO implements Runnable{
 //                if (!handleMove(input1)) {
 //                    //tell clienthandler move was invlaid
 //                    continue;
-//                }
+//
                 while (!handleMove(input1)) {
                     if (table.getCurrentPlayer()instanceof NetworkPlayer) {
-                        ((NetworkPlayer)table.getCurrentPlayer()).broadcastAfterTurn();
+                        // we never come here
+                        NetworkPlayer np = ((NetworkPlayer)table.getCurrentPlayer());
+                        String choice = np.getTranslation();
+                        if (choice.equals("skip")) {
+                            System.out.println("choice was equal to skip");
+                            np.resetTranslation();
+                            break;
+                        }
+                        np.broadcastAfterTurn();
                     }
                     input1 = createInput();
                 }
@@ -125,7 +135,6 @@ public class UNO implements Runnable{
             input1 = np.getTranslation();
             System.out.println(np.getTranslation());
             np.resetTranslation();
-            System.out.println("brum");
             //maybe souts
         }
         return input1;
@@ -137,8 +146,8 @@ public class UNO implements Runnable{
         ArrayList<Card> d = new Deck().getPlayingCards();
         Collections.shuffle(d);
         int mpi = findDealer(d);
-        setPlayingOrder(mpi);
         createTable();
+        setPlayingOrder(mpi);
         table.adjustToFirstCard();
     }
 
@@ -167,22 +176,29 @@ public class UNO implements Runnable{
     }
 
     private void setPlayingOrder(int maxPlayerIndex) {
-        // set currentTurnIndex to maxPlayerIndex + 1
-        ArrayList<Player> tempArr = new ArrayList<>();
-        for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
-            tempArr.add(players.get(i));
+        if (maxPlayerIndex==players.size()-1) {
+            this.table.setCurrentTurnIndex(0);
+        }else {
+            this.table.setCurrentTurnIndex(maxPlayerIndex+1);
         }
-        for (int i = 0; i < maxPlayerIndex; i++) {
-            tempArr.add(players.get(i));
-        }
-        tempArr.add(players.get(maxPlayerIndex));
-        players = tempArr;
-
-        System.out.println("Following order applies: ");
-        for (int i = 0; i < players.size(); i++) {
-            System.out.print(players.get(i) + "; ");
-        }
+        System.out.println(table.getCurrentPlayer() + " starts.");
         System.out.println("\n\n");
+//        // set currentTurnIndex to maxPlayerIndex + 1
+//        ArrayList<Player> tempArr = new ArrayList<>();
+//        for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
+//            tempArr.add(players.get(i));
+//        }
+//        for (int i = 0; i < maxPlayerIndex; i++) {
+//            tempArr.add(players.get(i));
+//        }
+//        tempArr.add(players.get(maxPlayerIndex));
+//        players = tempArr;
+//
+//        System.out.println("Following order applies: ");
+//        for (int i = 0; i < players.size(); i++) {
+//            System.out.print(players.get(i) + "; ");
+//        }
+
     }
 
     private void createTable() {
@@ -210,7 +226,6 @@ public class UNO implements Runnable{
 
 
     public boolean inputDraw (String input){
-        String choice = null;
         table.getCurrentPlayer().draw(1);
         table.setDrawFourPlayable(true);
         if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(table.getCurrentPlayer().getHand().size() - 1), this.table)) {
@@ -221,16 +236,13 @@ public class UNO implements Runnable{
                 Card c = np.getHand().get(np.getHand().size() - 1);
                 String card = c.getColor() + " " + c.getValue().toString();
                 np.getSh().doDrewPlayableCard(card);
-                choice = np.getTranslation();
-                if (choice.equals("skip")) {
-                    return true;
-                }
             }
             return false;
         } else {
             System.out.println("One card was added to " + table.getCurrentPlayer().getNickname() + "'s hand, it cannot be played.");
+            return true;
         }
-        return true;
+
     }
 
     public boolean inputChallenge(String input){
@@ -249,13 +261,18 @@ public class UNO implements Runnable{
     }
 
     public boolean inputCard(String input){
-        System.out.println("Hand "+Arrays.toString(table.getCurrentPlayer().getHand().toArray()));
-        System.out.println("Card on index "+table.getCurrentPlayer().getHand().get(Integer.parseInt(input)).toString());
+        if (input.equals("skip")) {
+            return false;
+        }
         if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), this.table)) {
             table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
             return true;
         }
         System.out.println("Invalid Move. Please try again!");
+        if (this.table.getCurrentPlayer()instanceof NetworkPlayer) {
+            ((NetworkPlayer)this.table.getCurrentPlayer()).getSh().sendMessage("ERR|E006");
+            ((NetworkPlayer)this.table.getCurrentPlayer()).broadcastAfterTurn();
+        }
 
         return false;
 
@@ -271,6 +288,9 @@ public class UNO implements Runnable{
             b = true;
             if (splitted[0].equals("draw")) {
                 b = inputDraw(input);
+            }else if (splitted[0].equals("skip")) {
+                System.out.println("skip was recognized");
+                b=true;
             } else if (splitted[0].equals("challenge")) {
                 b = inputChallenge(input);
             } else if (splitted.length == 2 && splitted[1].equals("uno")) {
@@ -281,9 +301,6 @@ public class UNO implements Runnable{
                 table.getCurrentPlayer().draw(2);
             } else if (isInRange(splitted[0])) {
                 b = inputCard(input);
-            } else if (splitted[0].equals("skip")) {
-                System.out.println("skip was recognized");
-                b=true;
             }
             else {
                 System.out.println("Query not recognized. Please try again following listed queries!");

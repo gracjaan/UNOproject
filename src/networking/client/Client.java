@@ -2,6 +2,7 @@ package networking.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client implements Runnable {
     static final int DEFAULT_PORT = 5050;
@@ -24,7 +25,10 @@ public class Client implements Runnable {
      */
     @Override
     public void run() {
-        String computer = "localhost";
+        // scanner for IP address
+        Scanner scan = new Scanner(System.in);
+        String iPAdress = scan.nextLine();
+        String computer = "130.89.231.169";
         int port;
         Socket connection = null;
         // get Computer and port number
