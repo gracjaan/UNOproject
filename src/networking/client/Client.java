@@ -26,9 +26,10 @@ public class Client implements Runnable {
     @Override
     public void run() {
         // scanner for IP address
-        Scanner scan = new Scanner(System.in);
-        String iPAdress = scan.nextLine();
-        String computer = "130.89.231.169";
+//        Scanner scan = new Scanner(System.in);
+//        String iPAdress = scan.nextLine();
+        //String computer = "130.89.231.169";
+        String computer = "localhost";
         int port;
         Socket connection = null;
         // get Computer and port number
@@ -39,7 +40,7 @@ public class Client implements Runnable {
             System.out.println("connecting to localhost on port 5050");
             connection = new Socket(computer, port);
         } catch (IOException e) {
-            System.out.println("Hahah caught u");
+            System.out.println("Connecting failed");
         }
         // create handler to do the handshake and exchange messages.
         try {
@@ -48,7 +49,7 @@ public class Client implements Runnable {
             cht.start();
 
         }catch (IOException e) {
-            System.out.println("gotcha again");
+            System.out.println("Could not create clientHandler");
         }
     }
 }

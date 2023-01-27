@@ -1,5 +1,6 @@
 package networking.server;
 
+import model.card.Card;
 import model.player.ComputerPlayer;
 import model.player.NetworkPlayer;
 import model.player.factory.Player;
@@ -13,6 +14,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class ServerHandler implements ServerProtocol, Runnable{
     private Socket connection;
@@ -110,10 +112,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
         try {
             messageIn = in.readLine();
             if (messageIn==null) {
-                closeConnection();
                 handleLeaveGame();
                 doHandleClientDisconnected();
-                // todo
+                closeConnection();
             }
 
         } catch (IOException e) {
@@ -167,7 +168,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
         out.println("AH");
         out.flush();
         System.out.println(playerName + " connected successfully.");
-        if (server.getHandlers().size()==2) {
+        // todo should be handled differently --> lobbies
+        if (server.getHandlers().size()==3) {
             doInformAdmin();
         }
         }
@@ -197,7 +199,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleStartGame(String gameMode) {
         // check if there are necessary changes in UNO.
-        // BGI?
+        // todo restricted to players in the lobby
         doGameStarted(gameMode);
         server.getUno().setup(this.server.getPlayers());
         Thread myUno = new Thread(server.getUno());
@@ -238,7 +240,33 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleLeaveGame() {
+        // put the cards back into the deck.
+        for (Card c: this.correspondingPlayer.getHand()) {
+            this.server.getUno().getTable().getDeck().getPlayingCards().add(c);
+        }
+        Collections.shuffle(this.server.getUno().getTable().getDeck().getPlayingCards());
+        // update all table variables --> do we have a players array somewhere else?
+        if (this.server.getPlayers().size()>2) {
+            // is there anything else we need to do?
+            removePlayer(correspondingPlayer);
+            this.server.getHandlers().remove(this);
+            // stop this thread.
+        }else if (this.server.getPlayers().size()==2) {
+            // player who is left won the game, modifications in gameOver allow to call it here (it also checks if players arr .size()==1) and handles informing other clients
+            removePlayer(correspondingPlayer);
+            this.server.getUno().gameOver();
+            this.server.getHandlers().remove(this);
+            // stop this thread.
+        }
+        else {
+            System.exit(0);
+        }
+    }
 
+    public void removePlayer(Player p) {
+        this.server.getPlayers().remove(p);
+        this.server.getUno().getPlayers().remove(p);
+        this.server.getUno().getTable().getPlayers().remove(p);
     }
 
     /**
@@ -296,8 +324,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void handleRetainCard(String choice) {
         if (choice.equals("true")){
             if (correspondingPlayer instanceof NetworkPlayer){
-                String card = correspondingPlayer.getHand().get(correspondingPlayer.getHand().size()-1).getColor() + " " + correspondingPlayer.getHand().get(correspondingPlayer.getHand().size()-1).getValue().toString();
-                ((NetworkPlayer) correspondingPlayer).translate(card);
+                // automatically last card. --> we still receive BGI for input.
+                // Broadcast the card that is played?
+                //String ca = np.getHand().get(np.getHand().size()-1).getColor() + " " + np.getHand().get(np.getHand().size()-1).getValue().toString();
+                ((NetworkPlayer) correspondingPlayer).translate("proceed");
             }
         }
         else {
@@ -569,7 +599,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doHandleClientDisconnected() {
-
+        String msg = "ERR|E007:" ;
+        // to all?
+        sendMessage(msg);
     }
 
     /**

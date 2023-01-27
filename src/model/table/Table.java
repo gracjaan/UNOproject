@@ -216,6 +216,7 @@ public class Table {
         }
     }
 
+
     public Player getCurrentPlayer() {
         return this.players.get(currentTurnIndex);
     }

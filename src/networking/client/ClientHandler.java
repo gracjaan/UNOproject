@@ -125,8 +125,15 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
     public void receiveMessage() throws IOException {
         System.out.println("WAITING...");
-        String messageIn = null;
-        messageIn = in.readLine();
+        String messageIn = "";
+        try {
+            messageIn = in.readLine();
+            if (messageIn==null) {
+                closeConnection();
+            }
+        } catch (IOException e) {
+            sendMessage(ServerProtocol.Errors.E001.getMessage());
+        }
         System.out.println("RECEIVED: " + messageIn);
         seperateAndCall(messageIn);
     }
@@ -373,6 +380,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 break;
             case "E006":
                 System.out.println("Please type a valid input.");
+            case "E007":
+
 
 
         }

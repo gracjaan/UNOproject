@@ -25,6 +25,8 @@ public class NetworkPlayer extends Player {
             this.setTranslation("draw");
         } else if (card.equals("skip")) {
             this.setTranslation("skip");
+        } else if (card.equals("proceed")) {
+            this.setTranslation("proceed");
         }
         int ind = 0;
         String[] spl = card.split(" ");

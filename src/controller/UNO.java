@@ -65,15 +65,13 @@ public class UNO implements Runnable{
 
 
     public void informAll(){
-        // restricted to lobby
-        // todo
+        // this should already be restricted to lobby -> players here should only be players inside the lobby
         for (Player player: this.players){
             if (player instanceof NetworkPlayer){
                 ((NetworkPlayer) player).broadcastAfterTurn();
             }
         }
     }
-
     /**
      * Plays a game until not finished
      */
@@ -90,14 +88,7 @@ public class UNO implements Runnable{
 //
                 while (!handleMove(input1)) {
                     if (table.getCurrentPlayer()instanceof NetworkPlayer) {
-                        // we never come here
                         NetworkPlayer np = ((NetworkPlayer)table.getCurrentPlayer());
-                        String choice = np.getTranslation();
-                        if (choice.equals("skip")) {
-                            System.out.println("choice was equal to skip");
-                            np.resetTranslation();
-                            break;
-                        }
                         np.broadcastAfterTurn();
                     }
                     input1 = createInput();
@@ -236,6 +227,15 @@ public class UNO implements Runnable{
                 Card c = np.getHand().get(np.getHand().size() - 1);
                 String card = c.getColor() + " " + c.getValue().toString();
                 np.getSh().doDrewPlayableCard(card);
+                String choice = np.getTranslation();
+                if (choice.equals("skip")) {
+                    np.resetTranslation();
+                    return true;
+                } else if (choice.equals("proceed")) {
+                    np.playCard(np.getHand().get(np.getHand().size()-1));
+                    np.resetTranslation();
+                    return true;
+                }
             }
             return false;
         } else {
@@ -331,7 +331,8 @@ public class UNO implements Runnable{
     public Player gameOver() {
         String winner = "";
         for (Player player: table.getScoreBoard().keySet()) {
-            if (table.getScoreBoard().get(player) >= 500){
+            // in case there is only 1 player left should also return the player.
+            if (table.getScoreBoard().get(player) >= 500||this.players.size()==1){
                 winner = player.getNickname();
                 for (Player p: players) {
                     if (p instanceof NetworkPlayer) {
