@@ -219,6 +219,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleDrawCard() {
         // same --> input = draw
+        // ask if drown card is playable and if it is id like to send dpc
+        // to wait here for RC
         NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
         p.translate("draw");
         doBroadcastDrewCard(p.getNickname());

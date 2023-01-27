@@ -137,8 +137,8 @@ public class UNO implements Runnable{
         ArrayList<Card> d = new Deck().getPlayingCards();
         Collections.shuffle(d);
         int mpi = findDealer(d);
-        setPlayingOrder(mpi);
         createTable();
+        setPlayingOrder(mpi);
         table.adjustToFirstCard();
     }
 
@@ -168,20 +168,27 @@ public class UNO implements Runnable{
 
     private void setPlayingOrder(int maxPlayerIndex) {
         // set currentTurnIndex to maxPlayerIndex + 1
-        ArrayList<Player> tempArr = new ArrayList<>();
-        for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
-            tempArr.add(players.get(i));
+//        ArrayList<Player> tempArr = new ArrayList<>();
+//        for (int i = maxPlayerIndex + 1; i < players.size(); i++) {
+//            tempArr.add(players.get(i));
+//        }
+//        for (int i = 0; i < maxPlayerIndex; i++) {
+//            tempArr.add(players.get(i));
+//        }
+//        tempArr.add(players.get(maxPlayerIndex));
+//        players = tempArr;
+//
+//        System.out.println("Following order applies: ");
+//        for (int i = 0; i < players.size(); i++) {
+//            System.out.print(players.get(i) + "; ");
+//        }
+//        System.out.println("\n\n");
+        if (maxPlayerIndex==players.size()-1) {
+            this.table.setCurrentTurnIndex(0);
+        }else {
+            this.table.setCurrentTurnIndex(maxPlayerIndex+1);
         }
-        for (int i = 0; i < maxPlayerIndex; i++) {
-            tempArr.add(players.get(i));
-        }
-        tempArr.add(players.get(maxPlayerIndex));
-        players = tempArr;
-
-        System.out.println("Following order applies: ");
-        for (int i = 0; i < players.size(); i++) {
-            System.out.print(players.get(i) + "; ");
-        }
+        System.out.println(table.getCurrentPlayer() + " starts.");
         System.out.println("\n\n");
     }
 
@@ -223,6 +230,7 @@ public class UNO implements Runnable{
                 np.getSh().doDrewPlayableCard(card);
                 choice = np.getTranslation();
                 if (choice.equals("skip")) {
+                    np.resetTranslation();
                     return true;
                 }
             }
