@@ -10,9 +10,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ClientHandler implements ClientProtocol, Runnable {
     private boolean isAdmin;
+    private boolean gameStarted;
     private Socket connection;
     private BufferedReader in;
     private PrintWriter out;
@@ -163,7 +166,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
         System.out.println("You're the admin");
         // just for now adding CP and starting the game.
         //doAddComputerPlayer("tom", "advanced");
-        doStartGame("normal");
+        // todo shouldnt be started automatically, but sent when client makes the input for it so we just listen for input until we start the game then its business as usual.
+       // doStartGame("normal");
     }
 
     /**
@@ -419,6 +423,17 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void handleBroadcastPlayerJoinedLobby(String playerName) {
         System.out.println(playerName + " has joined the lobby.");
+        Scanner scan = new Scanner(System.in);
+        // FUTURE: Consider different game modes in the input
+//        if (isAdmin){
+//            System.out.println("Would you like to start the game now?");
+//            String choice = scan.next();
+//            if (choice.equals("yes")) {
+//                doStartGame("normal");
+//            } else {
+//                scan.close();
+//            }
+//    }
     }
 
     /**
@@ -685,6 +700,49 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void run() {
         // player name and type of player
         askStartInput();
+        Scanner scan = new Scanner(System.in);
+        while (!gameStarted) {
+            try {
+                receiveMessage();
+            } catch (IOException e) {
+                System.out.println("IOException");
+            }
+            // todo this should be in a while loop with a timer for like 10s --> so every 10s you check for new messages and print new events (Broadcasting that a player joined)
+            // or just have a command "u" that will update for news?
+            // or just ask every time a player joins --> would u like to start the game now?(yes/no) that would not be in here then.
+            String start = scan.nextLine();
+            String[] spl = start.split(" ");
+            // commands CL lobbyname ; JL lobbyname should be formatted with a space in between.
+            if (spl.length == 1) {
+                if (start.equals("start")) {
+                    // modify gameModes here and change start command
+                    this.gameStarted=true;
+                    try {
+                        in.reset();
+                    } catch (IOException e) {
+                        System.out.println("couldn't reset input stream.");
+                    }
+                    doStartGame("normal");
+                    break;
+                } else if (start.equals("u")) {
+                    break;
+                } else if (start.equals("LOL")) {
+                    sendMessage("LOL");
+                }
+            } else if (spl.length==2) {
+                if (spl[0].equals("CL")) {
+                    sendMessage("CL|"+spl[1]);
+                } else if (spl[0].equals("JL")) {
+                    sendMessage("JL|"+spl[1]);
+                }
+            }
+            else {
+                System.out.println("invalid input.");
+            }
+            // end of while
+        }
+        // update every 10 seconds.
+
         while (true) {
             try {
                 // wait for the message to be sent.

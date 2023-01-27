@@ -11,19 +11,44 @@ import java.util.ArrayList;
 
 public class Server implements Runnable{
     public Server() {
-        uno = new UNO();
+        lobbies = new ArrayList<>();
+        Lobby l = new Lobby("main");
+        lobbies.add(l);
+        players = new ArrayList<>();
+        currentGames = new ArrayList<>();
     }
     static final int DEFAULT_PORT = 5050;
     private static ArrayList<ServerHandler> handlers = new ArrayList<>();
-    private UNO uno;
-    private ArrayList<Lobby> lobbies = new ArrayList<>();
-    private ArrayList<Player> players = new ArrayList<>();
-
+    private ArrayList<Lobby> lobbies;
+    private ArrayList<Player> players;
+    // todo for multiple games at the same time you should access the correct currentGame instead of uno. correspondingPlayer as argument
+    private ArrayList<UNO> currentGames;
+    // todo current Games property
     public static void main(String[] args) {
         Server server = new Server();
         Thread myServer = new Thread(server);
         myServer.start();
         }
+
+
+    public int getLobbyIndex(Player p) {
+        // todo check if correct
+        for(int i = 0; i<lobbies.size();i++) {
+            for (Player player: lobbies.get(i).getPlayers()) {
+                if (p.getNickname().equals(player.getNickname())) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public ArrayList<Player> getPlayersInLobby(Player p) {
+        return this.lobbies.get(getLobbyIndex(p)).getPlayers();
+    }
+    public Lobby getMainLobby() {
+        return this.lobbies.get(0);
+    }
 
     /**
      * When an object implementing interface <code>Runnable</code> is used
@@ -76,16 +101,18 @@ public class Server implements Runnable{
         return lobbies;
     }
 
-    public UNO getUno() {
-        return uno;
+    public ArrayList<UNO> getCurrentGames() {
+        return currentGames;
+    }
+
+    public UNO getUno(Player p) {
+        // todo add and remove uno from current games when ended.
+       Lobby l = this.lobbies.get(getLobbyIndex(p));
+        return l.getGame();
     }
 
     public ArrayList<ServerHandler> getHandlers() {
         return handlers;
-    }
-
-    public void setUno(UNO uno) {
-        this.uno = uno;
     }
 
     public ArrayList<Player> getPlayers() {

@@ -32,7 +32,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     // seperate commands and call appropriate functions
-
+    // todo validation if the game is currently running. just make a boolean that is true once start is called.
     private void seperateAndCall(String input) {
         //networking.server.getUno().getTable().getCurrentPlayer();
         String[] splitted = input.split("[|]");
@@ -72,8 +72,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
             case "UNO":
                 handleSayUno();
                 break;
+            case "LOL":
+                doBroadcastListOfLobbies("");
+                break;
             default:
-                sendMessage(Errors.E001.getMessage());
+                sendMessage(Errors.E001.getMessage()+Arrays.toString(splitted));
                 System.out.println(input);
                 break;
         }
@@ -83,16 +86,16 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
 
-    public void doHandshake() throws IOException {
-        //send HS to networking.client
-        out.println("Tocjan");
-        out.flush();
-        String messageIn = in.readLine();
-        if (!messageIn.equals("Tocjan")) {
-            System.out.println("Wrong networking.client connected");
-        }
-        System.out.println("Connection successful.");
-    }
+//    public void doHandshake() throws IOException {
+//        //send HS to networking.client
+//        out.println("Tocjan");
+//        out.flush();
+//        String messageIn = in.readLine();
+//        if (!messageIn.equals("Tocjan")) {
+//            System.out.println("Wrong networking.client connected");
+//        }
+//        System.out.println("Connection successful.");
+//    }
     public void sendMessage(String message) {
         System.out.println("SEND to "+ this.correspondingPlayer.getNickname() + ": " + message);
         out.println(message);
@@ -146,20 +149,21 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleHandshake(String playerName, String playerType) {
+        // todo ENTIRE METHOD: just settting, not reading correspondingplayer
+
+        // we do not allow the same names at all on the entire servers not just lobbies.
         for (Player p: server.getPlayers()) {
             if (p.getNickname().equals(playerName)) {
                 sendMessage("ERR|E002");
             }
         }
-        // duplicate player names? as validation for playerName
         if (playerType.equals("human_player")) {
             Player p = new NetworkPlayer(playerName, this);
-            server.getPlayers().add(p);
             this.correspondingPlayer = p;
+            // todo NetworkedCP
         } else if (playerType.equals("computer_player")){
             // make a networked computer player! --> especially regarding the tournament.
             Player p = new ComputerPlayer(playerName);
-            server.getPlayers().add(p);
             this.correspondingPlayer = p;
         }else {
             sendMessage("ERR|E003");
@@ -168,10 +172,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
         out.println("AH");
         out.flush();
         System.out.println(playerName + " connected successfully.");
-        // todo should be handled differently --> lobbies
-        if (server.getHandlers().size()==3) {
-            doInformAdmin();
-        }
+        // todo is now called in create Lobby
+//        if (server.getPlayersInLobby(correspondingPlayer).size()==1) {
+//            doInformAdmin();
+//        }
         }
 
 
@@ -186,8 +190,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     // in order for this to be called with the according parameters --> caller Method or sth.
     @Override
     public void handleAddComputerPlayer(String playerName, String strategy) {
+        // todo he is just added to players -> where is players called and should he automatically be assigned to a lobby? (e.g main?)
+        // todo should be networkedCP or not?
         Player c = new ComputerPlayer(playerName);
-        server.getPlayers().add(c);
+        server.getMainLobby().addPlayer(c);
     }
 
     /**
@@ -201,9 +207,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // check if there are necessary changes in UNO.
         // todo restricted to players in the lobby
         doGameStarted(gameMode);
-        server.getUno().setup(this.server.getPlayers());
-        Thread myUno = new Thread(server.getUno());
+        server.getUno(correspondingPlayer).setup(this.server.getPlayersInLobby(correspondingPlayer));
+        server.getCurrentGames().add(server.getUno(correspondingPlayer));
+        Thread myUno = new Thread(server.getUno(correspondingPlayer));
         myUno.start();
+
         //networking.server.getUno().play();
 
     }
@@ -216,7 +224,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handlePlayCard(String card) {
-        NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
+        NetworkPlayer p = (NetworkPlayer) this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer();
         p.translate(card);
         // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
         // translate(String card) -> translate np. -> set up NP variable -> getter for that.
@@ -230,7 +238,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleDrawCard() {
         // same --> input = draw
-        NetworkPlayer p = (NetworkPlayer) this.server.getUno().getTable().getCurrentPlayer();
+        NetworkPlayer p = (NetworkPlayer) this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer();
         p.translate("draw");
         doBroadcastDrewCard(p.getNickname());
     }
@@ -242,10 +250,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void handleLeaveGame() {
         // put the cards back into the deck.
         for (Card c: this.correspondingPlayer.getHand()) {
-            this.server.getUno().getTable().getDeck().getPlayingCards().add(c);
+            this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards().add(c);
         }
-        Collections.shuffle(this.server.getUno().getTable().getDeck().getPlayingCards());
+        Collections.shuffle(this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards());
         // update all table variables --> do we have a players array somewhere else?
+        // todo restrict to lobby only
         if (this.server.getPlayers().size()>2) {
             // is there anything else we need to do?
             removePlayer(correspondingPlayer);
@@ -254,7 +263,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         }else if (this.server.getPlayers().size()==2) {
             // player who is left won the game, modifications in gameOver allow to call it here (it also checks if players arr .size()==1) and handles informing other clients
             removePlayer(correspondingPlayer);
-            this.server.getUno().gameOver();
+            this.server.getUno(correspondingPlayer).gameOver();
             this.server.getHandlers().remove(this);
             // stop this thread.
         }
@@ -264,9 +273,11 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     public void removePlayer(Player p) {
+        // todo server.getPlayers should access lobby, other calls should already be restricted to lobby players only.
         this.server.getPlayers().remove(p);
-        this.server.getUno().getPlayers().remove(p);
-        this.server.getUno().getTable().getPlayers().remove(p);
+        this.server.getPlayersInLobby(correspondingPlayer).remove(p);
+        this.server.getUno(correspondingPlayer).getPlayers().remove(p);
+        this.server.getUno(correspondingPlayer).getTable().getPlayers().remove(p);
     }
 
     /**
@@ -276,11 +287,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleCreateLobby(String lobbyName) {
-        // should be global, a list of current lobbies that should be stored in the server.
         Lobby lobby = new Lobby(lobbyName);
         lobby.addPlayer(correspondingPlayer);
         this.server.addLobby(lobby);
+        // todo Admin is informed here
         doInformAdmin();
+        doBroadcastCreatedLobby(lobbyName);
     }
 
     /**
@@ -290,8 +302,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleJoinLobby(String lobbyName) {
+        if (lobbyName.equals("main")&&this.server.getMainLobby().getPlayers().isEmpty()) {
+            doInformAdmin();
+        }
         // the corresponding player is the player instance that is connected to this serverhandler
         this.server.getLobby(lobbyName).addPlayer(correspondingPlayer);
+        doBroadcastPlayerJoinedLobby(correspondingPlayer.getNickname());
     }
 
     /**
@@ -522,6 +538,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void doGameEnded(String winnerName) {
         String result = "GE|" + winnerName;
         sendMessage(result);
+        this.server.getCurrentGames().remove(this.server.getLobbies().get(this.server.getLobbyIndex(correspondingPlayer)).getGame());
     }
 
     /**
@@ -617,9 +634,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
         for (Lobby l: this.server.getLobbies()) {
             msg+=l.getName()+":"+l.getPlayers().size()+";";
         }
-        sendMessageToAll(msg);
+        sendMessage(msg);
     }
-
     /**
      * This method creates the appropriate tag and message corresponding to a user creating a lobby (BCL).
      * The method returns a message if the creation of the lobby was successful.
