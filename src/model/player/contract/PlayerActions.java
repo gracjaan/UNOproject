@@ -12,4 +12,5 @@ public interface PlayerActions {
     boolean checkDrawPossibility(int amount);
     void pickColor();
     boolean isWinner();
+    void chooseSwitchHands();
 }

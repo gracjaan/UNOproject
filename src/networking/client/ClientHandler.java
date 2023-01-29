@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ClientHandler implements ClientProtocol, Runnable {
     private boolean isAdmin;
@@ -99,6 +100,12 @@ public class ClientHandler implements ClientProtocol, Runnable {
                     break;
                 case "BGM":
                     handleBroadcastGameMessage(splitted[1]);
+                    break;
+                case "AC7":
+                    handleAskChoiceSeven();
+                    break;
+                case "BM":
+                    handleBroadcastMessage(splitted[1]);
                     break;
                 default:
                     System.out.println(ServerProtocol.Errors.E001.getMessage());
@@ -190,6 +197,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void handleGameStarted(String gameMode) {
+        gameStarted = true;
         System.out.println("Game has started in mode: " + gameMode);
     }
 
@@ -222,8 +230,19 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
     private String askInput() {
         System.out.println(">> input please");
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                doLeaveGame();
+            }
+        };
+        timer.schedule(task, 20000);
+
         Scanner scan = new Scanner(System.in);
         String ind = scan.nextLine();
+        timer.cancel();
         return ind;
     }
     /**
@@ -250,7 +269,12 @@ public class ClientHandler implements ClientProtocol, Runnable {
             }
             String ind = askInput();
             String[] split = ind.split(" ");
-            if (split.length>1&&split[1].equals("uno")&&splittedHand.length==2) {
+            String[] splitDel = ind.split("[|]");
+            if (splitDel[0].equals("SM") && splitDel.length > 1){
+                doSendMessage(splitDel[1]);
+                handleBroadcastGameInformation(topCard, playerHand, playersList, isYourTurn);
+            }
+            else if (split.length>1&&split[1].equals("uno")&&splittedHand.length==2) {
                 doSayUno();
                 if (isInRange(split[0], splittedHand)) {
                     String card = splittedHand[Integer.parseInt(split[0])];
@@ -447,7 +471,9 @@ public class ClientHandler implements ClientProtocol, Runnable {
     @Override
     public void handleBroadcastMessage(String message) {
         // message should contain the playername?
-        System.out.println("CHAT: " + message);
+        String [] msg = message.split(":");
+        System.out.println(msg[0] + ": " + msg[1]);
+        //System.out.println("CHAT: " + message);
     }
 
     /**
@@ -489,6 +515,14 @@ public class ClientHandler implements ClientProtocol, Runnable {
         System.out.print(">> Please pick a color ");
         String c = scan.next();
         doColorChoice(c.toUpperCase());
+    }
+
+    public void handleAskChoiceSeven() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println(">> Who would you like to swap cards with?");
+        // in case of invalid input just resend askChoice seven
+        String p = scan.next();
+        doMakeChoiceSeven(p,"");
     }
 
     /**
@@ -626,7 +660,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doSendMessage(String message) {
-
+        sendMessage("SM|" + message);
     }
 
     /**
@@ -670,7 +704,8 @@ public class ClientHandler implements ClientProtocol, Runnable {
      */
     @Override
     public void doMakeChoiceSeven(String playerName, String card) {
-
+        String msg = "MC7|" + playerName;
+        sendMessage(msg);
     }
 
     private void askStartInput() {
@@ -687,6 +722,46 @@ public class ClientHandler implements ClientProtocol, Runnable {
             doMakeHandshake(sb.toString(), "human_player");
         }
     }
+    // we start the game with the wrong thread.
+    public void evaluateInput(String input) {
+        String[] spl = input.split(" ");
+        // commands CL lobbyname ; JL lobbyname should be formatted with a space in between.
+        if (spl.length == 1) {
+             if (input.equals("LOL")) {
+                sendMessage("LOL");
+            }
+        } else if (spl.length==2) {
+            if (spl[0].equals("start")) {
+                doStartGame(spl[1]);
+            }
+            else if (spl[0].equals("CL")) {
+                sendMessage("CL|"+spl[1]);
+            } else if (spl[0].equals("JL")) {
+                sendMessage("JL|"+spl[1]);
+            }
+        }
+        else {
+            System.out.println("invalid input.");
+        }
+    }
+
+//    public void startInputThread() {
+//
+//        Thread userInputThread = new Thread(() -> {
+//            Scanner scanner = new Scanner(System.in);
+//            while (true) {
+//                try {
+//                    String input=scanner.nextLine();
+//                } catch (Exception e) {
+//                    System.out.println("interrupted");
+//                    break;
+//                }
+//            }
+//            scanner.remove();
+//        });
+//        userInputThread.start();
+//
+//    }
 
     /**
      * When an object implementing interface <code>Runnable</code> is used
@@ -703,50 +778,29 @@ public class ClientHandler implements ClientProtocol, Runnable {
     public void run() {
         // player name and type of player
         askStartInput();
+        // to receive a message, you have to type anything, then it will be updated
         Scanner scan = new Scanner(System.in);
         while (!gameStarted) {
             try {
                 receiveMessage();
+
             } catch (IOException e) {
                 System.out.println("IOException");
             }
-            // todo this should be in a while loop with a timer for like 10s --> so every 10s you check for new messages and print new events (Broadcasting that a player joined)
-            // or just have a command "u" that will update for news?
-            // or just ask every time a player joins --> would u like to start the game now?(yes/no) that would not be in here then.
-            String start = scan.nextLine();
-            String[] spl = start.split(" ");
-            // commands CL lobbyname ; JL lobbyname should be formatted with a space in between.
-            if (spl.length == 1) {
-                if (start.equals("start")) {
-                    // modify gameModes here and change start command
-                    this.gameStarted=true;
-                    try {
-                        in.reset();
-                    } catch (IOException e) {
-                        System.out.println("couldn't reset input stream.");
-                    }
-                    doStartGame("normal");
-                    break;
-                } else if (start.equals("u")) {
-                    break;
-                } else if (start.equals("LOL")) {
-                    sendMessage("LOL");
-                }
-            } else if (spl.length==2) {
-                if (spl[0].equals("CL")) {
-                    sendMessage("CL|"+spl[1]);
-                } else if (spl[0].equals("JL")) {
-                    sendMessage("JL|"+spl[1]);
-                }
+            if (!scan.hasNextLine()) {
+                break;
+            }else {
+                String start = scan.nextLine();
+                evaluateInput(start);
             }
-            else {
-                System.out.println("invalid input.");
-            }
+            // if there is input that we can evaluate, do otherwise break;
             // end of while
         }
+
         // update every 10 seconds.
 
         while (true) {
+            System.out.println("arrived.");
             try {
                 // wait for the message to be sent.
                 receiveMessage();

@@ -14,13 +14,11 @@ public class Server implements Runnable{
         lobbies = new ArrayList<>();
         Lobby l = new Lobby("main");
         lobbies.add(l);
-        players = new ArrayList<>();
         currentGames = new ArrayList<>();
     }
     static final int DEFAULT_PORT = 5050;
     private static ArrayList<ServerHandler> handlers = new ArrayList<>();
     private ArrayList<Lobby> lobbies;
-    private ArrayList<Player> players;
     // todo for multiple games at the same time you should access the correct currentGame instead of uno. correspondingPlayer as argument
     private ArrayList<UNO> currentGames;
     // todo current Games property
@@ -29,8 +27,9 @@ public class Server implements Runnable{
         Thread myServer = new Thread(server);
         myServer.start();
         }
-
-
+    public Lobby getLobby(Player p) {
+        return this.lobbies.get(getLobbyIndex(p));
+    }
     public int getLobbyIndex(Player p) {
         // todo check if correct
         for(int i = 0; i<lobbies.size();i++) {
@@ -115,12 +114,5 @@ public class Server implements Runnable{
         return handlers;
     }
 
-    public ArrayList<Player> getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(ArrayList<Player> players) {
-        this.players = players;
-    }
 }
 

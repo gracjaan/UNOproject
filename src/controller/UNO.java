@@ -8,6 +8,9 @@ import model.player.NetworkPlayer;
 import model.player.factory.Player;
 import model.table.Table;
 import model.table.gameModes.Normal;
+import model.table.gameModes.Progressive;
+import model.table.gameModes.SevenZero;
+import model.table.gameModes.factory.PlayingMode;
 import view.TUI;
 
 import java.nio.Buffer;
@@ -19,13 +22,14 @@ public class UNO implements Runnable{
     private Table table;
     private Card card;
     private boolean roundOver = false;
+    private PlayingMode gameMode;
 
     Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         UNO uno = new UNO();
         uno.start();
-        uno.setup(uno.players);
+        uno.setup(uno.players, uno.gameMode);
         uno.play();
     }
 
@@ -54,6 +58,18 @@ public class UNO implements Runnable{
                 }
                 System.out.print(">> Please enter mode: ");
                 String playingMode = scanner.next();
+                if (playingMode.equals("normal")) {
+                    this.gameMode = new Normal();
+                } else if (playingMode.equals("progressive")) {
+                    this.gameMode = new Progressive();
+                } else if (playingMode.equals("sevenZero")) {
+                    this.gameMode = new SevenZero();
+                }
+                else {
+                    System.out.println("Please enter a valid gameMode.");
+                    continue;
+                }
+                // start uno with different playing modes.
                 break;
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a numeric value.");
@@ -90,6 +106,8 @@ public class UNO implements Runnable{
                     if (table.getCurrentPlayer()instanceof NetworkPlayer) {
                         NetworkPlayer np = ((NetworkPlayer)table.getCurrentPlayer());
                         np.broadcastAfterTurn();
+                    } else {
+                        tablePrinter();
                     }
                     input1 = createInput();
                 }
@@ -132,12 +150,12 @@ public class UNO implements Runnable{
     }
 
 //
-    public void setup(ArrayList<Player> players) {
+    public void setup(ArrayList<Player> players, PlayingMode gameMode) {
         this.players = players;
         ArrayList<Card> d = new Deck().getPlayingCards();
         Collections.shuffle(d);
         int mpi = findDealer(d);
-        createTable();
+        createTable(gameMode);
         setPlayingOrder(mpi);
         table.adjustToFirstCard();
     }
@@ -192,8 +210,8 @@ public class UNO implements Runnable{
 
     }
 
-    private void createTable() {
-        table = new Table(players, new Normal());
+    private void createTable(PlayingMode gameMode) {
+        table = new Table(players, gameMode);
         for (Player player : players) {
             player.setTable(table);
         }
@@ -261,9 +279,6 @@ public class UNO implements Runnable{
     }
 
     public boolean inputCard(String input){
-        if (input.equals("skip")) {
-            return false;
-        }
         if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)), this.table)) {
             table.getCurrentPlayer().playCard(table.getCurrentPlayer().getHand().get(Integer.parseInt(input)));
             return true;
@@ -271,7 +286,6 @@ public class UNO implements Runnable{
         System.out.println("Invalid Move. Please try again!");
         if (this.table.getCurrentPlayer()instanceof NetworkPlayer) {
             ((NetworkPlayer)this.table.getCurrentPlayer()).getSh().sendMessage("ERR|E006");
-            ((NetworkPlayer)this.table.getCurrentPlayer()).broadcastAfterTurn();
         }
 
         return false;
@@ -283,28 +297,40 @@ public class UNO implements Runnable{
         boolean b = false;
         if (input != null) {
             String[] splitted = input.split(" ");
-//            System.out.println(Arrays.toString(splitted));
-//            System.out.println("not null");
-            b = true;
-            if (splitted[0].equals("draw")) {
-                b = inputDraw(input);
-            }else if (splitted[0].equals("skip")) {
-                System.out.println("skip was recognized");
-                b=true;
-            } else if (splitted[0].equals("challenge")) {
-                b = inputChallenge(input);
-            } else if (splitted.length == 2 && splitted[1].equals("uno")) {
-                b = inputCard(splitted[0]);
-            } else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))) {
-                b = inputCard(splitted[0]);
-                System.out.println("You didn't say UNO. You are punished with two cards");
-                table.getCurrentPlayer().draw(2);
-            } else if (isInRange(splitted[0])) {
-                b = inputCard(input);
-            }
-            else {
-                System.out.println("Query not recognized. Please try again following listed queries!");
-                b = false;
+            if (this.getTable().getPlayingMode().getForwardCount()==0) {
+                // do this if playingMode.forwardCount = 0, otherwise only accept draw two cards.
+                b = true;
+                if (splitted[0].equals("draw")) {
+                    b = inputDraw(input);
+                } else if (splitted[0].equals("skip")) {
+                    b = true;
+                } else if (splitted[0].equals("challenge")) {
+                    b = inputChallenge(input);
+                } else if (splitted.length == 2 && splitted[1].equals("uno")) {
+                    b = inputCard(splitted[0]);
+                } else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))) {
+                    b = inputCard(splitted[0]);
+                    // todo implement for NP.
+                    System.out.println("You didn't say UNO. You are punished with two cards");
+                    table.getCurrentPlayer().draw(2);
+                } else if (isInRange(splitted[0])) {
+                    b = inputCard(input);
+                } else {
+                    System.out.println("Query not recognized. Please try again following listed queries!");
+                    b = false;
+                }
+            } else {
+                if (isInRange(splitted[0])) {
+                    b = inputCard(splitted[0]);
+                }
+                else if (splitted.length == 2 && splitted[1].equals("uno")) {
+                    b = inputCard(splitted[0]);
+                } else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))) {
+                    b = inputCard(splitted[0]);
+                    // todo implement for NP.
+                    System.out.println("You didn't say UNO. You are punished with two cards");
+                    table.getCurrentPlayer().draw(2);
+                }
             }
         }
             return b;

@@ -51,6 +51,16 @@ public class ComputerPlayer extends Player {
         }
     }
 
+    @Override
+    public void chooseSwitchHands() {
+        for (Player p: super.getTable().getPlayers()) {
+            if (!p.getNickname().equals(super.getNickname())) {
+                super.swapHands(p);
+                break;
+            }
+        }
+    }
+
     public Card.Color cardColors(){
         HashMap<Card.Color, Integer> map = new HashMap<>();
         for (Card card: super.getHand()){

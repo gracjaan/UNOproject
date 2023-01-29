@@ -80,6 +80,28 @@ public class HumanPlayer extends Player {
         }
     }
 
+    @Override
+    public void chooseSwitchHands() {
+        System.out.println(">> Please pick a player to switch hands with.");
+        Scanner scan = new Scanner(System.in);
+        String input = scan.next();
+        Player p = null;
+        boolean flag = false;
+        for (Player player: super.getTable().getPlayers()) {
+            if (input.equals(player.getNickname())) {
+                p = player;
+                flag = true;
+            }
+        }
+        if (flag) {
+            super.swapHands(p);
+        } else {
+            System.out.println(">> Invalid input: please type an existing player nickname");
+            chooseSwitchHands();
+        }
+    }
+
+
 //    /**
 //     * @return true if player is a winner and false otherwise
 //     * Adds player to scoreboard

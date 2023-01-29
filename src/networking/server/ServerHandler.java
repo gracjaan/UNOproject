@@ -4,6 +4,10 @@ import model.card.Card;
 import model.player.ComputerPlayer;
 import model.player.NetworkPlayer;
 import model.player.factory.Player;
+import model.table.gameModes.Normal;
+import model.table.gameModes.Progressive;
+import model.table.gameModes.SevenZero;
+import model.table.gameModes.factory.PlayingMode;
 import networking.Lobby;
 import networking.server.contract.ServerProtocol;
 
@@ -74,6 +78,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
                 break;
             case "LOL":
                 doBroadcastListOfLobbies("");
+                break;
+            case "MC7":
+                handleMakeChoiceSeven(splitted[1], "");
+                break;
+            case "SM":
+                handleSendMessage(splitted[1]);
                 break;
             default:
                 sendMessage(Errors.E001.getMessage()+Arrays.toString(splitted));
@@ -157,11 +167,15 @@ public class ServerHandler implements ServerProtocol, Runnable{
         // todo ENTIRE METHOD: just settting, not reading correspondingplayer
 
         // we do not allow the same names at all on the entire servers not just lobbies.
-        for (Player p: server.getPlayers()) {
-            if (p.getNickname().equals(playerName)) {
-                sendMessage("ERR|E002");
+        for (Lobby l: server.getLobbies()) {
+            for (Player p : l.getPlayers()) {
+                if (p.getNickname().equals(playerName)) {
+                    sendMessage("ERR|E002");
+                    break;
+                }
             }
         }
+
         if (playerType.equals("human_player")) {
             Player p = new NetworkPlayer(playerName, this);
             this.correspondingPlayer = p;
@@ -209,10 +223,20 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleStartGame(String gameMode) {
-        // check if there are necessary changes in UNO.
-        // todo restricted to players in the lobby
+        PlayingMode playingMode;
+        if (gameMode.equals("normal")) {
+            playingMode = new Normal();
+        }else if (gameMode.equals("progressive")) {
+            playingMode = new Progressive();
+        } else if (gameMode.equals("sevenZero")) {
+            playingMode = new SevenZero();
+        }
+        else {
+            doSendErrorCode(Errors.E006);
+            return;
+        }
         doGameStarted(gameMode);
-        server.getUno(correspondingPlayer).setup(this.server.getPlayersInLobby(correspondingPlayer));
+        server.getUno(correspondingPlayer).setup(this.server.getPlayersInLobby(correspondingPlayer), playingMode);
         server.getCurrentGames().add(server.getUno(correspondingPlayer));
         Thread myUno = new Thread(server.getUno(correspondingPlayer));
         myUno.start();
@@ -253,33 +277,47 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleLeaveGame() {
-        // put the cards back into the deck.
-        for (Card c: this.correspondingPlayer.getHand()) {
-            this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards().add(c);
+        if (this.server.getLobbyIndex(correspondingPlayer)==-1) {
+            System.out.println("The player has not yet joined a lobby.");
         }
-        Collections.shuffle(this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards());
-        // update all table variables --> do we have a players array somewhere else?
-        // todo restrict to lobby only
-        if (this.server.getPlayers().size()>2) {
-            // is there anything else we need to do?
-            removePlayer(correspondingPlayer);
-            this.server.getHandlers().remove(this);
-            // stop this thread.
-        }else if (this.server.getPlayers().size()==2) {
-            // player who is left won the game, modifications in gameOver allow to call it here (it also checks if players arr .size()==1) and handles informing other clients
-            removePlayer(correspondingPlayer);
-            this.server.getUno(correspondingPlayer).gameOver();
-            this.server.getHandlers().remove(this);
-            // stop this thread.
-        }
-        else {
-            System.exit(0);
+        else if (this.server.getLobby(correspondingPlayer).isGameInProgress()) {
+            // put the cards back into the deck.
+            for (Card c : this.correspondingPlayer.getHand()) {
+                this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards().add(c);
+            }
+            Collections.shuffle(this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards());
+            // update all table variables --> do we have a players array somewhere else?
+            // todo restrict to lobby only
+            if (this.server.getPlayersInLobby(correspondingPlayer).size() > 2) {
+                // is there anything else we need to do?
+                removePlayer(correspondingPlayer);
+                this.server.getHandlers().remove(this);
+                //if (correspondingPlayer.getNickname().equals(this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer().getNickname())){
+                    //System.out.println("im in the if statement");
+                    this.server.getUno(correspondingPlayer).getTable().nextTurn();
+                //}
+                // stop this thread.
+            } else if (this.server.getPlayersInLobby(correspondingPlayer).size() == 2) {
+                // player who is left won the game, modifications in gameOver allow to call it here (it also checks if players arr .size()==1) and handles informing other clients
+                this.server.getUno(correspondingPlayer).gameOver();
+                removePlayer(correspondingPlayer);
+                this.server.getHandlers().remove(this);
+                //if (correspondingPlayer.getNickname().equals(this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer().getNickname())){
+                    this.server.getUno(correspondingPlayer).getTable().nextTurn();
+                //}
+                // stop this thread.
+            } else {
+                System.exit(0);
+            }
+        } else {
+            this.server.getLobby(correspondingPlayer).getPlayers().remove(correspondingPlayer);
+            // stop the current thread
+
         }
     }
 
     public void removePlayer(Player p) {
         // todo server.getPlayers should access lobby, other calls should already be restricted to lobby players only.
-        this.server.getPlayers().remove(p);
         this.server.getPlayersInLobby(correspondingPlayer).remove(p);
         this.server.getUno(correspondingPlayer).getPlayers().remove(p);
         this.server.getUno(correspondingPlayer).getTable().getPlayers().remove(p);
@@ -322,7 +360,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleSendMessage(String message) {
-
+        sendMessageToLobby("BM|" + correspondingPlayer.getNickname() + ":" + message);
     }
 
     /**
@@ -379,7 +417,18 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handleMakeChoiceSeven(String playerName, String card) {
-
+        boolean flag = false;
+        for (Player p: server.getPlayersInLobby(correspondingPlayer)) {
+            if (p.getNickname().equals(playerName)) {
+                correspondingPlayer.swapHands(p);
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            doAskChoiceSeven();
+        }
+        notifyAll();
     }
 
     /**
@@ -414,8 +463,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doGameStarted(String gameMode) {
+        this.server.getLobby(correspondingPlayer).setGameInProgress(true);
         String msg = "GST|" + gameMode;
-        sendMessage(msg);
+        sendMessageToLobby(msg);
     }
 
     /**
@@ -541,6 +591,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doGameEnded(String winnerName) {
+        this.server.getLobby(correspondingPlayer).setGameInProgress(false);
         String result = "GE|" + winnerName;
         sendMessage(result);
         this.server.getCurrentGames().remove(this.server.getLobbies().get(this.server.getLobbyIndex(correspondingPlayer)).getGame());
@@ -676,7 +727,17 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doBroadcastMessage(String message) {
+        sendMessage("BM|" + message);
+    }
 
+    public void doAskChoiceSeven() {
+        String msg = "AC7";
+        sendMessage(msg);
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

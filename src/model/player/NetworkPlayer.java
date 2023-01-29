@@ -21,6 +21,8 @@ public class NetworkPlayer extends Player {
         this.sh = serverHandler;
     }
     public synchronized void translate(String card) {
+        // check if is instance of NCP
+
         if (card.equals("draw")) {
             this.setTranslation("draw");
         } else if (card.equals("skip")) {
@@ -68,6 +70,12 @@ public class NetworkPlayer extends Player {
         // where does the networking.server command come from? protocol needs update.
         // pick color according to input from the network
     }
+
+    @Override
+    public void chooseSwitchHands() {
+        this.getSh().doAskChoiceSeven();
+    }
+
     // wait until this is called to proceed with the game.
     public void pickColor(String color) {
         switch (color) {

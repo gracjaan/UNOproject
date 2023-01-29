@@ -69,6 +69,13 @@ public abstract class Player implements PlayerActions {
         }
     }
 
+    public void swapHands(Player other) {
+        ArrayList<Card> tempHand1 = this.getHand();
+        ArrayList<Card> tempHand2 = other.getHand();
+        this.setHand(tempHand2);
+        other.setHand(tempHand1);
+    }
+
     /**
      * @return true if player is a winner and false otherwise
      * Adds player to scoreboard

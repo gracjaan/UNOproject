@@ -3,20 +3,25 @@ package model.table.gameModes;
 import model.card.Card;
 import model.deck.Deck;
 import model.player.NetworkPlayer;
+import model.player.factory.Player;
 import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
-import model.player.factory.Player;
 
 import java.util.ArrayList;
 
-public class Normal extends PlayingMode {
-
-    /**
-     * Give it the player you want the action to be performed by if Pick color that is the current player, otherwise the next.
-     * */
+public class SevenZero extends PlayingMode {
     @Override
     public void performWildCardAction(Card card, Player player, Player nextPlayer) {
         switch (card.getValue()) {
+            case ZERO:
+                System.out.println("hands have been passed in the order of play");
+                // inform the np with gameMessage.
+                passDownHands(player.getTable());
+                break;
+            case SEVEN:
+                player.chooseSwitchHands();
+                //todo are the hands updated early enough? (seven on seven didnt work.)
+                break;
             case DRAW_TWO:
                 nextPlayer.draw(2);
                 player.getTable().skip();
@@ -68,12 +73,25 @@ public class Normal extends PlayingMode {
         }
     }
 
+    private void passDownHands(Table table) {
+        if (table.isClockWise()) {
+            // temphand = last players hand
+            ArrayList<Card> tempHand = table.getPlayers().get(table.getPlayers().size()-1).getHand();
+            for (int i = 0;i<table.getPlayers().size();i++) {
+                Player p = table.getPlayers().get(i);
+                p.setHand(tempHand);
+                tempHand = p.getHand();
+            }
+            } else {
+            ArrayList<Card> tempHand = table.getPlayers().get(0).getHand();
+            for (int i=table.getPlayers().size()-1;i>=0;i--) {
+                Player p = table.getPlayers().get(i);
+                p.setHand(tempHand);
+                tempHand = p.getHand();
+            }
+        }
+    }
 
-    /**
-     * @param cardToPlay card to be played
-     * @ensures that move is valid
-     * @return true if move is valid, otherwise false
-     * */
     @Override
     public boolean validMove(Card cardToPlay, Table table) {
         Card.Color color = table.getCurrentCard().getColor();
@@ -96,15 +114,14 @@ public class Normal extends PlayingMode {
             if (value == cardToPlay.getValue()) {
                 return true;
             }
-            }else {
-                if (indicatedColor.equals(cardToPlay.getColor())) {
-                    // reset the indicatedColor
-                    table.resetIndicatedColor();
-                    return true;
-                }
+        }else {
+            if (indicatedColor.equals(cardToPlay.getColor())) {
+                // reset the indicatedColor
+                table.resetIndicatedColor();
+                return true;
+            }
         }
         return false;
     }
-
 
 }

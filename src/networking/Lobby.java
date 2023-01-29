@@ -11,10 +11,12 @@ public class Lobby {
         this.players = new ArrayList<>();
         this.name = name;
         this.game = new UNO();
+        this.gameInProgress = false;
     }
     private ArrayList<Player> players;
     private String name;
     private UNO game;
+    private boolean gameInProgress;
 
     public void addPlayer(Player p) {
         this.players.add(p);
@@ -35,4 +37,11 @@ public class Lobby {
         return game;
     }
 
+    public boolean isGameInProgress() {
+        return gameInProgress;
+    }
+
+    public void setGameInProgress(boolean gameInProgress) {
+        this.gameInProgress = gameInProgress;
+    }
 }

@@ -83,7 +83,6 @@ public class Table {
                 currentTurnIndex = players.size()-1;
             }
         }
-        resetIndicatedColor();
     }
 
     /**
@@ -135,6 +134,7 @@ public class Table {
                 break;
             case SKIP:
                 System.out.println(">> Player " + getCurrentPlayer().getNickname() + "was skipped hahahha");
+                ((NetworkPlayer)this.getCurrentPlayer()).getSh().doBroadcastGameMessage(">> You have been skipped.");
                 this.skip();
                 break;
             case PICK_COLOR:
@@ -148,7 +148,8 @@ public class Table {
             case CHANGE_DIRECTION:
                 System.out.println("First card was 'change direction' therefore direction was changed");
                 this.reversePlayers();
-                //skip instead of setting current turn index to 0
+                //skip instead of setting current turn index to 1
+                // todo
                 this.skip();
                 break;
         }
@@ -157,7 +158,6 @@ public class Table {
 
 
     public void calculateScores(Player winner) {
-        //should we rethink that a player is removed from players when he won because we play more rounds?
         int score = 0;
         for (Player player: players) {
             if (player.getHand().size() > 0) {
