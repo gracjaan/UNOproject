@@ -130,9 +130,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
         try {
             messageIn = in.readLine();
             if (messageIn==null) {
-                handleLeaveGame();
                 doHandleClientDisconnected();
-                closeConnection();
+                handleLeaveGame();
             }
 
         } catch (IOException e) {
@@ -253,8 +252,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void handlePlayCard(String card) {
-        NetworkPlayer p = (NetworkPlayer) this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer();
-        p.translate(card);
+        ((NetworkPlayer)correspondingPlayer).translate(card);
         // use the player instance of the current turn and use it to place the card: translate from card to index -> give to uno
         // translate(String card) -> translate np. -> set up NP variable -> getter for that.
         //this.networking.server.getUno().getTable().getCurrentPlayer();
@@ -267,9 +265,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void handleDrawCard() {
         // same --> input = draw
-        NetworkPlayer p = (NetworkPlayer) this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer();
-        p.translate("draw");
-        doBroadcastDrewCard(p.getNickname());
+        ((NetworkPlayer)correspondingPlayer).translate("draw");
+        doBroadcastDrewCard(correspondingPlayer.getNickname());
     }
 
     /**
@@ -303,7 +300,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
                 removePlayer(correspondingPlayer);
                 this.server.getHandlers().remove(this);
                 //if (correspondingPlayer.getNickname().equals(this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer().getNickname())){
-                    this.server.getUno(correspondingPlayer).getTable().nextTurn();
+                this.server.getUno(correspondingPlayer).getTable().nextTurn();
                 //}
                 // stop this thread.
             } else {
@@ -314,6 +311,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
             // stop the current thread
 
         }
+        doBroadcastLeftGame(correspondingPlayer.getNickname());
     }
 
     public void removePlayer(Player p) {
@@ -333,7 +331,6 @@ public class ServerHandler implements ServerProtocol, Runnable{
         Lobby lobby = new Lobby(lobbyName);
         lobby.addPlayer(correspondingPlayer);
         this.server.addLobby(lobby);
-        // todo Admin is informed here
         doInformAdmin();
         doBroadcastCreatedLobby(lobbyName);
     }
@@ -673,9 +670,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doHandleClientDisconnected() {
-        String msg = "ERR|E007:" ;
-        // to all?
-        sendMessage(msg);
+        try {
+            this.connection.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Thread.currentThread().interrupt();
     }
 
     /**

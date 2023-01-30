@@ -514,7 +514,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
         Scanner scan = new Scanner(System.in);
         System.out.print(">> Please pick a color ");
         String c = scan.next();
-        doColorChoice(c.toUpperCase());
+        doColorChoice(c);
     }
 
     public void handleAskChoiceSeven() {

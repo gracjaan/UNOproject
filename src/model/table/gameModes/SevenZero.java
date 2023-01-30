@@ -20,7 +20,6 @@ public class SevenZero extends PlayingMode {
                 break;
             case SEVEN:
                 player.chooseSwitchHands();
-                //todo are the hands updated early enough? (seven on seven didnt work.)
                 break;
             case DRAW_TWO:
                 nextPlayer.draw(2);

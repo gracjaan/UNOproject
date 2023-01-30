@@ -39,9 +39,9 @@ public class PlayerTest {
         table.setIndicatedColor(Card.Color.BLUE);
         assertEquals(table.getIndicatedColor(), Card.Color.BLUE);
         card = new Card(Card.Color.BLUE, Card.Value.EIGHT);
+        assertTrue(table.getPlayingMode().validMove(card, table));
         table.getCurrentPlayer().playCard(card);
-        table.nextTurn();
-       // assertEquals(null, table.getIndicatedColor());
+        assertEquals(null, table.getIndicatedColor());
     }
 
     @Test

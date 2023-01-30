@@ -116,6 +116,7 @@ public class UNO implements Runnable{
 
                 if (gameOver()!=null) {
                     System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
+
                     break;
                 }
                 this.roundOver();
@@ -142,7 +143,7 @@ public class UNO implements Runnable{
             //np.broadcastAfterTurn();
             System.out.println(Thread.currentThread().getName());
             input1 = np.getTranslation();
-            System.out.println(np.getTranslation());
+            System.out.println(input1);
             np.resetTranslation();
             //maybe souts
         }
@@ -254,6 +255,7 @@ public class UNO implements Runnable{
                     np.resetTranslation();
                     return true;
                 }
+                np.resetTranslation();
             }
             return false;
         } else {
@@ -351,14 +353,28 @@ public class UNO implements Runnable{
         return false;
     }
 
+    public void removePlayer() {
+
+    }
+
     /**
      * Changes state of game to gamover when there is last player with cards
      * */
+
     public Player gameOver() {
         String winner = "";
+        if (this.players.size()==1) {
+            Player p = this.players.get(0);
+            winner = p.getNickname();
+            if (p instanceof NetworkPlayer) {
+                ((NetworkPlayer) p).getSh().doGameEnded(winner);
+            }
+            return p;
+        }
+
         for (Player player: table.getScoreBoard().keySet()) {
             // in case there is only 1 player left should also return the player.
-            if (table.getScoreBoard().get(player) >= 500||this.players.size()==1){
+            if (table.getScoreBoard().get(player) >= 500){
                 winner = player.getNickname();
                 for (Player p: players) {
                     if (p instanceof NetworkPlayer) {
@@ -368,6 +384,7 @@ public class UNO implements Runnable{
                 return player;
             }
         }
+
         return null;
     }
 

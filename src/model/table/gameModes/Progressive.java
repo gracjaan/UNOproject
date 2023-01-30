@@ -29,7 +29,7 @@ public class Progressive extends PlayingMode {
                     System.out.println(super.getForwardCount());
                 }else {
                     // also different cp depending on the gameMode?
-                    nextPlayer.draw(super.getForwardCount());
+                    nextPlayer.draw(super.getForwardCount()+2);
                     super.setForwardCount(0);
                     player.getTable().skip();
                 }

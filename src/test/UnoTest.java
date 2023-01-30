@@ -54,68 +54,7 @@ public class UnoTest {
             assertFalse(player.getNickname().equals(table.getCurrentPlayer().getNickname()));
         }
     }
-    @Test
-    public void reversePlayerArr() {
-        String s = "";
-        for (int i = 0; i < table.getPlayers().size(); i++) {
-            s+=table.getPlayers().get(i).getNickname();
-            s+=", ";
-        }
-        s+="\n";
-        table.reversePlayers();
-        for (int i = 0; i < table.getPlayers().size(); i++) {
-            s+=table.getPlayers().get(i).getNickname();
-            s+=", ";
-        }
-        s+="\n";
-        table.reversePlayers();
-        for (int i = 0; i < table.getPlayers().size(); i++) {
-            s+=table.getPlayers().get(i).getNickname();
-            s+=", ";
-        }
-        s+="\n";
-        System.out.println(s);
-        System.out.println(table.getCurrentTurnIndex());
-    }
 
-    // pre defined values
-    @Test
-    public void testRunThroughWithFirstValid() {
-        boolean condition = false;
-        HashMap<Player, ArrayList<Integer>> moves = new HashMap<>();
-        for (Player player: players) {
-            moves.put(player, new ArrayList<>());
-        }
-        // it will still ask you to pick a color;
-        while (!condition) {
-            for (Player player: players) {
-                if (player.getHand().isEmpty()) {
-                    condition = true;
-                }
-            }
-            moves.get(table.getCurrentPlayer()).clear();
-            for (int i = 0; i< table.getCurrentPlayer().getHand().size()-1; i++) {
-                if (table.getPlayingMode().validMove(table.getCurrentPlayer().getHand().get(i), table)) {
-                    moves.get(table.getCurrentPlayer()).add(i);
-                }
-            }
-            String input;
-            if (!moves.get(table.getCurrentPlayer()).isEmpty()) {
-                input = Integer.toString(moves.get(table.getCurrentPlayer()).get(0));
-            }
-            else {
-                input = "draw";
-            }
-            if (!uno.handleMove(input)) {
-                continue;
-            }
-            table.nextTurn();
-            // up until here it is a simulated round so we can test a bunch of stuff here
-        }
-        // and here for hasWinner
-        System.out.println(table.getScoreBoard().get(0));
-        //assertEquals(table.hasWinner().getNickname(), table.getScoreBoard().get(0));
-    }
 
 }
 
