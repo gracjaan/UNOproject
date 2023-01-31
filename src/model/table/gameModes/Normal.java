@@ -76,9 +76,12 @@ public class Normal extends PlayingMode {
      * */
     @Override
     public boolean validMove(Card cardToPlay, Table table) {
+
+        System.out.println("Card to play:" + cardToPlay.toString());
         Card.Color color = table.getCurrentCard().getColor();
         Card.Value value = table.getCurrentCard().getValue();
         Card.Color indicatedColor = table.getIndicatedColor();
+        System.out.println("current card: "+table.getCurrentCard().toString());
 
         if(indicatedColor==null) {
 //            System.out.println("Color of top card "+color);

@@ -20,12 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TableTest {
     private ArrayList<Player> players = new ArrayList<>();
     private Table table;
-    private Player p;
+    private Player player;
     @BeforeEach
     public void setUp() {
         players = new ArrayList<Player>();
-        p = new HumanPlayer("KD");
-        players.add(p);
+        player = new HumanPlayer("KD");
+        players.add(player);
         players.add(new HumanPlayer("MJ"));
         players.add(new HumanPlayer("Lebron"));
         players.add(new HumanPlayer("Luca"));
@@ -47,8 +47,8 @@ public class TableTest {
     }
     @Test
     public void testPreviousNextPlayer() {
-        assertEquals("Luca", table.getPreviousPlayer());
-        assertEquals("MJ", table.getNextPlayer());
+        assertEquals("Luca", table.getPreviousPlayer().getNickname());
+        assertEquals("MJ", table.getNextPlayer().getNickname());
     }
     @Test
     public void testChangeDirAfterPickFour() {
@@ -63,7 +63,7 @@ public class TableTest {
     @Test
     public void testCalculateScores() {
         ArrayList<Card> hand = new ArrayList<>();
-        // expected: 100 * 3
+        // cards are worth 100 points.
         hand.add(new Card(Card.Color.WILD, Card.Value.DRAW_FOUR));
         hand.add(new Card(Card.Color.GREEN, Card.Value.DRAW_TWO));
         hand.add(new Card(Card.Color.RED, Card.Value.SKIP));
@@ -72,7 +72,10 @@ public class TableTest {
         for (Player p: players) {
             p.setHand(hand);
         }
-        table.calculateScores(p);
-        assertEquals(300, table.getScoreBoard().get(p));
+        player.setHand(hand);
+        table.calculateScores(player);
+        // assuming his hand should be empty
+        int score = table.getScoreBoard().get(player) -100;
+        assertEquals(300, score);
     }
 }

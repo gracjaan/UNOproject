@@ -90,9 +90,7 @@ public class Table {
      * Sets indicatedcolor to null
      * */
     public void resetIndicatedColor(){
-        if ((currentCard.getValue()!=Card.Value.PICK_COLOR && currentCard.getValue()!= Card.Value.DRAW_FOUR)&&indicatedColor!=null) {
-            this.indicatedColor = null;
-        }
+        this.indicatedColor=null;
     }
 
     public void drawFourEligibility() {

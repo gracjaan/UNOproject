@@ -399,11 +399,13 @@ public class ServerHandler implements ServerProtocol, Runnable{
      * @param color of type String, representing the color.
      */
     @Override
-    public synchronized void handleColorChoice(String color) {
+    public void handleColorChoice(String color) {
         NetworkPlayer p = (NetworkPlayer) correspondingPlayer;
         p.pickColor(color);
         doBroadcastColourChange(color);
-        notifyAll();
+        synchronized (this) {
+            notifyAll();
+        }
     }
 
     /**
@@ -425,7 +427,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
         if (!flag) {
             doAskChoiceSeven();
         }
-        notifyAll();
+        synchronized (this) {
+            notifyAll();
+        }
     }
 
     /**
@@ -623,13 +627,15 @@ public class ServerHandler implements ServerProtocol, Runnable{
      * Once the data packet is produced, it is sent.
      */
     @Override
-    public synchronized void doAskColour() {
+    public void doAskColour() {
         String msg = "AC";
         sendMessage(msg);
-        try {
-            wait();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        synchronized (this) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -733,10 +739,12 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void doAskChoiceSeven() {
         String msg = "AC7";
         sendMessage(msg);
-        try {
-            wait();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        synchronized (this) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

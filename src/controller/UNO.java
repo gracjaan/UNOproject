@@ -161,7 +161,7 @@ public class UNO implements Runnable{
         table.adjustToFirstCard();
     }
 
-    private int findDealer(ArrayList<Card> d) {
+    public int findDealer(ArrayList<Card> d) {
         int maxValue = -1;
         int playerIndex = 0;
         int maxPlayerIndex = 0;
@@ -353,10 +353,6 @@ public class UNO implements Runnable{
         return false;
     }
 
-    public void removePlayer() {
-
-    }
-
     /**
      * Changes state of game to gamover when there is last player with cards
      * */
@@ -412,6 +408,10 @@ public class UNO implements Runnable{
 
     //____________________GETTERS AND SETTERS_______________________
 
+
+    public boolean isRoundOver() {
+        return roundOver;
+    }
 
     public Table getTable() {
         return table;

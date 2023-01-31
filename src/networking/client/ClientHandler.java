@@ -238,7 +238,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 doLeaveGame();
             }
         };
-        timer.schedule(task, 20000);
+        timer.schedule(task, 40000);
 
         Scanner scan = new Scanner(System.in);
         String ind = scan.nextLine();

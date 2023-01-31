@@ -71,8 +71,8 @@ public class SevenZero extends PlayingMode {
                 break;
         }
     }
-
-    private void passDownHands(Table table) {
+    // todo everybody gets the same hand(first init of tempHand)
+    public void passDownHands(Table table) {
         if (table.isClockWise()) {
             // temphand = last players hand
             ArrayList<Card> tempHand = table.getPlayers().get(table.getPlayers().size()-1).getHand();

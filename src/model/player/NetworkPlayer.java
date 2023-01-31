@@ -4,7 +4,6 @@ import model.card.Card;
 import model.player.factory.Player;
 import networking.server.ServerHandler;
 
-import java.util.ArrayList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,8 +21,6 @@ public class NetworkPlayer extends Player {
         this.sh = serverHandler;
     }
     public synchronized void translate(String card) {
-        ArrayList<Card> hand = super.getHand();
-        // sometimes we evaluate one index too high.
         // check if is instance of NCP
         if (card.equals("draw")) {
             this.setTranslation("draw");
@@ -34,14 +31,17 @@ public class NetworkPlayer extends Player {
         }
         int ind = 0;
         String[] spl = card.split(" ");
-        for (Card c: hand) {
+        System.out.println(card);
+        for (Card c: super.getHand()) {
             if (spl[0].equals(c.getColor().toString())&&spl[1].equals(c.getValue().toString())) {
+                System.out.println("I found the card");
                 String s = Integer.toString(ind);
                 if (addUno) {
                     s += " uno";
                     this.addUno = false;
                 }
                 this.setTranslation(s);
+                break;
             }
             ind++;
         }

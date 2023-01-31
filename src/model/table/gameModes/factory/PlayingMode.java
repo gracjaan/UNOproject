@@ -30,7 +30,7 @@ public abstract class PlayingMode implements Mode {
         ArrayList<Card> tempDeck = deck.getPlayingCards();
         for (Player player: players) {
             ArrayList<Card> tempHand = new ArrayList<>();
-            for (int i=0;i<6;i++) {
+            for (int i=0;i<15;i++) {
                 tempHand.add(tempDeck.get(0));
                 tempDeck.remove(0);
             }

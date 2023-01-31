@@ -87,11 +87,10 @@ public class Deck {
     public ArrayList<Card> reShuffle() {
         Card card1 = this.usedCards.get(this.usedCards.size()-1);
         Card card2 = this.usedCards.get(this.usedCards.size()-2);
-
+        // todo only gets called when playingCards is Zero
         ArrayList<Card> tempArr = this.usedCards;
         tempArr.remove(card1);
         tempArr.remove(card2);
-
         this.playingCards = tempArr;
         this.usedCards = new ArrayList<>();
 

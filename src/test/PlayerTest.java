@@ -33,6 +33,13 @@ public class PlayerTest {
         }
     }
     @Test
+    public void testPlayCard() {
+        table.setCurrentCard(new Card(Card.Color.BLUE, Card.Value.THREE));
+        Card card = new Card(Card.Color.BLUE, Card.Value.SEVEN);
+        players.get(0).playCard(card);
+        assertEquals(card, table.getCurrentCard());
+    }
+    @Test
     public void testPlayPickColorCard() {
         Card card = new Card(Card.Color.YELLOW, Card.Value.SEVEN);
         table.getCurrentPlayer().playCard(card);
@@ -49,5 +56,11 @@ public class PlayerTest {
         Card card = new Card(Card.Color.WILD, Card.Value.PICK_COLOR);
         table.setIndicatedColor(Card.Color.BLUE);
         assertFalse(table.getPlayingMode().validMove(card, table));
+    }
+    @Test
+    public void testIsWinner() {
+        assertFalse(players.get(0).isWinner());
+        players.get(0).setHand(new ArrayList<>());
+        assertTrue(players.get(0).isWinner());
     }
 }

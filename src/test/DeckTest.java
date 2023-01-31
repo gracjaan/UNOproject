@@ -42,14 +42,24 @@ public class DeckTest {
         assertEquals(TOTAL_SPECIAL_CARDS, specialCount);
     }
 
+    /**
+     * @requires playingcards==0
+     */
+    // todo
+    // but still shouldnt only be equal to 54 instead of 108
     @Test
     public void testReShuffle() {
-        for (int i=0; i<25;i++) {
+        for (int i=0; i < deck.getPlayingCards().size(); i++) {
             deck.getUsedCards().add(deck.getPlayingCards().get(0));
             deck.getPlayingCards().remove(0);
+            System.out.println(deck.getPlayingCards().size());
+            System.out.println(deck.getUsedCards().size());
         }
+
         ArrayList<Card> pc =  deck.reShuffle();
-        assertEquals(2, deck.getUsedCards().size());
+        System.out.println(deck.getPlayingCards().size());
+        System.out.println(deck.getUsedCards().size());
+        assertEquals(84, pc);
         // assertEquals(106, pc.size());
     }
     }
