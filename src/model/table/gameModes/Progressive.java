@@ -1,13 +1,10 @@
 package model.table.gameModes;
 
 import model.card.Card;
-import model.deck.Deck;
 import model.player.NetworkPlayer;
 import model.player.factory.Player;
 import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
-
-import java.util.ArrayList;
 
 public class Progressive extends PlayingMode {
     // inform the NP.
@@ -96,10 +93,6 @@ public class Progressive extends PlayingMode {
         Card.Color indicatedColor = table.getIndicatedColor();
 
         if(indicatedColor==null&&super.getForwardCount()==0) {
-//            System.out.println("Color of top card "+color);
-//            System.out.println("Value of top card "+value);
-//            System.out.println("Color of card to play "+cardToPlay.getColor());
-//            System.out.println("Value of card to play "+cardToPlay.getValue());
             if (cardToPlay.getColor() == Card.Color.WILD && color == Card.Color.WILD) {
                 return false;
             } else if (cardToPlay.getColor() == Card.Color.WILD) {
@@ -113,8 +106,6 @@ public class Progressive extends PlayingMode {
             }
         }else if (indicatedColor!=null&&super.getForwardCount()==0) {
             if (indicatedColor.equals(cardToPlay.getColor())) {
-                // reset the indicatedColor
-                table.resetIndicatedColor();
                 return true;
             }
         } else {

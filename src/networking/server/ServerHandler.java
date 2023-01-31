@@ -1,5 +1,6 @@
 package networking.server;
 
+import controller.UNO;
 import model.card.Card;
 import model.player.ComputerPlayer;
 import model.player.NetworkPlayer;
@@ -26,6 +27,8 @@ public class ServerHandler implements ServerProtocol, Runnable{
     private PrintWriter out;
     private Server server;
     private Player correspondingPlayer;
+    private Lobby lobby;
+    private boolean flag;
 
     // create method to send mesg to all players.
     public ServerHandler(Socket connection, Server server) throws IOException {
@@ -33,6 +36,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         out = new PrintWriter(connection.getOutputStream());
         this.server = server;
+        this.flag = true;
     }
 
     // seperate commands and call appropriate functions
@@ -120,7 +124,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         }
     }
     public void sendMessageToLobby(String message) {
-        for (Player p: this.server.getPlayersInLobby(correspondingPlayer)) {
+        for (Player p: this.lobby.getPlayers()) {
             ((NetworkPlayer)p).getSh().sendMessage(message);
         }
     }
@@ -130,8 +134,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
         try {
             messageIn = in.readLine();
             if (messageIn==null) {
-                doHandleClientDisconnected();
                 handleLeaveGame();
+                doHandleClientDisconnected();
+                return;
             }
 
         } catch (IOException e) {
@@ -277,34 +282,23 @@ public class ServerHandler implements ServerProtocol, Runnable{
         if (this.server.getLobbyIndex(correspondingPlayer)==-1) {
             System.out.println("The player has not yet joined a lobby.");
         }
-        else if (this.server.getLobby(correspondingPlayer).isGameInProgress()) {
+
+        else if (this.lobby.isGameInProgress()) {
             // put the cards back into the deck.
             for (Card c : this.correspondingPlayer.getHand()) {
                 this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards().add(c);
             }
             Collections.shuffle(this.server.getUno(correspondingPlayer).getTable().getDeck().getPlayingCards());
-            // update all table variables --> do we have a players array somewhere else?
-            // todo restrict to lobby only
-            if (this.server.getPlayersInLobby(correspondingPlayer).size() > 2) {
-                // is there anything else we need to do?
+            if (this.lobby.getPlayers().size() >= 2) {
+                doBroadcastLeftGame(correspondingPlayer.getNickname());
+                if (correspondingPlayer.getNickname().equals(this.lobby.getGame().getTable().getCurrentPlayer().getNickname())) {
+                    ((NetworkPlayer) correspondingPlayer).translate("skip");
+                }
                 removePlayer(correspondingPlayer);
                 this.server.getHandlers().remove(this);
-                //if (correspondingPlayer.getNickname().equals(this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer().getNickname())){
-                    //System.out.println("im in the if statement");
-                    this.server.getUno(correspondingPlayer).getTable().nextTurn();
-                //}
-                // stop this thread.
-            } else if (this.server.getPlayersInLobby(correspondingPlayer).size() == 2) {
-                // player who is left won the game, modifications in gameOver allow to call it here (it also checks if players arr .size()==1) and handles informing other clients
-                this.server.getUno(correspondingPlayer).gameOver();
-                removePlayer(correspondingPlayer);
-                this.server.getHandlers().remove(this);
-                //if (correspondingPlayer.getNickname().equals(this.server.getUno(correspondingPlayer).getTable().getCurrentPlayer().getNickname())){
-                this.server.getUno(correspondingPlayer).getTable().nextTurn();
-                //}
-                // stop this thread.
+                // stop the current thread.
             } else {
-                System.exit(0);
+                //System.exit(0);
             }
         } else {
             this.server.getLobby(correspondingPlayer).getPlayers().remove(correspondingPlayer);
@@ -315,10 +309,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     }
 
     public void removePlayer(Player p) {
-        // todo server.getPlayers should access lobby, other calls should already be restricted to lobby players only.
-        this.server.getPlayersInLobby(correspondingPlayer).remove(p);
-        this.server.getUno(correspondingPlayer).getPlayers().remove(p);
-        this.server.getUno(correspondingPlayer).getTable().getPlayers().remove(p);
+        UNO u = this.lobby.getGame();
+        u.getTable().getPlayers().remove(p);
+        u.getPlayers().remove(p);
+        lobby.getPlayers().remove(p);
     }
 
     /**
@@ -331,6 +325,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
         Lobby lobby = new Lobby(lobbyName);
         lobby.addPlayer(correspondingPlayer);
         this.server.addLobby(lobby);
+        this.lobby = lobby;
         doInformAdmin();
         doBroadcastCreatedLobby(lobbyName);
     }
@@ -345,8 +340,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
         if (lobbyName.equals("main")&&this.server.getMainLobby().getPlayers().isEmpty()) {
             doInformAdmin();
         }
-        // the corresponding player is the player instance that is connected to this serverhandler
+        // todo validation if lobbyName valid, send ERR otherwise.
         this.server.getLobby(lobbyName).addPlayer(correspondingPlayer);
+        this.lobby = this.server.getLobby(lobbyName);
         doBroadcastPlayerJoinedLobby(correspondingPlayer.getNickname());
     }
 
@@ -557,7 +553,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
     @Override
     public void doBroadcastLeftGame(String playerName) {
         String result = "BLG|" + playerName;
-        sendMessage(result);
+        sendMessageToLobby(result);
     }
 
     /**
@@ -668,7 +664,7 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void doHandleInactivePlayer() {
-
+        // the client automatically sends a leave game message to the server, if he is inactive for more than 45s and it is his turn.
     }
 
     /**
@@ -678,10 +674,10 @@ public class ServerHandler implements ServerProtocol, Runnable{
     public void doHandleClientDisconnected() {
         try {
             this.connection.close();
+            this.flag = false;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Thread.currentThread().interrupt();
     }
 
     /**
@@ -761,13 +757,9 @@ public class ServerHandler implements ServerProtocol, Runnable{
      */
     @Override
     public void run() {
-            System.out.println("Connected.");
-            while(true) {
-                this.receiveMessage();
-            }
-//        }catch(IOException e) {
-//            System.out.println("Sorry an error has occured, connection lost.");
-//            System.out.println("Error: " + e);
-//    }
+        System.out.println("Connected.");
+        while(flag) {
+            this.receiveMessage();
+        }
 }
 }

@@ -49,18 +49,18 @@ public class DeckTest {
     // but still shouldnt only be equal to 54 instead of 108
     @Test
     public void testReShuffle() {
-        for (int i=0; i < deck.getPlayingCards().size(); i++) {
+        System.out.println(deck.getUsedCards().size());
+        System.out.println(deck.getPlayingCards().size());
+        int j = deck.getPlayingCards().size();
+        for (int i=0; i < j; i++) {
             deck.getUsedCards().add(deck.getPlayingCards().get(0));
             deck.getPlayingCards().remove(0);
-            System.out.println(deck.getPlayingCards().size());
-            System.out.println(deck.getUsedCards().size());
         }
-
-        ArrayList<Card> pc =  deck.reShuffle();
+        deck.reShuffle();
         System.out.println(deck.getPlayingCards().size());
         System.out.println(deck.getUsedCards().size());
-        assertEquals(84, pc);
-        // assertEquals(106, pc.size());
+        assertEquals(106, deck.getPlayingCards().size());
+        assertEquals(2, deck.getUsedCards().size());
     }
     }
 

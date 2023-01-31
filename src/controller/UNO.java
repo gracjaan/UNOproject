@@ -13,7 +13,6 @@ import model.table.gameModes.SevenZero;
 import model.table.gameModes.factory.PlayingMode;
 import view.TUI;
 
-import java.nio.Buffer;
 import java.util.*;
 
 public class UNO implements Runnable{
@@ -113,10 +112,18 @@ public class UNO implements Runnable{
                 }
 
                 table.nextTurn();
-
+                for (Player p: players) {
+                    if(p.getHand().size()>30) {
+                        System.exit(0);
+                    }
+                }
                 if (gameOver()!=null) {
                     System.out.println(">> Player " + gameOver().getNickname() + " has ultimately won the game!");
-
+                    for (Player p: players) {
+                        if (p instanceof NetworkPlayer) {
+                            ((NetworkPlayer) p).getSh().doGameEnded(gameOver().getNickname());
+                        }
+                    }
                     break;
                 }
                 this.roundOver();
@@ -361,22 +368,12 @@ public class UNO implements Runnable{
         String winner = "";
         if (this.players.size()==1) {
             Player p = this.players.get(0);
-            winner = p.getNickname();
-            if (p instanceof NetworkPlayer) {
-                ((NetworkPlayer) p).getSh().doGameEnded(winner);
-            }
             return p;
         }
 
         for (Player player: table.getScoreBoard().keySet()) {
             // in case there is only 1 player left should also return the player.
             if (table.getScoreBoard().get(player) >= 500){
-                winner = player.getNickname();
-                for (Player p: players) {
-                    if (p instanceof NetworkPlayer) {
-                        ((NetworkPlayer) p).getSh().doGameEnded(winner);
-                    }
-                }
                 return player;
             }
         }

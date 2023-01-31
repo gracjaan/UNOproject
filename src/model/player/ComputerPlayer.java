@@ -89,12 +89,11 @@ public class ComputerPlayer extends Player {
 
     public void getValidMoves() {
         for (int i = 0; i < super.getHand().size(); i++) {
-            //System.out.println("here");
-//            System.out.println(super.getTable().getCurrentPlayer().getHand().get(i)+ " | " + super.getTable().getCurrentCard().toString() + " | " + super.getTable().getIndicatedColor());
-            if (super.getTable().getPlayingMode().validMove(super.getTable().getCurrentPlayer().getHand().get(i), super.getTable())) {
+            if (super.getTable().getPlayingMode().validMove(super.getHand().get(i), super.getTable())) {
                 possibleMoves.add(i);
             }
         }
+        System.out.println("VALID MOVES:" + possibleMoves);
     }
     // make a dictionary with score as key and card as value
     public HashMap<Integer, Card> assignScores() {

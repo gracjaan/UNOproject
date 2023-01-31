@@ -1,7 +1,6 @@
 package model.table.gameModes;
 
 import model.card.Card;
-import model.deck.Deck;
 import model.player.NetworkPlayer;
 import model.player.factory.Player;
 import model.table.Table;
@@ -115,8 +114,6 @@ public class SevenZero extends PlayingMode {
             }
         }else {
             if (indicatedColor.equals(cardToPlay.getColor())) {
-                // reset the indicatedColor
-                table.resetIndicatedColor();
                 return true;
             }
         }

@@ -37,11 +37,12 @@ public abstract class Player implements PlayerActions {
     @Override
     public void playCard(Card card) {
         placeCard(card);
+        getTable().resetIndicatedColor();
         Player nextPlayer = this.getTable().getNextPlayer();
         this.getTable().getPlayingMode().performWildCardAction(card, this, nextPlayer);
 
     }
-    // todo remove from playingCards??
+
     @Override
     public void placeCard(Card card) {
         getTable().setDrawFourPlayable(true);

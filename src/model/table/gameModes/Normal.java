@@ -1,13 +1,10 @@
 package model.table.gameModes;
 
 import model.card.Card;
-import model.deck.Deck;
 import model.player.NetworkPlayer;
 import model.table.Table;
 import model.table.gameModes.factory.PlayingMode;
 import model.player.factory.Player;
-
-import java.util.ArrayList;
 
 public class Normal extends PlayingMode {
 
@@ -71,23 +68,15 @@ public class Normal extends PlayingMode {
 
     /**
      * @param cardToPlay card to be played
-     * @ensures that move is valid
      * @return true if move is valid, otherwise false
-     * */
+     * @ensures that move is valid
+     */
     @Override
     public boolean validMove(Card cardToPlay, Table table) {
-
-        System.out.println("Card to play:" + cardToPlay.toString());
         Card.Color color = table.getCurrentCard().getColor();
         Card.Value value = table.getCurrentCard().getValue();
         Card.Color indicatedColor = table.getIndicatedColor();
-        System.out.println("current card: "+table.getCurrentCard().toString());
-
         if(indicatedColor==null) {
-//            System.out.println("Color of top card "+color);
-//            System.out.println("Value of top card "+value);
-//            System.out.println("Color of card to play "+cardToPlay.getColor());
-//            System.out.println("Value of card to play "+cardToPlay.getValue());
             if (cardToPlay.getColor() == Card.Color.WILD && color == Card.Color.WILD) {
                 return false;
             } else if (cardToPlay.getColor() == Card.Color.WILD) {
@@ -100,9 +89,9 @@ public class Normal extends PlayingMode {
                 return true;
             }
             }else {
+            System.out.println("indcol" + indicatedColor);
+            System.out.println("card to play color" + cardToPlay.getColor());
                 if (indicatedColor.equals(cardToPlay.getColor())) {
-                    // reset the indicatedColor
-                    table.resetIndicatedColor();
                     return true;
                 }
         }

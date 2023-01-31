@@ -84,7 +84,7 @@ public class Deck {
     /**
      * Shuffles all used cards and puts it into playing cards
      * */
-    public ArrayList<Card> reShuffle() {
+    public void reShuffle() {
         Card card1 = this.usedCards.get(this.usedCards.size()-1);
         Card card2 = this.usedCards.get(this.usedCards.size()-2);
         // todo only gets called when playingCards is Zero
@@ -98,7 +98,6 @@ public class Deck {
         this.usedCards.add(card1);
 
         Collections.shuffle(playingCards);
-        return playingCards;
     }
 
     //--------------------------GETTERS--------------------------

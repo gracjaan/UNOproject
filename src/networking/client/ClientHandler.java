@@ -230,7 +230,6 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
     private String askInput() {
         System.out.println(">> input please");
-
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
@@ -238,8 +237,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
                 doLeaveGame();
             }
         };
-        timer.schedule(task, 40000);
-
+        timer.schedule(task, 10000);
         Scanner scan = new Scanner(System.in);
         String ind = scan.nextLine();
         timer.cancel();

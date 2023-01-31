@@ -1,11 +1,9 @@
 package test;
 import controller.UNO;
 import model.card.Card;
-import model.deck.Deck;
 import model.player.HumanPlayer;
 import model.player.factory.Player;
 import model.table.Table;
-import model.table.gameModes.Normal;
 import model.table.gameModes.Progressive;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -52,18 +52,6 @@ public class Table {
             nextTurn();
         }
         clockWise = !clockWise;
-//        else {
-//            ArrayList<Player> tempArr = new ArrayList<>();
-//            tempArr.add(players.get(currentTurnIndex));
-//            for (int i = currentTurnIndex - 1; i >= 0; i--) {
-//                tempArr.add(players.get(i));
-//            }
-//            for (int i = players.size() - 1; i > currentTurnIndex; i--) {
-//                tempArr.add(players.get(i));
-//            }
-//            players = tempArr;
-//            currentTurnIndex = 0;
-//        }
     }
 
     /**
@@ -132,7 +120,9 @@ public class Table {
                 break;
             case SKIP:
                 System.out.println(">> Player " + getCurrentPlayer().getNickname() + "was skipped hahahha");
-                ((NetworkPlayer)this.getCurrentPlayer()).getSh().doBroadcastGameMessage(">> You have been skipped.");
+                if (this.getCurrentPlayer()instanceof NetworkPlayer) {
+                    ((NetworkPlayer) this.getCurrentPlayer()).getSh().doBroadcastGameMessage(">> You have been skipped.");
+                }
                 this.skip();
                 break;
             case PICK_COLOR:
