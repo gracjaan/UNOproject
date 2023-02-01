@@ -387,7 +387,6 @@ public class UNO implements Runnable {
                 } else if (splitted.length == 2 && splitted[1].equals("uno")) {
                     b = inputCard(splitted[0]);
                 } else if (table.getCurrentPlayer().getHand().size() == 2 && !(splitted.length == 2 && splitted[1].equals("uno"))) {
-                    //b = inputCard(splitted[0]);
                     b = true;
                     if (table.getCurrentPlayer() instanceof NetworkPlayer) {
                         ((NetworkPlayer) table.getCurrentPlayer()).getSh().doBroadcastGameMessage("You didn't say uno. You were punished with 2 cards!");

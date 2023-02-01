@@ -24,7 +24,7 @@ public class GameRunThrough {
      */
     @BeforeEach
     public void setUp() {
-        players = new ArrayList<Player>();
+        players = new ArrayList<>();
         players.add(new ComputerPlayer("Kyrie"));
         players.add(new ComputerPlayer("Lebron"));
         players.add(new ComputerPlayer("Luca"));

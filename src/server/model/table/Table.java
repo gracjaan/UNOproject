@@ -230,10 +230,6 @@ public class Table {
         this.players = players;
     }
 
-    public void setDeck(Deck deck) {
-        this.deck = deck;
-    }
-
     public void setCurrentCard(Card currentCard) {
         this.currentCard = currentCard;
     }

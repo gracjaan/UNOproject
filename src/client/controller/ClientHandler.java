@@ -672,46 +672,6 @@ public class ClientHandler implements ClientProtocol, Runnable {
         }
     }
 
-    /**
-     * The method `evaluateInput` evaluates the input provided by the user.
-     * The input is split based on the pipe character (|) and the length of the resulting array is used to determine the type of query.
-     * If the length of the array is 1, the input is checked against the string "lol".
-     * If it matches, the message "LOL" is sent.
-     * If the length of the array is 2, the first element is used to determine the type of query.
-     * It can be "start", "cl", or "jl".
-     * If it is "start", the game is started by calling `doStartGame` with the second element as an argument.
-     * If it is "cl", a lobby is created by calling `doCreateLobby` with the second element as an argument.
-     * If it is "jl", a player joins a lobby by calling `doJoinLobby` with the second element as an argument.
-     * If the type of query is not recognized, an error message is printed.
-     * If the length of the array is not 1 or 2, an error message is printed.
-     *
-     * @param input The input provided by the user
-     */
-    public void evaluateInput(String input) {
-        String[] spl = input.split("[|]");
-        if (spl.length == 1) {
-            if (input.equals("lol")) {
-                sendMessage("LOL");
-            }
-        } else if (spl.length == 2) {
-            switch (spl[0]) {
-                case "start":
-                    doStartGame(spl[1]);
-                    break;
-                case "cl":
-                    doCreateLobby(spl[1]);
-                    break;
-                case "jl":
-                    doJoinLobby(spl[1]);
-                    break;
-                default:
-                    System.out.println("Query not recognized. Please try one of the listed methods: start, lol, cl|[lobbyname], jl|[lobbyname]");
-            }
-        } else {
-            System.out.println("Invalid input. Try again!");
-        }
-    }
-
 
     /**
      * When an object implementing interface <code>Runnable</code> is used
@@ -734,22 +694,14 @@ public class ClientHandler implements ClientProtocol, Runnable {
         t.start();
 
         while (!gameStarted) {
-            //System.out.println(">> input server command: ");
             try {
                 receiveMessage();
 
             } catch (IOException e) {
                 CT.printCustomMessage("An error occured during data transmission");
             }
-            //if (!scan.hasNextLine()) {
-            //break;
-            //}else {
-            //String start = scan.nextLine();
-            //evaluateInput(start);
-            //}
         }
 
-        //il.setFlag(false);
         il.stop();
         t.stop();
 

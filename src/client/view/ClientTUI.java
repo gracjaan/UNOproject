@@ -7,7 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ClientTUI {
-    private ClientHandler ch;
+    private final ClientHandler CH;
 
     /**
      * Instantiates a new Client tui.
@@ -15,7 +15,7 @@ public class ClientTUI {
      * @param ch the ch
      */
     public ClientTUI(ClientHandler ch) {
-        this.ch = ch;
+        this.CH = ch;
     }
 
     /**
@@ -161,7 +161,7 @@ public class ClientTUI {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                ch.doLeaveGame();
+                CH.doLeaveGame();
             }
         };
         timer.schedule(task, 45000);

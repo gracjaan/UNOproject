@@ -240,12 +240,4 @@ public class TUI {
     public void printPlayerColorPick(String playername) {
         System.out.println(">> Player: " + playername + "picks a color!");
     }
-
-
-    /**
-     * Print winners.
-     */
-    public void printWinners() {
-
-    }
 }

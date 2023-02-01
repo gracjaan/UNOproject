@@ -1,6 +1,5 @@
 package test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import server.controller.UNO;
 import server.model.card.Card;

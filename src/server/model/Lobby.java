@@ -7,35 +7,31 @@ import java.util.ArrayList;
 
 public class Lobby {
     public Lobby(String name) {
-        this.players = new ArrayList<>();
-        this.name = name;
-        this.game = new UNO();
+        this.PLAYERS = new ArrayList<>();
+        this.NAME = name;
+        this.GAME = new UNO();
         this.gameInProgress = false;
     }
 
-    private ArrayList<Player> players;
-    private String name;
-    private UNO game;
+    private final ArrayList<Player> PLAYERS;
+    private final String NAME;
+    private final UNO GAME;
     private boolean gameInProgress;
 
     public void addPlayer(Player p) {
-        this.players.add(p);
-    }
-
-    public void removePlayer(Player p) {
-        this.players.remove(p);
+        this.PLAYERS.add(p);
     }
 
     public ArrayList<Player> getPlayers() {
-        return this.players;
+        return this.PLAYERS;
     }
 
     public String getName() {
-        return name;
+        return NAME;
     }
 
     public UNO getGame() {
-        return game;
+        return GAME;
     }
 
     public boolean isGameInProgress() {

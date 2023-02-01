@@ -131,11 +131,11 @@ public class Progressive extends PlayingMode {
         return false;
     }
 
-    @Override
     /**
      Performs actions for the first card in the game according to UNO rules.
      Depending on the value of the card, it could draw two cards, choose a color, reverse direction, or skip a turn.
      */
+    @Override
     public void adjustToFirstCard(Table table) {
         switch (table.getCurrentCard().getValue()) {
             case DRAW_TWO:
