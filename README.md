@@ -86,10 +86,11 @@ If you wish to play networking version, below is the complete tutorial how to do
         * **EXAMPLE**: Enter command: `cl|playground`
     3. lol -> shows you available lobbies and number fo players in them
         * **EXAMPLE**: Enter command: `lol`
-    4. start|[name of gamemode] -> starts the game in given mode! **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN!**
-        * **EXAMPLE**: Enter command: `start|progressive`
-    5. acp|[name] -> adds computerPlayer to your lobby **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN AND YOU ARE ALREADY IN ONE OF LOBBIES!**
+   4. acp|[name] -> adds computerPlayer to your lobby **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN AND YOU ARE ALREADY IN ONE OF LOBBIES!**
         * **EXAMPLE**: Enter command: `acp|monkey`
+   5. start|[name of gamemode] -> starts the game in given mode! **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN!**
+        * **EXAMPLE**: Enter command: `start|progressive`
+        * **Please make sure to type your first input twice! This will indicate that you are ready to start!**
 7. Once the game is started, you can input one of the commands below: **NOTE: FROM NOW ON IF YOU ARE INACTIVE FOR MORE THAN 45 SECONDS YOU WILL LEAVE THE GAME!**
     1. Normal gamemode
         * 0 - [size of your hand] -> it can be any number in range of your hand. Every card is indexed at the beginning.

@@ -139,7 +139,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
     }
 
     public void closeConnection() throws IOException {
-        OUT.println("Closing the Server.");
+        OUT.println("Closing the connection.");
         OUT.flush();
         CONNECTION.close();
         CT.printCustomMessage("Connection Closed.");
@@ -461,12 +461,7 @@ public class ClientHandler implements ClientProtocol, Runnable {
 
     public void handleAskChoiceSeven() {
         String p = CT.printAskChoiceSeven();
-        if (p.equals("yes")||p.equals("no")){
-            doMakeChoiceSeven(p, "");
-        }
-        else{
-            handleAskChoiceSeven();
-        }
+        doMakeChoiceSeven(p, "");
     }
 
     /**

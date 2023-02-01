@@ -234,6 +234,7 @@ public class ClientTUI {
         for (int i = 0; i < splittedHand.length; i++) {
             System.out.print(i + "| " + splittedHand[i] + " |        ");
         }
+        System.out.println();
         String[] splittedPlayers = playersList.split(";");
         for (String splittedPlayer : splittedPlayers) {
             String[] split = splittedPlayer.split(":");
@@ -255,6 +256,7 @@ public class ClientTUI {
         for (int i = 0; i < splittedHand.length; i++) {
             System.out.print(i + "| " + splittedHand[i] + " |        ");
         }
+        System.out.println();
         String[] splittedPlayers = playersList.split(";");
         for (String splittedPlayer : splittedPlayers) {
             String[] split = splittedPlayer.split(":");

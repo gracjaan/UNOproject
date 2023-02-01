@@ -239,7 +239,7 @@ public class Table {
         if (this.indicatedColor != null){
             for (Player p : this.players){
                 if (p instanceof NetworkPlayer){
-                    ((NetworkPlayer)p).getSh().doBroadcastGameMessage("Computer has chosen " + indicatedColor);
+                    ((NetworkPlayer)p).getSh().doBroadcastGameMessage("The color has been changed to " + indicatedColor);
                 }
             }
         }
