@@ -1,92 +1,130 @@
-# gameUNO
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.utwente.nl/s3077489/gameuno.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.utwente.nl/s3077489/gameuno/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
+# UNO game (P_MOD2)
+This project concludes 3 months of learning Java combining the knowledge and skills students gained during **MODULE 2**.
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+UNO is a classic card game for 2-10 players, where the goal is to get rid of all your cards before the other players. This project provides a platform for players to play UNO with friends on different devices, by utilizing Java's networking capabilities.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Our digital implementation of the game promises to bring the excitement and fun of the physical game. Gather your friends, pick up your devices and get ready for a thrilling game of UNO!
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Project requirements
+1. Multiplayer gameplay over a network connection with a client-server architecture.
+2. Client application must have a user interface, either graphical or text-based.
+3. Server must be capable of hosting at least one game of UNO and determining the winner.
+4. Client must be able to connect to the server, participate in the game, and announce the winner.
+5. Adherence to a Model-View-Controller (MVC) architecture for modularity and maintainability.
+6. Robust handling of common exceptions and errors, such as connection loss or invalid input.
+7. Incorporation of a computer player for availability of an opponent even in absence of human players.
+8. Computer player programmed to perform only valid actions within the game of UNO.
+
+## Approach
+The Java UNO project underwent a comprehensive requirements analysis prior to its development. To align the visions of the involved developers, visual aids such as illustrations were produced. A class diagram was then formulated to provide a clear understanding of the project's structure.
+
+The implementation phase of the project commenced immediately after the class diagram was devised. A local version of the game was implemented, followed by the creation of key classes such as "card," "deck," "table," and "game." The development of the first version of the computer player was also initiated.
+
+Once the local version of the game was thoroughly tested and debugged, work began on the network version. A protocol was established by a team of 20 individuals, which the developers were obligated to adhere to throughout the project. The implementation of the methods from the specified interface proved to be a challenge initially, prompting the team to conduct extensive research.
+
+After gaining a comprehensive understanding of the topic, the developers began work on the network version of the game. Classes such as "server," "client," "clienthandler," and "serverhandler" were created, followed by the necessary modifications to the local version of the game. JUnit tests were also created to validate the functionality of the code.
+
+Finally, a professional report documenting the work completed was compiled, showcasing the team's achievements and the successful implementation of the Java UNO project.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. Install an app on your local device (type below code onto your terminal) :
+    1. ``` $ git clone https://gitlab.utwente.nl/s3077489/gameuno.git ```
+2. Open a project
+   **NOTE: USE JAVA11 FOR THIS PROJECT**
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Setup (locally)
+To start a game you can either decide to play on local version or networking version!
+If you wish to play local version, below is the complete tutorial how to do it!
+1. Run UNO class
+2. You will be asked to enter number of players. Count all the players and input the number. Click enter afterwards! **REMINDER: IT HAS TO BE NUMBER 2-10**
+3. Now you will be asked to name your players. Input all the names one at a time and press enter!
+4. Then you will be asked to input desired game mode. We offer three of them: normal, progressive and sevenZero. Choose one of them, type it onto console and press enter!
+5. First player will be asked to move. At this point you can use one of the valid command below:
+    1. Normal gamemode
+        * 0 - [size of your hand] -> it can be any number in range of your hand. Every card is indexed at the beginning.
+            * **EXAMPLE**: p2 make your move: `2`
+        * draw -> it can be used when you don't have any valid card to play or you simply wish to draw. **NOTE! IF THE CARD YOU DREW IS VALID TO PLAY YOU WILL BE ASKED TO DECIDE WHETHER OR NOT YOU WANT TO PLAY IT. TYPE yes OR no RESPECTIVELY!**
+            * **EXAMPLE**: p2 make your move: `draw`
+        * challenge -> if you suspect that previous player played DRAW_FOUR card on you illegally, type challenge to see!
+            * **EXAMPLE**: p2 make your move: `challenge`
+        * 0 - [size of your hand] uno -> it can be used when you have two cards left and you want to shout UNO. We suggest doing that, otherwise you will be punished with two cards!
+            * **EXAMPLE**: p2 make your move: `6 uno`
+        * red -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `red`
+        * green -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `green`
+        * yellow -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `yellow`
+        * blue -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `blue`
+    2. Progressive gamemode (includes every normal game mode)
+        * If you see following message: "You can forward drawing two cards, by placing your draw two card" you are allowed to either choose a card (index input) or type "skip"
+            * **EXAMPLE**: p2 make your move: `skip`
+            * **EXAMPLE**: p2 make your move: `2`
+            * **NOTE**! the only accepted card in this scenario is DRAW_TWO
+    3. SevenZero mode
+        * If you see following message: ">> Please pick a player to switch hands with." you have tot ype a nickname of a player you wish to switch hands with
+            * **EXAMPLE**: Please pick a player to switch hands with: `player1`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Setup (networking)
+To start a game you can either decide to play on local version or networking version!
+If you wish to play networking version, below is the complete tutorial how to do it!
+1. RUN Server.java
+2. RUN Client.java
+3. You will be asked to enter desired connection. Type in the IP address or "localhost" to connect with local server. Click enter afterwards! **REMINDER: IT HAS TO BE NUMBER 2-10**
+    * **EXAMPLE**: Please type desired connection (IP or localhost): `149.89.228.20`
+4. Now you will be asked to input desired port. Use the one that server provider uses!
+    * **EXAMPLE**: Please type desired PORT (compatible with server): `5050`
+5. Then you will be asked to name your player. Name him how you want!
+    *  **EXAMPLE**: Please enter name:  `player1`
+6. Now you are in starting panel! Below is the list of available commands:
+    1. jl|[name of lobby] -> joins to the lobby with given name
+        * **EXAMPLE**: Enter command: `jl|main`
+    2. cl|[name of lobby] -> creates lobby with given name
+        * **EXAMPLE**: Enter command: `cl|playground`
+    3. lol -> shows you available lobbies and number fo players in them
+        * **EXAMPLE**: Enter command: `lol`
+    4. start|[name of gamemode] -> starts the game in given mode! **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN!**
+        * **EXAMPLE**: Enter command: `start|progressive`
+    5. acp|[name] -> adds computerPlayer to your lobby **NOTE! IT ONLY APPLIES IF YOU ARE THE ADMIN AND YOU ARE ALREADY IN ONE OF LOBBIES!**
+        * **EXAMPLE**: Enter command: `acp|monkey`
+7. Once the game is started, you can input one of the commands below: **NOTE: FROM NOW ON IF YOU ARE INACTIVE FOR MORE THAN 45 SECONDS YOU WILL LEAVE THE GAME!**
+    1. Normal gamemode
+        * 0 - [size of your hand] -> it can be any number in range of your hand. Every card is indexed at the beginning.
+            * **EXAMPLE**: Make your move: `2`
+        * draw -> it can be used when you don't have any valid card to play or you simply wish to draw. **NOTE! IF THE CARD YOU DREW IS VALID TO PLAY YOU WILL BE ASKED TO DECIDE WHETHER OR NOT YOU WANT TO PLAY IT. TYPE yes OR no RESPECTIVELY!**
+            * **EXAMPLE**: Make your move: `draw`
+        * 0 - [size of your hand] uno -> it can be used when you have two cards left and you want to shout UNO. We suggest doing that, otherwise you will be punished with two cards!
+            * **EXAMPLE**: Make your move: `6 uno`
+        * red -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `red`
+        * green -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `green`
+        * yellow -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `yellow`
+        * blue -> it can be used when you are asked to pick a color
+            * **EXAMPLE**: Please pick a color:  `blue`
+        * sm|[message] -> to send a message to your lobby
+            * **EXAMPLE**: Make move:  `sm|hi all friends`
+    2. Progressive gamemode (includes every normal game mode)
+        * If you see following message: "You can forward drawing two cards, by placing your draw two card" you are allowed to either choose a card (index input) or type "skip"
+            * **EXAMPLE**: Make your move: `skip`
+            * **EXAMPLE**: Make your move: `2`
+            * **NOTE**! the only accepted card in this scenario is DRAW_TWO
+    3. SevenZero mode
+        * If you see following message: "Please pick a player to switch hands with." you have tot ype a nickname of a player you wish to switch hands with
+            * **EXAMPLE**: Please pick a player to switch hands with: `player1`
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Key features
+The application facilitates the creation of a server, enabling the connection of multiple clients to it. Additionally, the server maintains a registry of available lobbies, allowing clients to opt for a preferred lobby. The game incorporates multithreading, enabling concurrent gameplay between clients in separate lobbies. For instance, Client A and Client B can engage in a game while Client C and Client D participate in another.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+A technologically advanced computer player has also been incorporated, utilizing advanced algorithms to make informed decisions regarding card selection. The computer player considers various factors such as the cards played and held in hand, conducting a comprehensive analysis before determining the most suitable move.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium networking.server for testing in a browser.
+The multithreading aspect of the project has been carefully managed by the students, utilizing methods such as wait, notifyall, and lock to control the threads effectively.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
 
-## License
-For open source projects, say how it is licensed.
+# Project status - finished
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+   
